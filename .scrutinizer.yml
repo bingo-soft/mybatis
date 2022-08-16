@@ -1,0 +1,6 @@
+build:
+    nodes:
+      php74:
+        environment:
+          php: 7.4
+          redis: false
