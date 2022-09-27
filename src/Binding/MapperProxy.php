@@ -3,9 +3,9 @@
 namespace MyBatis\Binding;
 
 use MyBatis\Session\SqlSessionInterface;
-use Util\Proxy\InvocationHandlerInterface;
+use Util\Proxy\MethodHandlerInterface;
 
-class MapperProxy implements InvocationHandlerInterface
+class MapperProxy implements MethodHandlerInterface
 {
     private $sqlSession;
     private $mapperInterface;
@@ -18,12 +18,12 @@ class MapperProxy implements InvocationHandlerInterface
         $this->methodCache = $methodCache;
     }
 
-    public function invoke($proxy, \ReflectionMethod $method, array $args)
+    public function invoke($proxy, \ReflectionMethod $thisMethod, \ReflectionMethod $proceed, array $args)
     {
-        if ($method->getDeclaringClass() == __CLASS__) {
-            return $method->invoke($this, $args);
+        if ($proceed->getDeclaringClass() == __CLASS__) {
+            return $proceed->invoke($this, ...$args);
         } else {
-            return $this->cachedInvoker($method)->invoke($proxy, $method, $args, $this->sqlSession);
+            return $this->cachedInvoker($proceed)->invoke($proxy, $proceed, $args, $this->sqlSession);
         }
     }
 

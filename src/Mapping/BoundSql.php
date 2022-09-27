@@ -11,6 +11,7 @@ class BoundSql
     private $parameterMappings;
     private $parameterObject;
     private $additionalParameters;
+    private $metaParameters;
 
     public function __construct(Configuration $configuration, string $sql, array $parameterMappings = [], $parameterObject = null)
     {
@@ -18,6 +19,7 @@ class BoundSql
         $this->parameterMappings = $parameterMappings;
         $this->parameterObject = $parameterObject;
         $this->additionalParameters = [];
+        $this->metaParameters = $configuration->newMetaObject($this->additionalParameters);
     }
 
     public function getSql(): string
@@ -43,14 +45,16 @@ class BoundSql
 
     public function setAdditionalParameter(string $name, $value): void
     {
-        $this->additionalParameters[$name] = $value;
+        $this->metaParameters->setValue($name, $value);
     }
 
     public function getAdditionalParameter(string $name)
     {
-        if (array_key_exists($name, $this->additionalParameters)) {
-            return $this->additionalParameters[$name];
-        }
-        return null;
+        return $this->metaParameters->getValue($name);
+    }
+
+    public function getAdditionalParameters(): array
+    {
+        return $this->additionalParameters;
     }
 }

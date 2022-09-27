@@ -13,7 +13,7 @@ abstract class BaseDataTest
 
     public static function createUnpooledDataSource(string $database): UnpooledDataSource
     {
-        $dataSource = new UnpooledDataSource("pdo_pgsql", "pgsql:host=localhost;port=5432;dbname=blog;", "postgres", "postgres");
+        $dataSource = new UnpooledDataSource("pdo_pgsql", "pgsql:host=localhost;port=5432;dbname=$database;", "postgres", "postgres");
         return $dataSource;
     }
 

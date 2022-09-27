@@ -17,6 +17,6 @@ class DatetimeTypeHandler extends BaseTypeHandler
 
     public function getNullableResult(Result $rs, $column)
     {
-        return parent::getResult($column);
+        return parent::getResult($rs, $column);
     }
 }

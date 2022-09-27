@@ -22,7 +22,7 @@ class PropertyTokenizer extends \ArrayIterator
         $this->indexedName = $this->name;
         $delim = strpos($this->name, '[');
         if ($delim !== false) {
-            $this->index = substr($this->name, $delim + 1, strlen($this->name) - 1);
+            $this->index = substr($this->name, $delim + 1, strlen($this->name) - 1 - ($delim + 1));
             $this->name = substr($this->name, 0, $delim);
         }
     }

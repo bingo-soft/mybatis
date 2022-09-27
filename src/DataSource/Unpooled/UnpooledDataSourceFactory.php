@@ -8,6 +8,10 @@ use MyBatis\DataSource\{
     DataSourceInterface
 };
 use MyBatis\Parsing\Boolean;
+use MyBatis\Reflection\{
+    MetaObject,
+    SystemMetaObject
+};
 
 class UnpooledDataSourceFactory implements DataSourceFactoryInterface
 {
@@ -23,24 +27,22 @@ class UnpooledDataSourceFactory implements DataSourceFactoryInterface
     public function setProperties(array $properties): void
     {
         $driverProperties = [];
-        $metaDataSource = new \ReflectionClass($this->dataSource);
+        $metaDataSource = SystemMetaObject::forObject($this->dataSource);
         foreach (array_keys($properties) as $key) {
             $propertyName = $key;
             if (strpos(self::DRIVER_PROPERTY_PREFIX, $propertyName) === 0) {
                 $value = $properties[$propertyName];
                 $driverProperties[substr($propertyName, strlen(self::DRIVER_PROPERTY_PREFIX))] = $value;
-            } elseif ($metaDataSource->hasProperty($propertyName) && $metaDataSource->hasMethod('set' . ucfirst($propertyName))) {
+            } elseif ($metaDataSource->hasSetter($propertyName)) {
                 $value = $properties[$propertyName];
                 $convertedValue = $this->convertValue($metaDataSource, $propertyName, $value);
-                $method = $metaDataSource->getMethod('set' . ucfirst($propertyName));
-                $method->invoke($this->dataSource, $convertedValue);
+                $metaDataSource->setValue($propertyName, $convertedValue);
             } else {
                 throw new DataSourceException('Unknown DataSource property: ' . $propertyName);
             }
         }
         if (count($driverProperties) > 0) {
-            $method = $metaDataSource->getMethod('setDriverProperties');
-            $method->invoke($this->dataSource, $driverProperties);
+            $metaDataSource->setValue("driverProperties", $driverProperties);
         }
     }
 
@@ -49,20 +51,14 @@ class UnpooledDataSourceFactory implements DataSourceFactoryInterface
         return $this->dataSource;
     }
 
-    private function convertValue(\ReflectionClass $metaDataSource, string $propertyName, string $value)
+    private function convertValue(MetaObject $metaDataSource, string $propertyName, string $value)
     {
         $convertedValue = $value;
-        $method = $metaDataSource->getMethod('get' . ucfirst($propertyName));
-        $retType = $method->getReturnType();
-        if ($retType instanceof \ReflectionNamedType) {
-            $type = $retType->getName();
-            if ($type == 'int') {
-                $convertedValue = intval($convertedValue);
-            } elseif ($type == 'float') {
-                $convertedValue = floatval($convertedValue);
-            } elseif ($type == 'bool') {
-                $convertedValue = Boolean::parseBoolean($convertedValue);
-            }
+        $targetType = $metaDataSource->getSetterType($propertyName);
+        if ($targetType == "int" || $targetType == "integer") {
+            $convertedValue = intval($value);
+        } elseif ($targetType == "bool" || $targetType == "boolean") {
+            $convertedValue = Boolean::parseBoolean($value);
         }
         return $convertedValue;
     }

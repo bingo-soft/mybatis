@@ -23,14 +23,22 @@ abstract class BaseTypeHandler implements TypeHandlerInterface
         }
     }
 
-    public function getResult(Result $rs, $column)
+    public function getResult(/*Result|array*/$rs, $column)
     {
         $set = [];
         try {
             if (is_int($column)) {
-                $set = $rs->fetchNumeric();
+                if (is_array($rs)) {
+                    $set = array_values($rs);
+                } else {
+                    $set = $rs->fetchNumeric();
+                }
             } elseif (is_string($column)) {
-                $set = $rs->fetchAssociative();
+                if (is_array($rs)) {
+                    $set = $rs;
+                } else {
+                    $set = $rs->fetchAssociative();
+                }
             }
             return $set[$column];
         } catch (\Exception $e) {

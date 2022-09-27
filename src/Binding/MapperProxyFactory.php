@@ -3,7 +3,7 @@
 namespace MyBatis\Binding;
 
 use MyBatis\Session\SqlSessionInterface;
-use Util\Proxy\Proxy;
+use Util\Proxy\ProxyFactory;
 
 class MapperProxyFactory
 {
@@ -25,13 +25,18 @@ class MapperProxyFactory
         return $this->methodCache;
     }
 
-    public function newInstance(/*SqlSessionInterface|MapperProxy*/$sessionOrProxy)
+    public function newInstance(/*SqlSessionInterface|MapperProxy*/$sessionOrHandler)
     {
-        if ($sessionOrProxy instanceof SqlSessionInterface) {
-            $mapperProxy = new MapperProxy($sessionOrProxy, $this->mapperInterface, $this->methodCache);
+        if ($sessionOrHandler instanceof SqlSessionInterface) {
+            $mapperProxy = new MapperProxy($sessionOrHandler, $this->mapperInterface, $this->methodCache);
             return $this->newInstance($mapperProxy);
-        } elseif ($sessionOrProxy instanceof MapperProxy) {
-            return Proxy::newProxyInstance([ $this->mapperInterface ], $sessionOrProxy);
+        } elseif ($sessionOrHandler instanceof MapperProxy) {
+            $enhancer = new ProxyFactory();
+            $enhancer->setSuperclass(MapperProxy::class);
+            $enhancer->setInterfaces([ $this->mapperInterface ]);
+            $proxy = $enhancer->create([]);
+            $proxy->setHandler($sessionOrHandler);
+            return $proxy;
         }
     }
 }

@@ -6,5 +6,5 @@ use MyBatis\DataSource\DataSourceInterface;
 
 interface DatabaseIdProviderInterface
 {
-    public function getDatabaseId(DataSourceInterface $dataSource): string;
+    public function getDatabaseId(DataSourceInterface $dataSource): ?string;
 }

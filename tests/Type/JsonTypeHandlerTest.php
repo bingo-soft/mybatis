@@ -4,64 +4,64 @@ namespace Tests\Type;
 
 use Doctrine\DBAL\Types\Types;
 use MyBatis\Type\{
-    ArrayTypeHandler,
+    JsonTypeHandler,
     TypeException
 };
 
-class ArrayTypeHandlerTest extends BaseTypeHandlerTest
+class JsonTypeHandlerTest extends BaseTypeHandlerTest
 {
     private static $TYPE_HANDLER;
-    private $mockArray;
+    private $mockJson;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockArray = [];
+        $this->mockJson = [];
         if (self::$TYPE_HANDLER === null) {
-            self::$TYPE_HANDLER = new ArrayTypeHandler();
+            self::$TYPE_HANDLER = new JsonTypeHandler();
         }
     }
 
     public function testShouldSetParameter(): void
     {
-        $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, $this->mockArray]);
-        self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockArray, null);
+        $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, $this->mockJson]);
+        self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockJson, null);
     }
 
     public function testShouldSetStringArrayParameter(): void
     {
-        $this->mockArray = ['Hello World'];
+        $this->mockJson = ['Hello World'];
         $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, ['Hello World']]);
-        self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockArray, null);
+        self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockJson, null);
     }
 
     public function testShouldSetNullParameter(): void
     {
         $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, null]);
-        self::$TYPE_HANDLER->setParameter($this->ps, 1, null, Types::ARRAY);
+        self::$TYPE_HANDLER->setParameter($this->ps, 1, null, Types::JSON);
     }
 
     public function testShouldFailForNonArrayParameter(): void
     {
         $this->expectException(TypeException::class);
-        self::$TYPE_HANDLER->setParameter($this->ps, 1, "unsupported parameter type", Types::ARRAY);
+        self::$TYPE_HANDLER->setParameter($this->ps, 1, "unsupported parameter type", Types::JSON);
     }
 
     public function testShouldGetResultFromResultSetByName(): void
     {
-        $this->mockArray = ['column' => 'value'];
+        $this->mockJson = ['column' => 'value'];
 
         $this->rs->method('fetchAssociative')
-             ->willReturn($this->mockArray);
+             ->willReturn($this->mockJson);
 
         $this->assertEquals('value', self::$TYPE_HANDLER->getResult($this->rs, "column"));
     }
 
     public function testShouldGetResultFromResultSetByPosition(): void
     {
-        $this->mockArray = ["a", "b"];
+        $this->mockJson = ["a", "b"];
         $this->rs->method('fetchNumeric')
-             ->willReturn($this->mockArray);
+             ->willReturn($this->mockJson);
         $this->assertEquals('b', self::$TYPE_HANDLER->getResult($this->rs, 1));
     }
 }

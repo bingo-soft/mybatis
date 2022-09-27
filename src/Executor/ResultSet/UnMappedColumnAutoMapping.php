@@ -1,0 +1,21 @@
+<?php
+
+namespace MyBatis\Executor\ResultSet;
+
+use MyBatis\Type\TypeHandlerInterface;
+
+class UnMappedColumnAutoMapping
+{
+    private $column;
+    private $property;
+    private $typeHandler;
+    private $primitive;
+
+    public function __construct(string $column, string $property, TypeHandlerInterface $typeHandler, bool $primitive)
+    {
+        $this->column = $column;
+        $this->property = $property;
+        $this->typeHandler = $typeHandler;
+        $this->primitive = $primitive;
+    }
+}
