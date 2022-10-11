@@ -6,10 +6,10 @@ use MyBatis\Type\TypeHandlerInterface;
 
 class UnMappedColumnAutoMapping
 {
-    private $column;
-    private $property;
-    private $typeHandler;
-    private $primitive;
+    public $column;
+    public $property;
+    public $typeHandler;
+    public $primitive;
 
     public function __construct(string $column, string $property, TypeHandlerInterface $typeHandler, bool $primitive)
     {

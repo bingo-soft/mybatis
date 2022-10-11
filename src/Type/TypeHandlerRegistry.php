@@ -116,7 +116,7 @@ class TypeHandlerRegistry
                 }
             }
             if (!$exists) {
-                $this->allTypeHandlersMap[] = [$type, $handlerImpl ];
+                $this->allTypeHandlersMap[] = [$type, $handlerImpl];
             }
         }
     }

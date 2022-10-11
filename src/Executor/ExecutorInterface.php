@@ -19,7 +19,7 @@ interface ExecutorInterface
 {
     public function update(MappedStatement $ms, $parameter): int;
 
-    public function query(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, CacheKey $cacheKey = null, BoundSql $boundSql = null): array;
+    public function query(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler = null, CacheKey $cacheKey = null, BoundSql $boundSql = null): array;
 
     //public function queryCursor(MappedStatement $ms, $parameter, RowBounds $rowBounds): CursorInterface;
 
