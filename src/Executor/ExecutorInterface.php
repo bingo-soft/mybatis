@@ -12,7 +12,7 @@ use MyBatis\Session\{
     ResultHandlerInterface,
     RowBounds
 };
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Transaction\TransactionInterface;
 
 interface ExecutorInterface

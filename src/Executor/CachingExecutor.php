@@ -15,7 +15,7 @@ use MyBatis\Mapping\{
     ParameterMode,
     StatementType
 };
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Session\{
     ResultHandlerInterface,
     RowBounds

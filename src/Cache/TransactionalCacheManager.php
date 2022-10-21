@@ -3,7 +3,7 @@
 namespace MyBatis\Cache;
 
 use MyBatis\Cache\Decorators\TransactionalCache;
-use MyBatis\Util\MapUtil;
+use Util\Reflection\MapUtil;
 
 class TransactionalCacheManager
 {

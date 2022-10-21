@@ -51,7 +51,7 @@ class TypeHandlerRegistryTest extends TestCase
                 //do nothing
             }
 
-            public function getResult(Result $rs, $column)
+            public function getResult($rs, $column)
             {
                 return null;
             }

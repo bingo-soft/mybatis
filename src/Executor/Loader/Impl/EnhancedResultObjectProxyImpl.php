@@ -3,7 +3,7 @@
 namespace MyBatis\Executor\Loader\Impl;
 
 use MyBatis\Executor\Loader\ResultLoaderMap;
-use MyBatis\Reflection\Property\{
+use Util\Reflection\Property\{
     PropertyCopier,
     PropertyNamer
 };

@@ -3,15 +3,15 @@
 namespace Tests\Reflection;
 
 use PHPUnit\Framework\TestCase;
-use MyBatis\Reflection\{
-    ParamNameResolver,
+use Util\Reflection\{
     ParamNameUtil
 };
-use MyBatis\Reflection\Property\{
+use Util\Reflection\Property\{
     PropertyCopier,
     PropertyNamer,
     PropertyTokenizer
 };
+use MyBatis\Reflection\ParamNameResolver;
 use MyBatis\Session\Configuration;
 
 class ReflectionTest extends TestCase

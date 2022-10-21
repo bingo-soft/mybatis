@@ -8,7 +8,7 @@ use MyBatis\Executor\{
     ExecutorException
 };
 use MyBatis\Mapping\MappedStatement;
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Session\{
     Configuration,
     ExecutorType,

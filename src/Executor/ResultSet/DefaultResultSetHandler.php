@@ -32,7 +32,7 @@ use MyBatis\Mapping\{
     ResultMap,
     ResultMapping
 };
-use MyBatis\Reflection\{
+use Util\Reflection\{
     MetaClass,
     MetaObject
 };
@@ -48,7 +48,7 @@ use MyBatis\Type\{
     TypeHandlerInterface,
     TypeHandlerRegistry
 };
-use MyBatis\Util\MapUtil;
+use Util\Reflection\MapUtil;
 
 class DefaultResultSetHandler implements ResultSetHandlerInterface
 {

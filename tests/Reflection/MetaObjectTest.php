@@ -3,7 +3,7 @@
 namespace Tests\Reflection;
 
 use PHPUnit\Framework\TestCase;
-use MyBatis\Reflection\{
+use Util\Reflection\{
     MetaClass,
     MetaObject,
     SystemMetaObject

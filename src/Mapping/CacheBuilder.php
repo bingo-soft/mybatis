@@ -9,7 +9,7 @@ use MyBatis\Cache\{
 };
 use MyBatis\Cache\Decorators\FifoCache;
 use MyBatis\Cache\Impl\PerpetualCache;
-use MyBatis\Reflection\{
+use Util\Reflection\{
     MetaObject,
     SystemMetaObject
 };

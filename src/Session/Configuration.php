@@ -8,7 +8,7 @@ use MyBatis\Builder\{
     IncompleteElementException,
     ResultMapResolver
 };
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 
 class Configuration
 {

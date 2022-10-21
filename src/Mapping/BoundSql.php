@@ -2,7 +2,7 @@
 
 namespace MyBatis\Mapping;
 
-use MyBatis\Reflection\Property\PropertyTokenizer;
+use Util\Reflection\Property\PropertyTokenizer;
 use MyBatis\Session\Configuration;
 
 class BoundSql

@@ -2,7 +2,7 @@
 
 namespace MyBatis\Executor\Loader;
 
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 
 class ResultLoaderMap
 {

@@ -3,7 +3,7 @@
 namespace MyBatis\Executor\Loader;
 
 use MyBatis\Executor\ExecutorException;
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Session\Configuration;
 
 class LoadPair implements \Serializable

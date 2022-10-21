@@ -3,7 +3,7 @@
 namespace Tests\Reflection;
 
 use PHPUnit\Framework\TestCase;
-use MyBatis\Reflection\MetaClass;
+use Util\Reflection\MetaClass;
 use Tests\Domain\Misc\RichType;
 use Tests\Domain\Misc\Generics\GenericConcrete;
 

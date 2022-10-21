@@ -2,7 +2,7 @@
 
 namespace MyBatis\Executor\Result;
 
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Session\{
     ResultContextInterface,
     ResultHandlerInterface

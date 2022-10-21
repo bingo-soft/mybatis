@@ -4,7 +4,7 @@ namespace MyBatis\Executor;
 
 use MyBatis\Cache\CacheKey;
 use MyBatis\Cache\Impl\PerpetualCache;
-use MyBatis\Reflection\MetaObject;
+use Util\Reflection\MetaObject;
 use MyBatis\Session\Configuration;
 
 class DeferredLoad

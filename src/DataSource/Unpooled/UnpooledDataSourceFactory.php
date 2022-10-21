@@ -8,7 +8,7 @@ use MyBatis\DataSource\{
     DataSourceInterface
 };
 use MyBatis\Parsing\Boolean;
-use MyBatis\Reflection\{
+use Util\Reflection\{
     MetaObject,
     SystemMetaObject
 };
