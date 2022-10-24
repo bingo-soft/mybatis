@@ -584,7 +584,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                 $propertyMappings = $resultMap->getPropertyResultMappings();
                 foreach ($propertyMappings as $propertyMapping) {
                     // issue gcode #109 && issue #149
-                    if ($propertyMapping->getNestedQueryId() !=- null && $propertyMapping->isLazy()) {
+                    if ($propertyMapping->getNestedQueryId() !== null && $propertyMapping->isLazy()) {
                         $resultObject = $this->configuration->getProxyFactory()->createProxy($resultObject, $lazyLoaderOrConstructorArgs, $this->configuration, $constructorArgs);
                         break;
                     }
