@@ -2,5 +2,5 @@ build:
     nodes:
       php80:
         environment:
-          php: 80
+          php: 81
           redis: false

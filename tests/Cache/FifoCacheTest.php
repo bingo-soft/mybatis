@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\DataSource;
+namespace Tests\Cache;
 
 use MyBatis\Cache\Decorators\FifoCache;
 use MyBatis\Cache\Impl\PerpetualCache;

@@ -14,6 +14,6 @@ class AlwaysMapPlugin extends Interceptor
 {
     public function intercept(Invocation $invocation)
     {
-        return "Always";// . $invocation->proceed();
+        return "Always";
     }
 }

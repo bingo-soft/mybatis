@@ -93,8 +93,6 @@ class TypeAliasRegistry
         $resolverUtil->find(new IsA($superType), $packageName);
         $typeSet = $resolverUtil->getClasses();
         foreach ($typeSet as $type) {
-            // Ignore inner classes and interfaces (including package-info.java)
-            // Skip also inner classes. See issue #6
             if (class_exists($type)) {
                 $ref = new \ReflectionClass($type);
                 if (!$ref->isInterface()) {

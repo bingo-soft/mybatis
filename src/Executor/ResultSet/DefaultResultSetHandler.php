@@ -365,7 +365,8 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         $this->ancestorObjects[$resultMapId] = $resultObject;
     }
 
-    private function shouldApplyAutomaticMappings(ResultMap $resultMap, bool $isNested): boolval{
+    private function shouldApplyAutomaticMappings(ResultMap $resultMap, bool $isNested): bool
+    {
         if ($resultMap->getAutoMapping() !== null) {
             return $resultMap->getAutoMapping();
         } else {
@@ -484,7 +485,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $this->configuration->getAutoMappingUnknownColumnBehavior()
                         ->doAction($mappedStatement, $columnName, ($property !== null) ? $property : $propertyName, null);
                 }
-            }            
+            }
             $this->autoMappingsCache[$mapKey] = $autoMapping;
         }
         return $autoMapping;
@@ -613,7 +614,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         $foundValues = false;
         $rs = $rsw->getResultSet();
         foreach ($constructorMappings as $constructorMapping) {
-            $parameterType = $constructorMapping->getJavaType();
+            $parameterType = $constructorMapping->getPhpType();
             $column = $constructorMapping->getColumn();
             $value = null;
             try {
@@ -645,12 +646,12 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             throw new \Exception("Constructor not found");
         }
     }
-  
+
     private function findConstructorForAutomapping(string $resultType, ResultSetWrapper $rsw): ?\ReflectionMethod
     {
         return (new \ReflectionClass($resultType))->getConstructor();
     }
-  
+
     private function applyConstructorAutomapping(ResultSetWrapper $rsw, ResultMap $resultMap, string $columnPrefix, string $resultType, array $constructorArgs, \ReflectionMethod $constructor)
     {
         $foundValues = false;
@@ -662,7 +663,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         return $foundValues || $this->configuration->isReturnInstanceForEmptyRow()
             ?  new $resultType(...$constructorArgs) : null;
     }
-  
+
     private function applyColumnOrderBasedConstructorAutomapping(ResultSetWrapper $rsw, array &$constructorArgs, \ReflectionMethod $constructor, bool $foundValues): bool
     {
         $params = $constructor->getParameters();
@@ -684,7 +685,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $foundValues;
     }
-  
+
     private function applyArgNameBasedConstructorAutoMapping(ResultSetWrapper $rsw, ResultMap $resultMap, string $columnPrefix, string $resultType, array $constructorArgs, \ReflectionMethod $constructor, bool $foundValues): bool
     {
         $missingArgs = [];
@@ -728,7 +729,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $foundValues;
     }
-  
+
     private function columnMatchesParam(string $columnName, string $paramName, ?string $columnPrefix): bool
     {
         if ($columnPrefix !== null) {
@@ -739,7 +740,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return strtoupper($paramName) == strtoupper($this->configuration->isMapUnderscoreToCamelCase() ? str_replace("_", "", $columnName) : $columnName);
     }
-  
+
     private function createPrimitiveResultObject(ResultSetWrapper $rsw, ResultMap $resultMap, string $columnPrefix)
     {
         $resultType = $resultMap->getType();
@@ -756,11 +757,11 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         $res = $rs->fetchAssociative();
         return $typeHandler->getResult($res, $columnName);
     }
-  
+
     //
     // NESTED QUERY
     //
-  
+
     private function getNestedQueryConstructorValue(array $rs, ResultMapping $constructorMapping, string $columnPrefix)
     {
         $nestedQueryId = $constructorMapping->getNestedQueryId();
@@ -777,7 +778,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $value;
     }
-  
+
     private function getNestedQueryMappingValue(array $rs, MetaObject $metaResultObject, ResultMapping $propertyMapping, ResultLoaderMap $lazyLoader, string $columnPrefix)
     {
         $nestedQueryId = $propertyMapping->getNestedQueryId();
@@ -805,7 +806,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $value;
     }
-  
+
     private function prepareParameterForNestedQuery(array $rs, ResultMapping $resultMapping, string $parameterType, string $columnPrefix)
     {
         if ($resultMapping->isCompositeResult()) {
@@ -814,7 +815,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             return $this->prepareSimpleKeyParameter($rs, $resultMapping, $parameterType, $columnPrefix);
         }
     }
-  
+
     private function prepareSimpleKeyParameter(array $rs, ResultMapping $resultMapping, string $parameterType, string $columnPrefix)
     {
         $typeHandler = null;
@@ -825,7 +826,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $typeHandler->getResult($rs, $this->prependPrefix($resultMapping->getColumn(), $columnPrefix));
     }
-  
+
     private function prepareCompositeKeyParameter(array $rs, ResultMapping $resultMapping, string $parameterType, string $columnPrefix)
     {
         $parameterObject = $this->instantiateParameterObject($parameterType);
@@ -843,7 +844,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $foundValues ? $parameterObject : null;
     }
-  
+
     private function instantiateParameterObject(?string $parameterType)
     {
         if ($parameterType === null) {
@@ -854,11 +855,11 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             return new $parameterType();
         }
     }
-  
+
     //
     // DISCRIMINATOR
     //
-  
+
     public function resolveDiscriminatedResultMap(array $rs, ResultMap $resultMap, string $columnPrefix): ResultMap
     {
         $pastDiscriminators = [];
@@ -880,14 +881,14 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $resultMap;
     }
-  
+
     private function getDiscriminatorValue(array $rs, Discriminator $discriminator, string $columnPrefix)
     {
         $resultMapping = $discriminator->getResultMapping();
         $typeHandler = $resultMapping->getTypeHandler();
         return $typeHandler->getResult($rs, $this->prependPrefix($resultMapping->getColumn(), $columnPrefix));
     }
-  
+
     private function prependPrefix(?string $columnName, ?string $prefix): ?string
     {
         if (empty($columnName) || empty($prefix)) {
@@ -895,11 +896,11 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $prefix . $columnName;
     }
-  
+
     //
     // HANDLE NESTED RESULT MAPS
     //
-  
+
     private function handleRowValuesForNestedResultMap(ResultSetWrapper $rsw, ResultMap $resultMap, ResultHandlerInterface $resultHandler, RowBounds $rowBounds, ResultMapping $parentMapping): void
     {
         $resultContext = new DefaultResultContext();
@@ -934,11 +935,11 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             $this->previousRowValue = $rowValue;
         }
     }
-  
+
     //
     // NESTED RESULT MAP (JOIN MAPPING)
     //
-  
+
     private function applyNestedResultMappings(ResultSetWrapper $rsw, ResultMap $resultMap, MetaObject $metaObject, string $parentPrefix, CacheKey $parentRowKey, bool $newObject): bool
     {
         $foundValues = false;
@@ -983,7 +984,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $foundValues;
     }
-  
+
     private function getColumnPrefix(?string $parentPrefix, ResultMapping $resultMapping): ?string
     {
         $columnPrefixBuilder = "";
@@ -995,7 +996,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return strlen($columnPrefixBuilder) == 0 ? null : strtoupper($columnPrefixBuilder);
     }
-  
+
     private function anyNotNullColumnHasValue(ResultMapping $resultMapping, string $columnPrefix, ResultSetWrapper $rsw): bool
     {
         $notNullColumns = $resultMapping->getNotNullColumns();
@@ -1003,7 +1004,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             $rs = $rsw->getResultSet();
             $res = $rs->fetchAssociative();
             foreach ($notNullColumns as $column) {
-                $key = $this->prependPrefix($column, $columnPrefix);                
+                $key = $this->prependPrefix($column, $columnPrefix);
                 if (!empty($res) && array_key_exists($key, $res)) {
                     return true;
                 }
@@ -1011,7 +1012,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             return false;
         } elseif ($columnPrefix !== null) {
             foreach ($rsw->getColumnNames() as $columnName) {
-                if (strpos(strtoupper($columnName),  strtoupper($columnPrefix))) {
+                if (strpos(strtoupper($columnName), strtoupper($columnPrefix))) {
                     return true;
                 }
             }
@@ -1019,7 +1020,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return true;
     }
-  
+
     private function getNestedResultMap(array $rs, string $nestedResultMapId, string $columnPrefix): ResultMap
     {
         $nestedResultMap = $this->configuration->getResultMap($nestedResultMapId);
@@ -1029,7 +1030,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     //
     // UNIQUE RESULT KEY
     //
-  
+
     private function createRowKey(ResultMap $resultMap, array $rs, ResultSetWrapper $rsw, string $columnPrefix): CacheKey
     {
         $cacheKey = new CacheKey();
@@ -1050,7 +1051,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $cacheKey;
     }
-  
+
     private function combineKeys(CacheKey $rowKey, CacheKey $parentRowKey): CacheKey
     {
         if ($rowKey->getUpdateCount() > 1 && $parentRowKey->getUpdateCount() > 1) {
@@ -1065,7 +1066,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return CacheKey::nullCacheKey();
     }
-  
+
     private function getResultMappingsForRowKey(ResultMap $resultMap): array
     {
         $resultMappings = $resultMap->getIdResultMappings();
@@ -1074,7 +1075,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return $resultMappings;
     }
-  
+
     private function createRowKeyForMappedProperties(ResultMap $resultMap, array $res, ResultSetWrapper $rsw, CacheKey $cacheKey, array $resultMappings, string $columnPrefix): void
     {
         foreach ($resultMappings as $resultMapping) {
@@ -1093,7 +1094,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             }
         }
     }
-  
+
     private function createRowKeyForUnmappedProperties(ResultMap $resultMap, array $row, ResultSetWrapper $rsw, CacheKey $cacheKey, string $columnPrefix): void
     {
         $metaType = new MetaClass($resultMap->getType());
@@ -1117,7 +1118,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             }
         }
     }
-  
+
     private function createRowKeyForMap(array $resultSet, ResultSetWrapper $rsw, CacheKey $cacheKey): void
     {
         $columnNames = $rsw->getColumnNames();
@@ -1129,7 +1130,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             }
         }
     }
-  
+
     private function linkObjects(MetaObject $metaObject, ResultMapping $resultMapping, $rowValue): void
     {
         $collectionProperty = $this->instantiateCollectionPropertyIfAppropriate($resultMapping, $metaObject);
@@ -1140,8 +1141,9 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             $metaObject->setValue($resultMapping->getProperty(), $rowValue);
         }
     }
-  
-    private function instantiateCollectionPropertyIfAppropriate(ResultMapping $resultMapping, MetaObject $metaObject) {
+
+    private function instantiateCollectionPropertyIfAppropriate(ResultMapping $resultMapping, MetaObject $metaObject)
+    {
         $propertyName = $resultMapping->getProperty();
         $propertyValue = $metaObject->getValue($propertyName);
         if ($propertyValue === null) {
@@ -1167,10 +1169,9 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         }
         return null;
     }
-  
+
     private function hasTypeHandlerForResultObject(ResultSetWrapper $rsw, string $resultType): bool
     {
         return $this->typeHandlerRegistry->hasTypeHandler($resultType);
     }
 }
-  

@@ -86,6 +86,11 @@ class TypeHandlerRegistry
         return null;
     }
 
+    public function getMappingTypeHandler($type): ?TypeHandlerInterface
+    {
+        return $this->getTypeHandler($type);
+    }
+
     public function getUnknownTypeHandler(): ?TypeHandlerInterface
     {
         return $this->unknownTypeHandler;

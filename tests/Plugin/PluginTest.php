@@ -19,6 +19,6 @@ class PluginTest extends TestCase
         $map = new CustomArray();
         $map = (new AlwaysMapPlugin())->plugin($map);
         $map["Anything"] = "Someday";
-        $this->assertEquals("Someday", $map["Anything"]);
+        $this->assertEquals("Someday", $map->get2("Anything"));
     }
 }

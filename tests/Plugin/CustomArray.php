@@ -8,4 +8,9 @@ class CustomArray extends \ArrayObject
     {
         return $this[$key];
     }
+
+    public function get2(string $key)
+    {
+        return $this[$key];
+    }
 }

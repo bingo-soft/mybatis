@@ -4,6 +4,8 @@ namespace MyBatis\Mapping;
 
 class ResultSetType
 {
+    public const DEFAULT = -1;
+
     public const TYPE_FORWARD_ONLY = 1003;
 
     public const TYPE_SCROLL_INSENSITIVE = 1004;
@@ -27,7 +29,7 @@ class ResultSetType
     public static function default(): ResultSetType
     {
         if (self::$DEFAULT === null) {
-            self::$DEFAULT = new ResultSetType(-1);
+            self::$DEFAULT = new ResultSetType(self::DEFAULT);
         }
         return self::$DEFAULT;
     }
@@ -60,5 +62,33 @@ class ResultSetType
             self::$SENSITIVE = new ResultSetType(self::TYPE_SCROLL_SENSITIVE);
         }
         return self::$SENSITIVE;
+    }
+
+    public static function valueOf(string $name): ResultSetType
+    {
+        switch (strtoupper($name)) {
+            case 'TYPE_FORWARD_ONLY':
+                return self::forwardOnly();
+            case 'TYPE_SCROLL_INSENSITIVE':
+                return self::scrollInsensitive();
+            case 'TYPE_SCROLL_SENSITIVE':
+                return self::scrollSensitive();
+            default:
+                return self::default();
+        }
+    }
+
+    public static function forCode(int $code): ResultSetType
+    {
+        switch ($code) {
+            case self::TYPE_FORWARD_ONLY:
+                return self::forwardOnly();
+            case self::TYPE_SCROLL_INSENSITIVE:
+                return self::scrollInsensitive();
+            case self::TYPE_SCROLL_SENSITIVE:
+                return self::scrollSensitive();
+            default:
+                return self::default();
+        }
     }
 }

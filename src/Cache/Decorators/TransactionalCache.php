@@ -10,8 +10,9 @@ class TransactionalCache implements CacheInterface
     private $clearOnCommit;
     private $entriesToAddOnCommit = [];
     private $entriesMissedInCache = [];
-  
-    public function __construct(?CacheInterface $delegate) {
+
+    public function __construct(?CacheInterface $delegate)
+    {
         $this->delegate = $delegate;
         $this->clearOnCommit = false;
     }
@@ -54,7 +55,7 @@ class TransactionalCache implements CacheInterface
         $this->clearOnCommit = true;
         $this->entriesToAddOnCommit = [];
     }
-  
+
     public function commit(): void
     {
         if ($this->clearOnCommit) {
@@ -63,20 +64,20 @@ class TransactionalCache implements CacheInterface
         $this->flushPendingEntries();
         $this->reset();
     }
-  
+
     public function rollback(): void
     {
         $this->unlockMissedEntries();
         $this->reset();
     }
-  
+
     private function reset(): void
     {
         $this->clearOnCommit = false;
         $this->entriesToAddOnCommit = [];
         $this->entriesMissedInCache = [];
     }
-  
+
     private function flushPendingEntries(): void
     {
         foreach ($this->entriesToAddOnCommit as $key => $value) {
@@ -88,7 +89,7 @@ class TransactionalCache implements CacheInterface
             }
         }
     }
-  
+
     private function unlockMissedEntries(): void
     {
         foreach ($this->entriesMissedInCache as $key) {
@@ -99,5 +100,5 @@ class TransactionalCache implements CacheInterface
                 //    + "Consider upgrading your cache adapter to the latest version. Cause: " + e);
             }
         }
-    }  
+    }
 }

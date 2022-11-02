@@ -7,7 +7,13 @@ use MyBatis\Cache\{
     CacheInterface,
     CacheException
 };
-use MyBatis\Cache\Decorators\FifoCache;
+use MyBatis\Cache\Decorators\{
+    FifoCache,
+    LoggingCache,
+    LruCache,
+    ScheduledCache,
+    SerializedCache
+};
 use MyBatis\Cache\Impl\PerpetualCache;
 use Util\Reflection\{
     MetaObject,
@@ -20,6 +26,7 @@ class CacheBuilder
     private $implementation;
     private $decorators = [];
     private $size;
+    //in seconds
     private $clearInterval;
     private $readWrite;
     private $properties;
@@ -95,7 +102,7 @@ class CacheBuilder
         if ($this->implementation === null) {
             $this->implementation = PerpetualCache::class;
             if (empty($this->decorators)) {
-                $this->decorators[] = FifoCache::class;
+                $this->decorators[] = LruCache::class;
             }
         }
     }
@@ -107,7 +114,13 @@ class CacheBuilder
             if ($this->size !== null && $metaCache->hasSetter("size")) {
                 $metaCache->setValue("size", $size);
             }
-            $cache = new FifoCache($cache);
+            if ($this->clearInterval !== null) {
+                $cache = new ScheduledCache($cache);
+                $cache->setClearInterval($this->clearInterval);
+            }
+            if ($this->readWrite) {
+                $cache = new SerializedCache($cache);
+            }
             return $cache;
         } catch (\Exception $e) {
             throw new CacheException("Error building standard cache decorators.  Cause: " . $e->getMessage());

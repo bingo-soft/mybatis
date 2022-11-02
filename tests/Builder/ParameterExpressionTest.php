@@ -41,7 +41,7 @@ class ParameterExpressionTest extends TestCase
         $this->assertEquals("VARCHAR", $result->get('sqlType'));
     }
 
-    public function testExpressionWithOldStyleJdbcType(): void
+    public function testExpressionWithOldStyleDbalType(): void
     {
         $result = new ParameterExpression("(id.toString()):VARCHAR");
         $this->assertCount(2, $result);
@@ -121,7 +121,7 @@ class ParameterExpressionTest extends TestCase
         new ParameterExpression("id:");
     }
 
-    public function testInvalidJdbcTypeOptUsingExpression(): void
+    public function testInvalidDbalTypeOptUsingExpression(): void
     {
         $this->expectException(BuilderException::class);
         new ParameterExpression("(expression)+");
