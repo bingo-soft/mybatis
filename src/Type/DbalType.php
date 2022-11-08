@@ -36,4 +36,9 @@ class DbalType
         }
         return null;
     }
+
+    public function __toString()
+    {
+        return $this->$typeCode;
+    }
 }
