@@ -19,7 +19,8 @@ class Arg
         private string $phpType = 'void',
         private string $typeHandler = UnknownTypeHandler::class,
         private string $select = '',
-        private string $columnPrefix = ''
+        private string $columnPrefix = '',
+        private string $dbalType = new DbalType('UNDEFINED')
     ) {
     }
 
@@ -41,6 +42,11 @@ class Arg
     public function phpType(): string
     {
         return $this->phpType;
+    }
+
+    public function dbalType(): DbalType
+    {
+        return $this->dbalType;
     }
 
     public function typeHandler(): string

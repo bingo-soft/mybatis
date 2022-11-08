@@ -12,17 +12,16 @@ use MyBatis\Type\{
 #[Attribute(Attribute::IS_REPEATABLE)]
 class Result
 {
-    private $dbalType;
-
     public function __construct(
         private bool $id = false,
         private string $column = '',
         private string $property = '',
         private string $phpType = 'void',
-        private string $dbalTypeCode = 'UNDEFINED',
-        private string $typeHandler = UnknownTypeHandler::class
+        private string $dbalType = new DbalType('UNDEFINED'),
+        private string $typeHandler = UnknownTypeHandler::class,
+        private One $one = new One(),
+        private Many $many = new Many()
     ) {
-        $this->dbalType = DbalType::forCode($dbalTypeCode);
     }
 
     public function id(): bool
@@ -49,7 +48,6 @@ class Result
     {
         return $this->dbalType;
     }
-
 
     public function typeHandler(): string
     {
