@@ -2,10 +2,7 @@
 
 namespace MyBatis\Plugin;
 
-use Util\Proxy\{
-    MethodHandlerInterface,
-    ProxyFactory
-};
+use Util\Proxy\MethodHandlerInterface;
 
 class Plugin implements MethodHandlerInterface
 {

@@ -5,7 +5,6 @@ namespace MyBatis\Mapping;
 use MyBatis\Annotations\Param;
 use MyBatis\Builder\BuilderException;
 use MyBatis\Session\Configuration;
-use Util\Reflection\ParamNameUtil;
 
 class ResultMapBuilder
 {

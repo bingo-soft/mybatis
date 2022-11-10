@@ -9,7 +9,7 @@ interface SqlSessionInterface
 {
     public function selectOne(string $statement, $parameter = null);
 
-    public function selectList(string $statement, $parameter = null): array;
+    public function selectList(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): array;
 
     //public function selectCursor(string $statement, $parameter = null, ?RowBounds $rowBounds = null): CursorInterface;
 

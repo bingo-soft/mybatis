@@ -28,7 +28,7 @@ class ResultSetWrapper
     private $typeHandlerMap = [];
     private $mappedColumnNamesMap = [];
     private $unMappedColumnNamesMap = [];
-  
+
     public function __construct(Statement $stmt, Configuration $configuration)
     {
         $this->typeHandlerRegistry = $this->configuration->getTypeHandlerRegistry();
@@ -42,22 +42,22 @@ class ResultSetWrapper
             $this->phpTypes[] = $metaData['native_type'];
         }
     }
-  
+
     public function getResultSet(): Result
     {
         return $this->resultSet;
     }
-  
+
     public function getColumnNames(): array
     {
         return $this->columnNames;
     }
-  
+
     public function getPhpTypes(): array
     {
         return $this->phpTypes;
     }
-  
+
     public function getPhpType(string $columnName): ?string
     {
         for ($i = 0; $i < count($this->columnNames); $i += 1) {
@@ -67,7 +67,7 @@ class ResultSetWrapper
         }
         return null;
     }
-  
+
     /**
      * Gets the type handler to use when reading the result set.
      * Tries to get from the TypeHandlerRegistry by searching for the property type.
@@ -94,7 +94,7 @@ class ResultSetWrapper
                 $handler = $this->columnHandlers[$propertyType];
             }
         }
-      
+
         if ($handler === null) {
             $phpType = $this->getPhpType($columnName);
             $handler = $this->typeHandlerRegistry->getTypeHandler($propertyType);
@@ -113,7 +113,7 @@ class ResultSetWrapper
         }
         return $handler;
     }
-  
+
     private function loadMappedAndUnmappedColumnNames(ResultMap $resultMap, string $columnPrefix): void
     {
         $mappedColumnNames = [];
@@ -131,7 +131,7 @@ class ResultSetWrapper
         $this->mappedColumnNamesMap[$this->getMapKey($resultMap, $columnPrefix)] = $mappedColumnNames;
         $this->unMappedColumnNamesMap[$this->getMapKey($resultMap, $columnPrefix)] = $unmappedColumnNames;
     }
-  
+
     public function getMappedColumnNames(ResultMap $resultMap, string $columnPrefix): array
     {
         $key = $this->getMapKey($resultMap, $columnPrefix);
@@ -147,7 +147,7 @@ class ResultSetWrapper
         }
         return $mappedColumnNames ?? [];
     }
-  
+
     public function getUnmappedColumnNames(ResultMap $resultMap, string $columnPrefix): array
     {
         $key = $this->getMapKey($resultMap, $columnPrefix);
@@ -163,12 +163,12 @@ class ResultSetWrapper
         }
         return $unMappedColumnNames ?? [];
     }
-  
+
     private function getMapKey(ResultMap $resultMap, string $columnPrefix): string
     {
         return $resultMap->getId() . ":" . $columnPrefix;
     }
-  
+
     private function prependPrefixes(array $columnNames, ?string $prefix): array
     {
         if (empty($columnNames) || empty($prefix)) {
@@ -179,5 +179,5 @@ class ResultSetWrapper
             $prefixed[] = $prefix . $columnName;
         }
         return array_unique($prefixed);
-    }  
+    }
 }
