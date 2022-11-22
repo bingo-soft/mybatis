@@ -51,6 +51,18 @@ abstract class AutoMappingUnknownColumnBehavior
         return self::$FAILING;
     }
 
+    public static function forCode(string $code): AutoMappingUnknownColumnBehavior
+    {
+        switch (strtoupper($code)) {
+            case 'WARNING':
+                return self::warning();
+            case 'FAILING':
+                return self::failing();
+            default:
+                return self::none();
+        }
+    }
+
     private static function buildMessage(MappedStatement $mappedStatement, string $columnName, string $property, string $propertyType = null)
     {
         return "Unknown column is detected on '"

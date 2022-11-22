@@ -8,8 +8,9 @@ use MyBatis\DataSource\Unpooled\UnpooledDataSource;
 abstract class BaseDataTest
 {
     //public const BLOG_PROPERTIES = "tests/Databases/blog/blog-derby.properties";
-    public const BLOG_DDL = "tests/Databases/Blog/postgres-blog-derby-schema.sql";
-    public const BLOG_DATA = "tests/Databases/Blog/postgres-blog-derby-dataload.sql";
+    public const BLOG_DDL = "tests/Resources/Databases/Blog/postgres-blog-derby-schema.sql";
+    public const BLOG_DATA = "tests/Resources/Databases/Blog/postgres-blog-derby-dataload.sql";
+    private static $dataSource;
 
     public static function createUnpooledDataSource(string $database): UnpooledDataSource
     {
@@ -21,21 +22,26 @@ abstract class BaseDataTest
     {
         $connection = $ds->getConnection();
         $commands = explode(';', file_get_contents($resource));
-        $connection->beginTransaction();
         foreach ($commands as $command) {
             $sql = trim($command);
             if (!empty($sql)) {
                 $connection->executeQuery($sql);
             }
         }
-        $connection->commit();
     }
 
     public static function createBlogDataSource(): DataSourceInterface
     {
         $ds = self::createUnpooledDataSource('blog');
-        self::runScript($ds, self::BLOG_DDL);
-        self::runScript($ds, self::BLOG_DATA);
+        try {
+            $isAutoCommit = $ds->getConnection()->isAutoCommit();
+            $ds->getConnection()->setAutoCommit(true);
+            self::runScript($ds, self::BLOG_DDL);
+            self::runScript($ds, self::BLOG_DATA);
+            $ds->getConnection()->setAutoCommit($isAutoCommit);
+        } catch (\Exception $e) {
+            //ignore
+        }
         return $ds;
     }
 }

@@ -21,7 +21,7 @@ class XNode
         $this->body = $this->parseBody($node);
     }
 
-    public function newXNode(Node $node): XNode
+    public function newXNode(\DOMNode $node): XNode
     {
         return new XNode($this->xpathParser, $node, $this->variables);
     }
@@ -89,7 +89,7 @@ class XNode
         return $this->xpathParser->evalNodes($this->node, $expression);
     }
 
-    public function evalNode(string $expression): XNode
+    public function evalNode(string $expression): ?XNode
     {
         return $this->xpathParser->evalNode($this->node, $expression);
     }
@@ -163,7 +163,8 @@ class XNode
             return $value;
         }
         if (class_exists($defSupplier)) {
-            return (new $defSupplier())->get();
+            //return (new $defSupplier())->get();
+            return $defSupplier;
         }
         return $defSupplier;
     }

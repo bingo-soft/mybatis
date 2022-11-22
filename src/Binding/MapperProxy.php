@@ -9,6 +9,7 @@ class MapperProxy implements MethodHandlerInterface
 {
     private $sqlSession;
     private $mapperInterface;
+    private $mapperRefInterface;
     private $methodCache = [];
 
     public function __construct(SqlSessionInterface $sqlSession, string $mapperInterface, array $methodCache = [])
@@ -16,6 +17,17 @@ class MapperProxy implements MethodHandlerInterface
         $this->sqlSession = $sqlSession;
         $this->mapperInterface = $mapperInterface;
         $this->methodCache = $methodCache;
+    }
+
+    public function __call(string $name, array $args)
+    {
+        if ($this->mapperRefInterface === null) {
+            $this->mapperRefInterface = new \ReflectionClass($this->mapperInterface);
+        }
+        if ($this->mapperRefInterface->hasMethod($name)) {
+            $method = $this->mapperRefInterface->getMethod($name);
+            return $this->invoke($this, $method, $method, $args);
+        }
     }
 
     public function invoke($proxy, \ReflectionMethod $thisMethod, \ReflectionMethod $proceed, array $args)

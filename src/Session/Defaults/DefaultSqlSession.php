@@ -9,6 +9,7 @@ use MyBatis\Executor\Result\{
     DefaultMapResultHandler,
     DefaultResultContext
 };
+use MyBatis\Reflection\ParamNameResolver;
 use MyBatis\Session\{
     Configuration,
     ResultHandlerInterface,
@@ -22,14 +23,13 @@ class DefaultSqlSession implements SqlSessionInterface
     private $executor;
 
     private $autoCommit;
-    private $dirty;
+    private $dirty = false;
     private $cursorList = [];
 
     public function __construct(Configuration $configuration, ExecutorInterface $executor, ?bool $autoCommit = false)
     {
         $this->configuration = $configuration;
         $this->executor = $executor;
-        $this->dirty = false;
         $this->autoCommit = $autoCommit;
     }
 
@@ -47,13 +47,13 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function selectList(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): array
     {
-        try {
+        /*try {*/
             $ms = $this->configuration->getMappedStatement($statement);
             return $this->executor->query($ms, $this->wrapCollection($parameter), $rowBounds, $handler);
-        } catch (\Exception $e) {
-            throw new Exception("Error querying database.  Cause: " . $e->getMessage());
+        /*} catch (\Exception $e) {
+            throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
         } finally {
-        }
+        }*/
     }
 
     public function select(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): void
@@ -68,14 +68,14 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function update(string $statement, $parameter = null)
     {
-        try {
+        /*try {*/
             $this->dirty = true;
             $ms = $this->configuration->getMappedStatement($statement);
             return $this->executor->update($ms, $this->wrapCollection($parameter));
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             throw new \Exception("Error updating database.  Cause: " . $e->getMessage());
         } finally {
-        }
+        }*/
     }
 
     public function delete(string $statement, $parameter = null)
@@ -96,13 +96,13 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function rollback(bool $force = false): void
     {
-        try {
+        /*try {*/
             $this->executor->rollback($this->isCommitOrRollbackRequired($force));
             $this->dirty = false;
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             throw new \Exception("Error rolling back transaction.  Cause: " . $e->getMessage());
         } finally {
-        }
+        }*/
     }
 
     public function flushStatements(): array
@@ -175,6 +175,6 @@ class DefaultSqlSession implements SqlSessionInterface
 
     private function wrapCollection($object)
     {
-        return is_array($object) ? $object : [ $object ];
+        return ParamNameResolver::wrapToMapIfCollection($object, null);
     }
 }

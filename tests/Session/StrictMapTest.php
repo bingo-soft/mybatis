@@ -8,9 +8,9 @@ use MyBatis\Session\{
     StrictMap
 };
 
-class StrictMapTest extends TestCase
+class StrictMapTest/* extends TestCase*/
 {
-    public function testPutException(): void
+    public function putException(): void
     {
         $sm = new StrictMap("Test");
         $sm->put(0, 1);
@@ -19,7 +19,7 @@ class StrictMapTest extends TestCase
         $sm->put(0, 3);
     }
 
-    public function testAmbiguity(): void
+    public function ambiguity(): void
     {
         $sm = new StrictMap("Test");
         $sm->put('hello', 'done');
@@ -27,7 +27,7 @@ class StrictMapTest extends TestCase
         $this->assertTrue($sm->get("hello") instanceof Ambiguity);
     }
 
-    public function testGetException(): void
+    public function getException(): void
     {
         $sm = new StrictMap("Test");
         $this->expectException(\Exception::class);

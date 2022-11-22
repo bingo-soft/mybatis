@@ -18,7 +18,7 @@ class ResultMapResolver
     private $resultMappings;
     private $autoMapping;
 
-    public function __construct(MapperBuilderAssistant $assistant, string $id, string $type, string $extend, Discriminator $discriminator, array $resultMappings, bool $autoMapping)
+    public function __construct(MapperBuilderAssistant $assistant, string $id, ?string $type, ?string $extend, ?Discriminator $discriminator, array $resultMappings, ?bool $autoMapping)
     {
         $this->assistant = $assistant;
         $this->id = $id;

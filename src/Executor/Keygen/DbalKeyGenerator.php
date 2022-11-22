@@ -3,13 +3,17 @@
 namespace MyBatis\Executor\Keygen;
 
 use Doctrine\DBAL\Statement;
+use MyBatis\Binding\ParamMap;
 use MyBatis\Executor\{
     ExecutorInterface,
     ExecutorException
 };
 use MyBatis\Mapping\MappedStatement;
 use MyBatis\Reflection\ParamNameResolver;
-use MyBatis\Session\Configuration;
+use MyBatis\Session\{
+    Configuration,
+    StrictMap
+};
 use MyBatis\Type\{
     DbalType,
     TypeHandlerInterface,
@@ -43,52 +47,7 @@ class DbalKeyGenerator implements KeyGeneratorInterface
 
     public function processAfter(ExecutorInterface $executor, MappedStatement $ms, Statement $stmt, $parameter): void
     {
-        $this->processBatch($ms, $stmt, $parameter);
-    }
-
-    public function processBatch(MappedStatement $ms, Statement $stmt, $parameter): void
-    {
-        $keyProperties = $ms->getKeyProperties();
-        if (empty($keyProperties)) {
-            return;
-        }
-        $rs = $stmt->execute();
-        $rows = $rs->fetchAllAssociative();
-        if (!empty($rows)) {
-            if (count(array_keys($rows[0])) < count($keyProperties)) {
-                // Error?
-            } else {
-                $this->asseignKeys($ms->getConfiguration(), $rs, $rows, $keyProperties, $parameter);
-            }
-        }
-    }
-
-    private function assignKeys(Configuration $configuration, Result $rs, array $rows, array $keyProperties, $parameter): void
-    {
-        if (is_array($parameter)) {
-            // Multi-param or single param with @Param in batch operation
-            $this->assignKeysToParamMapList($configuration, $rs, $rows, $keyProperties, $parameter);
-        } else {
-            // Single param without @Param
-            $this->assignKeysToParam($configuration, $rs, $rows, $keyProperties, $parameter);
-        }
-    }
-
-    private function assignKeysToParam(Configuration $configuration, Result $rs, ResultSetMetaData $rows, array $keyProperties, $parameter): void
-    {
-        $params = self::collectionize($parameter);
-        if (empty($params)) {
-            return;
-        }
-        $assignerList = [];
-        for ($i = 0; $i < count($keyProperties); $i += 1) {
-            $assignerList[] = new KeyAssigner($configuration, $rows, $i + 1, null, $keyProperties[$i]);
-        }
-        foreach ($params as $param) {
-            foreach ($assignerList as $x) {
-                $x->assign($rs, $param);
-            }
-        }
+        //$this->processBatch($ms, $stmt, $parameter);
     }
 
     private static function nameOfSingleParam(array $paramMap): string

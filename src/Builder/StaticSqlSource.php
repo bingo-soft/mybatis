@@ -24,6 +24,6 @@ class StaticSqlSource implements SqlSourceInterface
 
     public function getBoundSql($parameterObject): BoundSql
     {
-        return new BoundSql($configuration, $sql, $parameterMappings, $parameterObject);
+        return new BoundSql($this->configuration, $this->sql, $this->parameterMappings, $parameterObject);
     }
 }

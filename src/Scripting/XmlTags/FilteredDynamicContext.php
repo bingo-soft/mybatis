@@ -37,7 +37,7 @@ class FilteredDynamicContext extends DynamicContext
         return $this->delegate->getSql();
     }
 
-    public function appendSql(?string $sql): void
+    public function appendSql(?string $sql = ""): void
     {
         $item = $this->item;
         $index = $this->index;

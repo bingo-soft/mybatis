@@ -2,11 +2,13 @@
 
 namespace MyBatis\Builder\Annotation;
 
+use Doctrine\DBAL\Types\Types;
 use MyBatis\Annotations\{
     Arg,
     CacheNamespace,
     CacheNamespaceRef,
     Cases,
+    ConstructorArgs,
     Delete,
     DeleteProvider,
     Insert,
@@ -27,6 +29,7 @@ use MyBatis\Annotations\{
     Update,
     UpdateProvider
 };
+use MyBatis\Binding\ParamMap;
 use MyBatis\Builder\{
     BuilderException,
     CacheRefResolver,
@@ -104,7 +107,7 @@ class MapperAnnotationBuilder
             $this->parseCacheRef();
             foreach ($this->refType->getMethods() as $method) {
                 if (
-                    $this->getAnnotationWrapper($method, false, Select::class, SelectProvider::class)
+                    $this->getAnnotationWrapper($method, false, [ Select::class, SelectProvider::class ])
                     && empty($method->getAttributes(ResultMap::class))
                 ) {
                     $this->parseResultMap($method);
@@ -131,7 +134,7 @@ class MapperAnnotationBuilder
     private function loadXmlResource(): void
     {
         if (!$this->configuration->isResourceLoaded($this->type)) {
-            $xmlResource = str_replace('.php', '.xml', $this->refType->getFileName());
+            $xmlResource = str_replace('\\', DIRECTORY_SEPARATOR, $this->refType->getName())  . '.xml';
             $inputStream = null;
             try {
                 $inputStream = Resources::getResourceAsStream($xmlResource);
@@ -148,7 +151,7 @@ class MapperAnnotationBuilder
 
     private function parseCache(): void
     {
-        $cacheDomains = $this->type->getAttributes(CacheNamespace::class);
+        $cacheDomains = $this->refType->getAttributes(CacheNamespace::class);
         if (!empty($cacheDomains)) {
             $cacheDomain = $cacheDomains[0]->newInstance();
             $size = $cacheDomain->size() == 0 ? null : $cacheDomain->size();
@@ -195,18 +198,47 @@ class MapperAnnotationBuilder
     private function parseResultMap(\ReflectionMethod $method): string
     {
         $returnType = $this->getReturnType($method);
+
+        //Arg on top or ConstructorArgs as root
         $args = array_map(function ($a) {
             return $a->newInstance();
         }, $method->getAttributes(Arg::class));
+        //Args may be nested in ConstructorArgs
+        if (empty($args)) {
+            $constructorArgs = $method->getAttributes(ConstructorArgs::class);
+            if (!empty($constructorArgs)) {
+                $constructor = $constructorArgs[0]->newInstance();
+                if (is_array($constructor->value()) && !empty($constructor->value()))
+                {
+                    $args = $constructor->value();
+                }
+            }
+        }
+        //Result on top or Results as root
         $results = array_map(function ($r) {
             return $r->newInstance();
         }, $method->getAttributes(Result::class));
+        $resultMapId = null;
+        //Result may be nested in Results annotation/attribute
+        if (empty($results)) {
+            $rootResults = $method->getAttributes(Results::class);
+            if (!empty($rootResults)) {
+                $rootResult = $rootResults[0]->newInstance();
+                if (!empty($rootResult->id())) {
+                    $resultMapId = $this->refType->name . "." . $rootResult->id();
+                }
+                if (is_array($rootResult->value()) && !empty($rootResult->value()))
+                {
+                    $results = $rootResult->value();
+                }
+            }
+        }
         $typeDiscriminator = null;
         $typeDiscriminators = $method->getAttributes(TypeDiscriminator::class);
         if (!empty($typeDiscriminators)) {
             $typeDiscriminator = $typeDiscriminators[0]->newInstance();
         }
-        $resultMapId = $this->generateResultMapName($method);
+        $resultMapId = $resultMapId ?? $this->generateResultMapName($method);
         $this->applyResultMap($resultMapId, $returnType, $args, $results, $typeDiscriminator);
         return $resultMapId;
     }
@@ -225,7 +257,7 @@ class MapperAnnotationBuilder
         return $this->refType->name . "." . $method->name;
     }
 
-    private function applyResultMap(string $resultMapId, string $returnType, array $args, array $results, $discriminator): void
+    private function applyResultMap(string $resultMapId, ?string $returnType, array $args, array $results, $discriminator): void
     {
         $resultMappings = [];
         $this->applyConstructorArgs($args, $returnType, $resultMappings);
@@ -236,7 +268,7 @@ class MapperAnnotationBuilder
         $this->createDiscriminatorResultMaps($resultMapId, $returnType, $discriminator);
     }
 
-    private function createDiscriminatorResultMaps(string $resultMapId, string $resultType, $discriminator = null): void
+    private function createDiscriminatorResultMaps(string $resultMapId, ?string $resultType, $discriminator = null): void
     {
         if ($discriminator !== null) {
             foreach ($discriminator->cases() as $c) {
@@ -251,7 +283,7 @@ class MapperAnnotationBuilder
         }
     }
 
-    private function applyDiscriminator(string $resultMapId, string $resultType, $discriminator = null): ?Discriminator
+    private function applyDiscriminator(string $resultMapId, ?string $resultType, $discriminator = null): ?Discriminator
     {
         if ($discriminator !== null) {
             $column = $discriminator->column();
@@ -308,7 +340,7 @@ class MapperAnnotationBuilder
                     $keyColumn = $options->keyColumn();
                 }
             } else {
-                $keyGenerator = NoKeyGeneratorr::instance();
+                $keyGenerator = NoKeyGenerator::instance();
             }
 
             $fetchSize = null;
@@ -403,8 +435,7 @@ class MapperAnnotationBuilder
                 if ($parameterType == null) {
                     $parameterType = $currentParameterType;
                 } else {
-                    // issue #135
-                    $parameterType = 'array'; //json?
+                    $parameterType = ParamMap::class;
                 }
             } elseif ($currentParameterType !== null) {
                 $parameterType = $currentParameterType;
@@ -418,13 +449,18 @@ class MapperAnnotationBuilder
         if ($method->hasReturnType()) {
             $refType = $method->getReturnType();
             if ($refType instanceof \ReflectionNamedType) {
-                return $refType->getName();
+                $type = $refType->getName();
+                //array is deprecated in Doctrine
+                if ($type === 'array') {
+                    $type = Types::JSON;
+                }
+                return $type;
             }
         }
         return null;
     }
 
-    private function applyResults(array $results, string $resultType, array &$resultMappings): void
+    private function applyResults(array $results, ?string $resultType, array &$resultMappings): void
     {
         foreach ($results as $result) {
             $flags = [];
@@ -433,7 +469,7 @@ class MapperAnnotationBuilder
             }
             $typeHandler = $result->typeHandler() == UnknownTypeHandler::class ? null : $result->typeHandler();
             $hasNestedResultMap = $this->hasNestedResultMap($result);
-            $resultMapping = $this0->assistant->buildResultMapping(
+            $resultMapping = $this->assistant->buildResultMapping(
                 $resultType,
                 $this->nullOrEmpty($result->property()),
                 $this->nullOrEmpty($result->column()),
@@ -513,7 +549,7 @@ class MapperAnnotationBuilder
         return strlen($result->one()->select()) > 0 || strlen($result->many()->select()) > 0;
     }
 
-    private function applyConstructorArgs(array $args, string $resultType, array &$resultMappings): void
+    private function applyConstructorArgs(array $args, ?string $resultType, array &$resultMappings): void
     {
         foreach ($args as $arg) {
             $flags = [];
@@ -580,7 +616,7 @@ class MapperAnnotationBuilder
         return $answer;
     }
 
-    private function buildSqlSource($annotation, string $parameterType, LanguageDriverInterface $languageDriver, \ReflectionMethod $method): SqlSourceInterface
+    private function buildSqlSource($annotation, ?string $parameterType, LanguageDriverInterface $languageDriver, \ReflectionMethod $method): SqlSourceInterface
     {
         if ($annotation instanceof Select) {
             return $this->buildSqlSourceFromStrings($annotation->value(), $parameterType, $languageDriver);
@@ -596,7 +632,7 @@ class MapperAnnotationBuilder
         return new ProviderSqlSource($this->assistant->getConfiguration(), $annotation, $this->type, $method);
     }
 
-    private function buildSqlSourceFromStrings(array $strings, string $parameterTypeClass, LanguageDriverInterface $languageDriver): SqlSourceInterface
+    private function buildSqlSourceFromStrings(array $strings, ?string $parameterTypeClass, LanguageDriverInterface $languageDriver): SqlSourceInterface
     {
         return $languageDriver->createSqlSource($this->configuration, trim(implode(" ", $strings)), $parameterTypeClass);
     }
@@ -621,10 +657,10 @@ class MapperAnnotationBuilder
             }
         }
         $annotationWrapper = null;
-        if ($databaseId !== null && array_ket_exists($databaseId, $statementAnnotations)) {
+        if ($databaseId !== null && array_key_exists($databaseId, $statementAnnotations)) {
             $annotationWrapper = $statementAnnotations[$databaseId];
         }
-        if ($annotationWrapper == null && array_ket_exists("", $statementAnnotations)) {
+        if ($annotationWrapper == null && array_key_exists("", $statementAnnotations)) {
             $annotationWrapper = $statementAnnotations[""];
         }
         if ($errorIfNoMatch && $annotationWrapper === null && !empty($statementAnnotations)) {

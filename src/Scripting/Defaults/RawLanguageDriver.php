@@ -10,7 +10,7 @@ use MyBatis\Session\Configuration;
 
 class RawLanguageDriver extends XMLLanguageDriver
 {
-    public function createSqlSource(Configuration $configuration, /*XNode|string*/$script, string $parameterType): SqlSourceInterface
+    public function createSqlSource(Configuration $configuration, /*XNode|string*/$script, ?string $parameterType): SqlSourceInterface
     {
         $source = parent::createSqlSource($configuration, $script, $parameterType);
         $this->checkIsNotDynamic($source);

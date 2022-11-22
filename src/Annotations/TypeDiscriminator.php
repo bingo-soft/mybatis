@@ -2,6 +2,7 @@
 
 namespace MyBatis\Annotations;
 
+use Attribute;
 use MyBatis\Type\{
     DbalType,
     TypeHandlerInterface,

@@ -42,7 +42,7 @@ class SqlSessionManager implements SqlSessionFactoryInterface, SqlSessionInterfa
         }
     }
 
-    public function startManagedSession(Connection $connection): void
+    public function startManagedSession(?Connection $connection = null): void
     {
         $this->localSqlSession = $this->openSession($connection);
     }
@@ -57,7 +57,7 @@ class SqlSessionManager implements SqlSessionFactoryInterface, SqlSessionInterfa
         return $this->localSqlSession;
     }
 
-    public function openSession(Connection $connection): SqlSessionInterface
+    public function openSession(?Connection $connection = null): SqlSessionInterface
     {
         return $this->sqlSessionFactory->openSession($connection);
     }

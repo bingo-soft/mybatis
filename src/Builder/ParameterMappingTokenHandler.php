@@ -7,6 +7,7 @@ use MyBatis\Mapping\{
     ParameterMappingBuilder
 };
 use MyBatis\Parsing\TokenHandlerInterface;
+use MyBatis\Session\Configuration;
 use Util\Reflection\{
     MetaClass,
     MetaObject
@@ -18,7 +19,7 @@ class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandlerIn
     private $parameterType;
     private $metaParameters;
 
-    public function __construct(Configuration $configuration, string $parameterType, array $additionalParameters)
+    public function __construct(Configuration $configuration, string $parameterType, $additionalParameters)
     {
         parent::__construct($configuration);
         $this->parameterType = $parameterType;
@@ -40,18 +41,18 @@ class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandlerIn
     {
         $propertiesMap = $this->parseParameterMapping($content);
         $property = null;
-        if (array_key_exists("property", $propertiesMap)) {
+        if (array_key_exists("property", $propertiesMap->getArrayCopy())) {
             $property = $propertiesMap["property"];
         }
         $propertyType = null;
-        if ($metaParameters->hasGetter($property)) {
-            $propertyType = $metaParameters->getGetterType($property);
-        } elseif ($typeHandlerRegistry->hasTypeHandler($parameterType)) {
-            $propertyType = $parameterType;
-        } elseif ($property === null || $parameterType == 'array') {
+        if ($this->metaParameters->hasGetter($property)) {
+            $propertyType = $this->metaParameters->getGetterType($property);
+        } elseif ($this->typeHandlerRegistry->hasTypeHandler($this->parameterType)) {
+            $propertyType = $this->parameterType;
+        } elseif ($property === null || $this->parameterType == 'array') {
             $propertyType = 'object';
         } else {
-            $metaClass = new MetaClass($parameterType);
+            $metaClass = new MetaClass($this->parameterType);
             if ($metaClass->hasGetter($property)) {
                 $propertyType = $metaClass->getGetterType($property);
             } else {
@@ -64,7 +65,7 @@ class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandlerIn
         foreach ($propertiesMap as $name => $value) {
             if ("phpType" == $name) {
                 $phpType = $this->resolveClass($value);
-                $builder->phpType(RphpType);
+                $builder->phpType($phpType);
             } elseif ("dbalType" == $name) {
                 $builder->dbalType($this->resolveDbalType($value));
             } elseif ("mode" == $name) {

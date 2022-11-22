@@ -41,7 +41,7 @@ class XMLScriptBuilder extends BaseBuilder
 
     public function parseScriptNode(): SqlSourceInterface
     {
-        $rootSqlNode = $this->parseDynamicTags($context);
+        $rootSqlNode = $this->parseDynamicTags($this->context);
         $sqlSource = null;
         if ($this->isDynamic) {
             $sqlSource = new DynamicSqlSource($this->configuration, $rootSqlNode);
@@ -51,13 +51,13 @@ class XMLScriptBuilder extends BaseBuilder
         return $sqlSource;
     }
 
-    protected function parseDynamicTags(XNode $node): MixedSqlNode
+    public function parseDynamicTags(XNode $node): MixedSqlNode
     {
         $contents = [];
-        $children = $node->getNode()->getChildNodes();
+        $children = $node->getNode()->childNodes;
         for ($i = 0; $i < count($children); $i += 1) {
             $child = $node->newXNode($children[$i]);
-            if ($child->getNode()->getNodeType() == XML_CDATA_SECTION_NODE || $child->getNode()->getNodeType() == XML_TEXT_NODE) {
+            if ($child->getNode()->nodeType == XML_CDATA_SECTION_NODE || $child->getNode()->nodeType == XML_TEXT_NODE) {
                 $data = $child->getStringBody("");
                 $textSqlNode = new TextSqlNode($data);
                 if ($textSqlNode->isDynamic()) {
@@ -66,8 +66,8 @@ class XMLScriptBuilder extends BaseBuilder
                 } else {
                     $contents[] = new StaticTextSqlNode($data);
                 }
-            } elseif ($child->getNode()->getNodeType() == XML_ELEMENT_NODE) {
-                $nodeName = $child->getNode()->getNodeName();
+            } elseif ($child->getNode()->nodeType == XML_ELEMENT_NODE) {
+                $nodeName = $child->getNode()->nodeName;
                 $handler = null;
                 if (array_key_exists($nodeName, $this->nodeHandlerMap)) {
                     $handler = $this->nodeHandlerMap[$nodeName];

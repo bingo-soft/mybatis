@@ -27,7 +27,7 @@ class SelectKeyGenerator implements KeyGeneratorInterface
         $this->keyStatement = $keyStatement;
     }
 
-    public function processBefore(ExecutorInterface $executor, MappedStatement $ms, Statement $stmt, $parameter): void
+    public function processBefore(ExecutorInterface $executor, MappedStatement $ms, ?Statement $stmt, $parameter): void
     {
         if ($this->executeBefore) {
             $this->processGeneratedKeys($executor, $ms, $parameter);
@@ -43,21 +43,29 @@ class SelectKeyGenerator implements KeyGeneratorInterface
 
     private function processGeneratedKeys(ExecutorInterface $executor, MappedStatement $ms, $parameter): void
     {
-        try {
+        /*try {*/
             if ($parameter !== null && $this->keyStatement !== null && !empty($this->keyStatement->getKeyProperties())) {
                 $keyProperties = $this->keyStatement->getKeyProperties();
                 $configuration = $ms->getConfiguration();
-                $metaParam = $this->configuration->newMetaObject($parameter);
+                $metaParam = $configuration->newMetaObject($parameter);
                 // Do not close keyExecutor.
                 // The transaction will be closed by parent executor.
-                $keyExecutor = $this->configuration->newExecutor($executor->getTransaction(), ExecutorType::SIMPLE);
-                $values = $keyExecutor->query($this->keyStatement, $parameter, RowBounds::DEFAULT, null);
+                $keyExecutor = $configuration->newExecutor($executor->getTransaction(), ExecutorType::SIMPLE);
+                $values = $keyExecutor->query($this->keyStatement, $parameter, RowBounds::default(), null);
                 if (count($values) == 0) {
                     throw new ExecutorException("SelectKey returned no data.");
                 } elseif (count($values) > 1) {
                     throw new ExecutorException("SelectKey returned more than one value.");
                 } else {
-                    $metaResult = $this->configuration->newMetaObject($values[0]);
+                    if (is_object($values[0])) {
+                        $metaResult = $configuration->newMetaObject($values[0]);
+                    } else {
+                        $object = new \stdClass();
+                        foreach ($keyProperties as $key => $value) {
+                            $object->{$value} = $values[$key];
+                        }
+                        $metaResult = $configuration->newMetaObject($object);
+                    }
                     if (count($keyProperties) == 1) {
                         if ($metaResult->hasGetter($keyProperties[0])) {
                             $this->setValue($metaParam, $keyProperties[0], $metaResult->getValue($keyProperties[0]));
@@ -71,11 +79,11 @@ class SelectKeyGenerator implements KeyGeneratorInterface
                     }
                 }
             }
-        } catch (ExecutorException $e) {
+        /*} catch (ExecutorException $e) {
             throw $e;
         } catch (\Exception $e) {
             throw new ExecutorException("Error selecting key or setting result to parameter object. Cause: " . $e->getMessage());
-        }
+        }*/
     }
 
     private function handleMultipleProperties(array $keyProperties, MetaObject $metaParam, MetaObject $metaResult): void

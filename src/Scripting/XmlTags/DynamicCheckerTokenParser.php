@@ -6,7 +6,7 @@ use MyBatis\Parsing\TokenHandlerInterface;
 
 class DynamicCheckerTokenParser implements TokenHandlerInterface
 {
-    private $isDynamic;
+    private $isDynamic = false;
 
     public function __construct()
     {

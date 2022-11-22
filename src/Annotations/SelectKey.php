@@ -2,10 +2,10 @@
 
 namespace MyBatis\Annotations;
 
+use Attribute;
 use MyBatis\Mapping\StatementType;
 
-#[Attribute(Attribute::TARGET_METHOD)]
-#[Attribute(Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class Select
 {
     public function __construct(private array $statement, private string $keyProperty, private bool $before, private string $resultType, private string $keyColumn = "", private string $statementType = StatementType::PREPARED, private string $databaseId = "")

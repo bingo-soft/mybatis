@@ -19,9 +19,9 @@ class ResultMap
     public $mappedColumns = [];
     public $mappedProperties = [];
     public $discriminator;
-    public $hasNestedResultMaps;
-    public $hasNestedQueries;
-    public $autoMapping;
+    public $hasNestedResultMaps = false;
+    public $hasNestedQueries = false;
+    public $autoMapping = false;
 
     public function __construct()
     {
@@ -42,7 +42,7 @@ class ResultMap
         return $this->hasNestedQueries;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -77,7 +77,7 @@ class ResultMap
         return $this->mappedProperties;
     }
 
-    public function getDiscriminator(): Discriminator
+    public function getDiscriminator(): ?Discriminator
     {
         return $this->discriminator;
     }
@@ -87,7 +87,7 @@ class ResultMap
         $this->hasNestedResultMaps = true;
     }
 
-    public function getAutoMapping(): bool
+    public function getAutoMapping(): ?bool
     {
         return $this->autoMapping;
     }

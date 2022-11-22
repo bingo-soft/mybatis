@@ -13,7 +13,7 @@ class UnpooledDataSource implements DataSourceInterface
     private $url;
     private $username;
     private $password;
-    private $autoCommit;
+    private $autoCommit = false;
     private $defaultTransactionIsolationLevel;
     private static $connection;
 

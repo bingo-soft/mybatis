@@ -10,7 +10,7 @@ use MyBatis\Session\{
 class ObjectWrapperResultHandler implements ResultHandlerInterface
 {
     public $result;
-    public $fetched;
+    public $fetched = false;
 
     public function handleResult(ResultContextInterface $context): void
     {

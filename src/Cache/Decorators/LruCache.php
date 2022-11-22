@@ -3,7 +3,10 @@
 namespace MyBatis\Cache\Decorators;
 
 use Heap\Tree\FibonacciHeap;
-use MyBatis\Cache\CacheInterface;
+use MyBatis\Cache\{
+    CacheInterface,
+    CacheKey
+};
 
 class LruCache implements CacheInterface
 {
@@ -39,7 +42,15 @@ class LruCache implements CacheInterface
     public function putObject($key, $value): void
     {
         $this->rank += 1;
-        if (array_key_exists($key, $this->keyRanks)) {
+        if ($key instanceof CacheKey) {
+            foreach ($this->keyRanks as $it => $pair) {
+                if ($pair[0]->equals($key)) {
+                    $this->keyRanks[$it] = [ $key, $this->rank ];
+                    $this->delegate->putObject($key, $value);
+                    return;
+                }
+            }
+        } elseif (array_key_exists($key, $this->keyRanks)) {
             $this->keyRanks[$key] = $this->rank;
             $this->delegate->putObject($key, $value);
             return;
@@ -49,7 +60,12 @@ class LruCache implements CacheInterface
             $this->cycleKeyList();
         }
 
-        $this->keyRanks[$key] = $this->rank;
+        if ($key instanceof CacheKey) {
+            $this->keyRanks[] = [ $key, $this->rank ];
+        } else {
+            $this->keyRanks[$key] = $this->rank;
+        }
+
         $this->delegate->putObject($key, $value);
         $this->heap->insert($this->rank, $key);
         $this->size -= 1;
@@ -57,12 +73,31 @@ class LruCache implements CacheInterface
 
     public function getObject($key)
     {
-        if (!array_key_exists($key, $this->keyRanks)) {
+        $value = null;
+        if ($key instanceof CacheKey) {
+            $exists = false;
+            foreach ($this->keyRanks as $it => $pair) {
+                if ($pair[0]->equals($key)) {
+                    $value = $pair[1];
+                    break;
+                }
+            }
+            if (!$exists) {
+                return null;
+            }
+        } elseif (!array_key_exists($key, $this->keyRanks)) {
             return null;
         }
-        $value = $this->keyRanks[$key];
+
+        $value = $value ?? $this->keyRanks[$key];
+
         $this->rank += 1;
-        $this->keyRanks[$key] = $this->rank;
+
+        if ($key instanceof CacheKey) {
+            $this->keyRanks[] = [ $key, $this->rank ];
+        } else {
+            $this->keyRanks[$key] = $this->rank;
+        }
 
         return $this->delegate->getObject($key);
     }
@@ -85,13 +120,34 @@ class LruCache implements CacheInterface
             $lruAt = $minNode->getKey();
             $key = $minNode->getValue();
 
-            $cur = $this->keyRanks[$key];
+            if ($key instanceof CacheKey) {
+                $cur = null;
+                foreach ($this->keyRanks as $it => $pair) {
+                    if ($pair[0]->equals($key)) {
+                        $cur = $pair[1];
+                        break;
+                    }
+                }
+            } else {
+                $cur = $this->keyRanks[$key];
+            }
+
             if ($cur > $lruAt) {
                 $this->heap->deleteMin();
                 $this->heap->insert($cur, $key);
             } else {
                 $this->heap->deleteMin();
-                unset($this->keyRanks[$key]);
+                if ($key instanceof CacheKey) {
+                    foreach ($this->keyRanks as $it => $pair) {
+                        if ($pair[0]->equals($key)) {
+                            unset($this->keyRanks[$it]);
+                            break;
+                        }
+                    }
+                } else {
+                    unset($this->keyRanks[$key]);
+                }
+
                 $this->delegate->removeObject($key);
                 $this->size += 1;
                 return;

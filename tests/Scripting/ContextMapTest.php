@@ -26,10 +26,6 @@ class ContextMapTest extends TestCase
         $context->put('var1', 1);
         $context->put('var2', 2);
 
-        foreach ($context as $key => $val) {
-            echo $val, "\n";
-        }
-
         $this->assertFalse($context->isEmpty());
         $this->assertEquals(1, $context->get('var1'));
         $this->assertEquals(2, $context->get('var2'));

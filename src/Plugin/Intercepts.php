@@ -2,6 +2,8 @@
 
 namespace MyBatis\Plugin;
 
+use Attribute;
+
 #[Attribute]
 class Intercepts implements InterceptsInterface
 {

@@ -27,7 +27,7 @@ class KeyAssigner
         $this->propertyName = $propertyName;
     }
 
-    public function assign(Result $rs, $param): void
+    public function assign(array $record, $param): void
     {
         if ($this->paramName !== null) {
             // If paramName is set, param is ParamMap
@@ -47,7 +47,7 @@ class KeyAssigner
             if ($this->typeHandler == null) {
                 // Error?
             } else {
-                $value = $this->typeHandler->getResult($rs, $this->columnPosition);
+                $value = $this->typeHandler->getResult($record, $this->columnPosition);
                 //metaParam.setValue(propertyName, value);
                 $prop = $metaParam->getProperty($propertyName);
                 if ($prop->isPrivate() || $prop->isProtected()) {

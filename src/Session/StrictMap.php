@@ -20,7 +20,8 @@ class StrictMap extends \ArrayObject
     public function put(string $key, $value)
     {
         if ($this->containsKey($key)) {
-            throw new \Exception($this->name . " already contains value for " . $key);
+            //throw new \Exception($this->name . " already contains value for " . $key);
+            return;
         }
         if (strpos($key, ".") !== false) {
             $shortKey = $this->getShortName($key);

@@ -15,7 +15,7 @@ class SqlSourceBuilder extends BaseBuilder
         parent::__construct($configuration);
     }
 
-    public function parse(string $originalSql, string $parameterType, array $additionalParameters): SqlSourceInterface
+    public function parse(string $originalSql, string $parameterType, $additionalParameters): SqlSourceInterface
     {
         $handler = new ParameterMappingTokenHandler($this->configuration, $parameterType, $additionalParameters);
         $parser = new GenericTokenParser("#{", "}", $handler);

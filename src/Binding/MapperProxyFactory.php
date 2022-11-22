@@ -7,6 +7,7 @@ use Util\Proxy\ProxyFactory;
 
 class MapperProxyFactory
 {
+    private $sqlSession;
     private $mapperInterface;
     private $methodCache = [];
 
@@ -28,14 +29,15 @@ class MapperProxyFactory
     public function newInstance(/*SqlSessionInterface|MapperProxy*/$sessionOrHandler)
     {
         if ($sessionOrHandler instanceof SqlSessionInterface) {
+            $this->sqlSession = $sessionOrHandler;
             $mapperProxy = new MapperProxy($sessionOrHandler, $this->mapperInterface, $this->methodCache);
             return $this->newInstance($mapperProxy);
         } elseif ($sessionOrHandler instanceof MapperProxy) {
             $enhancer = new ProxyFactory();
             $enhancer->setSuperclass(MapperProxy::class);
-            $enhancer->setInterfaces([ $this->mapperInterface ]);
-            $proxy = $enhancer->create([]);
-            $proxy->setHandler($sessionOrHandler);
+            //$enhancer->setInterfaces([ $this->mapperInterface ]);
+            $proxy = $enhancer->create([$this->sqlSession, $this->mapperInterface, $this->methodCache]);
+            //$proxy->setHandler($sessionOrHandler);
             return $proxy;
         }
     }

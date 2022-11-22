@@ -2,16 +2,18 @@
 
 namespace MyBatis\Annotations;
 
+use Attribute;
 use MyBatis\Type\{
     DbalType,
     TypeHandlerInterface,
     UnknownTypeHandler
 };
 
-#[Attribute(Attribute::TARGET_METHOD)]
-#[Attribute(Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class Arg
 {
+    private $dbalType;
+
     public function __construct(
         private bool $id = false,
         private string $column = '',
@@ -19,9 +21,11 @@ class Arg
         private string $phpType = 'void',
         private string $typeHandler = UnknownTypeHandler::class,
         private string $select = '',
+        private string $resultMap = '',
         private string $columnPrefix = '',
-        private string $dbalType = new DbalType('UNDEFINED')
+        private string $dbalTypeCode = 'UNDEFINED'
     ) {
+        $this->dbalType = DbalType::forCode($dbalTypeCode);
     }
 
     public function id(): bool
@@ -52,6 +56,11 @@ class Arg
     public function typeHandler(): string
     {
         return $this->typeHandler;
+    }
+
+    public function resultMap(): string
+    {
+        return $this->resultMap;
     }
 
     public function select(): string

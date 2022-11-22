@@ -84,7 +84,7 @@ class ParameterExpression extends \ArrayObject
         $left = $this->skipWS($expression, $p);
         $right = $this->skipUntil($expression, $left, ",");
         if ($right > $left) {
-            $this["sqlType"] = $this->trimmedStr($expression, $left, $right);
+            $this["dbalType"] = $this->trimmedStr($expression, $left, $right);
         } else {
             throw new BuilderException("Parsing error in {" . $expression . "} in position " . $p);
         }

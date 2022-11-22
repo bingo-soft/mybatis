@@ -14,18 +14,18 @@ use MyBatis\Session\ResultHandlerInterface;
 interface StatementHandlerInterface
 {
     public function prepare(Connection $connection, int $transactionTimeout): Statement;
-  
+
     public function parameterize(Statement $statement): void;
-  
+
     //public function batch(Statement $statement): void;
-  
-    public function update(/*Statement $statement*/): int;
-  
-    public function query(/*Statement $statement, */ResultHandlerInterface $resultHandler): array;
-  
+
+    public function update(Statement $statement): int;
+
+    public function query(Statement $statement, ResultHandlerInterface $resultHandler): array;
+
     public function queryCursor(Statement $statement): CursorInterface;
-  
+
     public function getBoundSql(): BoundSql;
 
-    public function getParameterHandler(): ParameterHandlerInterface;  
+    public function getParameterHandler(): ParameterHandlerInterface;
 }

@@ -9,13 +9,17 @@ use MyBatis\Executor\Keygen\KeyGeneratorInterface;
 use MyBatis\Mapping\{
     CacheBuilder,
     Discriminator,
+    DiscriminatorBuilder,
     MappedStatement,
+    MappedStatementBuilder,
     ParameterMap,
+    ParameterMapBuilder,
     ParameterMapping,
     ParameterMappingBuilder,
     ParameterMode,
     ResultFlag,
     ResultMap,
+    ResultMapBuilder,
     ResultMapping,
     ResultMappingBuilder,
     ResultSetType,
@@ -36,7 +40,7 @@ class MapperBuilderAssistant extends BaseBuilder
     private $currentNamespace;
     private $resource;
     private $currentCache;
-    private $unresolvedCacheRef;
+    private $unresolvedCacheRef = false;
 
     public function __construct(Configuration $configuration, string $resource)
     {
@@ -49,16 +53,16 @@ class MapperBuilderAssistant extends BaseBuilder
         return $this->currentNamespace;
     }
 
-    public function setCurrentNamespace(string $currentNamespace): void
+    public function setCurrentNamespace(?string $currentNamespace): void
     {
-        if ($this->currentNamespace === null) {
+        if ($currentNamespace === null) {
             throw new BuilderException("The mapper element requires a namespace attribute to be specified.");
         }
 
-        if ($this->currentNamespace !== null && $this->currentNamespace != $currentNamespace) {
+        if (!empty($this->currentNamespace) && $this->currentNamespace != $currentNamespace) {
             throw new BuilderException(
                 "Wrong namespace. Expected '"
-                -> $this->currentNamespace . "' but found '" . $currentNamespace . "'."
+                . $this->currentNamespace . "' but found '" . $currentNamespace . "'."
             );
         }
 
@@ -109,7 +113,7 @@ class MapperBuilderAssistant extends BaseBuilder
     public function useNewCache(
         string $typeClass,
         string $evictionClass,
-        int $flushInterval,
+        ?int $flushInterval,
         int $size,
         bool $readWrite,
         bool $blocking,
@@ -140,11 +144,11 @@ class MapperBuilderAssistant extends BaseBuilder
     public function buildParameterMapping(
         string $parameterType,
         string $property,
-        string $phpType,
-        DbalType $dbalType,
-        string $resultMap,
+        ?string $phpType,
+        ?DbalType $dbalType,
+        ?string $resultMap,
         string $parameterMode,
-        string $typeHandler,
+        ?string $typeHandler,
         int $numericScale
     ): ParameterMapping {
         $resultMap = $this->applyCurrentNamespace($resultMap, true);
@@ -164,11 +168,11 @@ class MapperBuilderAssistant extends BaseBuilder
 
     public function addResultMap(
         string $id,
-        string $type,
-        string $extend,
-        Discriminator $discriminator,
+        ?string $type,
+        ?string $extend,
+        ?Discriminator $discriminator,
         array $resultMappings,
-        bool $autoMapping
+        ?bool $autoMapping
     ): ResultMap {
         $id = $this->applyCurrentNamespace($id, false);
         $extend = $this->applyCurrentNamespace($extend, true);
@@ -214,8 +218,8 @@ class MapperBuilderAssistant extends BaseBuilder
         string $resultType,
         string $column,
         string $phpType,
-        DbalType $dbalType,
-        string $typeHandler,
+        ?DbalType $dbalType,
+        ?string $typeHandler,
         array $discriminatorMap
     ): Discriminator {
         $resultMapping = $this->buildResultMapping(
@@ -247,20 +251,20 @@ class MapperBuilderAssistant extends BaseBuilder
         SqlSourceInterface $sqlSource,
         string $statementType,
         string $sqlCommandType,
-        int $fetchSize,
-        int $timeout,
-        string $parameterMap,
-        string $parameterType,
-        string $resultMap,
-        string $resultType,
-        ResultSetType $resultSetType,
+        ?int $fetchSize,
+        ?int $timeout,
+        ?string $parameterMap,
+        ?string $parameterType,
+        ?string $resultMap,
+        ?string $resultType,
+        ?ResultSetType $resultSetType,
         bool $flushCache,
         bool $useCache,
         bool $resultOrdered,
         KeyGeneratorInterface $keyGenerator,
-        string $keyProperty,
-        string $keyColumn,
-        string $databaseId,
+        ?string $keyProperty,
+        ?string $keyColumn,
+        ?string $databaseId,
         LanguageDriverInterface $lang,
         ?string $resultSets = null
     ): MappedStatement {
@@ -268,9 +272,8 @@ class MapperBuilderAssistant extends BaseBuilder
             throw new IncompleteElementException("Cache-ref not yet resolved");
         }
 
-        $id = applyCurrentNamespace(id, false);
+        $id = $this->applyCurrentNamespace($id, false);
         $isSelect = $sqlCommandType == SqlCommandType::SELECT;
-
         $statementBuilder = (new MappedStatementBuilder($this->configuration, $id, $sqlSource, $sqlCommandType))
             ->resource($this->resource)
             ->fetchSize($fetchSize)
@@ -305,10 +308,10 @@ class MapperBuilderAssistant extends BaseBuilder
     }
 
     private function getStatementParameterMap(
-        string $parameterMapName,
+        ?string $parameterMapName,
         ?string $parameterTypeClass,
         string $statementId
-    ): ParameterMap {
+    ): ?ParameterMap {
         $parameterMapName = $this->applyCurrentNamespace($parameterMapName, true);
         $parameterMap = null;
         if (!empty($parameterMapName)) {
@@ -330,7 +333,7 @@ class MapperBuilderAssistant extends BaseBuilder
     }
 
     private function getStatementResultMaps(
-        string $resultMap,
+        ?string $resultMap,
         ?string $resultType,
         string $statementId
     ): array {
@@ -360,16 +363,16 @@ class MapperBuilderAssistant extends BaseBuilder
     }
 
     public function buildResultMapping(
-        string $resultType,
-        string $property,
-        string $column,
-        string $phpType,
-        DbalType $dbalType,
+        ?string $resultType,
+        ?string $property,
+        ?string $column,
+        ?string $phpType,
+        ?DbalType $dbalType,
         ?string $nestedSelect,
-        string $nestedResultMap,
-        string $notNullColumn,
-        string $columnPrefix,
-        string $typeHandler,
+        ?string $nestedResultMap,
+        ?string $notNullColumn,
+        ?string $columnPrefix,
+        ?string $typeHandler,
         ?array $flags = [],
         ?string $resultSet = null,
         ?string $foreignColumn = null,
@@ -386,13 +389,13 @@ class MapperBuilderAssistant extends BaseBuilder
         }
         return (new ResultMappingBuilder($this->configuration, $property, $column, $phpTypeClass))
             ->dbalType($dbalType)
-            ->nestedQueryId(applyCurrentNamespace($nestedSelect, true))
-            ->nestedResultMapId(applyCurrentNamespace($nestedResultMap, true))
+            ->nestedQueryId($this->applyCurrentNamespace($nestedSelect, true))
+            ->nestedResultMapId($this->applyCurrentNamespace($nestedResultMap, true))
             ->resultSet($resultSet)
             ->typeHandler($typeHandlerInstance)
             ->flags($flags)
             ->composites($composites)
-            ->notNullColumns(parseMultipleColumnNames($notNullColumn))
+            ->notNullColumns($this->parseMultipleColumnNames($notNullColumn))
             ->columnPrefix($columnPrefix)
             ->foreignColumn($foreignColumn)
             ->lazy($lazy)
@@ -440,7 +443,7 @@ class MapperBuilderAssistant extends BaseBuilder
         return $composites;
     }
 
-    private function resolveResultPhpType(string $resultType, ?string $property, ?string $phpType): string
+    private function resolveResultPhpType(?string $resultType, ?string $property, ?string $phpType): string
     {
         if ($phpType === null && $property !== null) {
             if (class_exists($resultType)) {
@@ -454,7 +457,7 @@ class MapperBuilderAssistant extends BaseBuilder
         return $phpType;
     }
 
-    private function resolveParameterPhpType(string $resultType, string $property, ?string $phpType, DbalType $dbalType): string
+    private function resolveParameterPhpType(string $resultType, string $property, ?string $phpType, ?DbalType $dbalType): string
     {
         if ($phpType === null) {
             if (class_exists($resultType)) {

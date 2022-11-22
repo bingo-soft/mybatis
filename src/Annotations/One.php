@@ -2,12 +2,13 @@
 
 namespace MyBatis\Annotations;
 
-use MyBatis\Mapping\FatchType;
+use Attribute;
+use MyBatis\Mapping\FetchType;
 
 #[Attribute(Attribute::TARGET_ALL)]
 class One
 {
-    public function __construct(private string $columnPrefix = "", private string $resultMap = "", private string $select = "", private string $fetchType = FatchType::DEFAULT)
+    public function __construct(private string $columnPrefix = "", private string $resultMap = "", private string $select = "", private string $fetchType = FetchType::DEFAULT)
     {
     }
 

@@ -43,19 +43,22 @@ class DefaultParameterHandler implements ParameterHandlerInterface
     {
         $parameterMappings = $this->boundSql->getParameterMappings();
         if (!empty($parameterMappings)) {
+            $metaObject = null;
             for ($i = 0; $i < count($parameterMappings); $i += 1) {
                 $parameterMapping = $parameterMappings[$i];
                 if ($parameterMapping->getMode() != ParameterMode::OUT) {
                     $value = null;
                     $propertyName = $parameterMapping->getProperty();
-                    if ($this->boundSql->hasAdditionalParameter($propertyName)) { // issue #448 ask first for additional params
+                    if ($this->boundSql->hasAdditionalParameter($propertyName)) {
                         $value = $this->boundSql->getAdditionalParameter($propertyName);
                     } elseif ($this->parameterObject === null) {
                         $value = null;
-                    } elseif ($this->typeHandlerRegistry->hasTypeHandler($this->parameterObject->getClass())) {
+                    } elseif ($this->typeHandlerRegistry->hasTypeHandler(is_object($this->parameterObject) ? get_class($this->parameterObject) : gettype($this->parameterObject))) {
                         $value = $this->parameterObject;
                     } else {
-                        $metaObject = $this->configuration->newMetaObject($this->parameterObject);
+                        if ($metaObject === null) {
+                            $metaObject = $this->configuration->newMetaObject($this->parameterObject);
+                        }
                         $value = $metaObject->getValue($propertyName);
                     }
                     $typeHandler = $parameterMapping->getTypeHandler();

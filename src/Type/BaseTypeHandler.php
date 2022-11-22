@@ -40,7 +40,19 @@ abstract class BaseTypeHandler implements TypeHandlerInterface
                     $set = $rs->fetchAssociative();
                 }
             }
-            return $set[$column];
+            if (is_int($column)) {
+                return $set[$column];
+            } elseif (is_string($column)) {
+                if (isset($set[$column])) {
+                    return $set[$column];
+                }
+                if (isset($set[strtolower($column)])) {
+                    return $set[strtolower($column)];
+                }
+                if (isset($set[strtoupper($column)])) {
+                    return $set[strtoupper($column)];
+                }
+            }
         } catch (\Exception $e) {
             throw new ResultMapException("Error attempting to get column $column from result set. Cause: " . $e->getMessage());
         }
@@ -49,4 +61,9 @@ abstract class BaseTypeHandler implements TypeHandlerInterface
     abstract public function setNonNullParameter(Statement $ps, /*string|int*/$i, $parameter, string $type = null): void;
 
     abstract public function getNullableResult(Result $rs, $column);
+
+    protected function getParameterValue(/*string|int*/$i, $parameter)
+    {
+        return $parameter;
+    }
 }

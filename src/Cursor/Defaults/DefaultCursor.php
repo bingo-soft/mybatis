@@ -24,7 +24,7 @@ class DefaultCursor implements CursorInterface
     protected $objectWrapperResultHandler;
 
     private $cursorIterator;
-    private $iteratorRetrieved;
+    private $iteratorRetrieved = false;
 
     private $status = CursorStatus::CREATED;
     private $indexWithRowBound = -1;

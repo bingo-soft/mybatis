@@ -2,10 +2,12 @@
 
 namespace MyBatis\Annotations;
 
+use Attribute;
+
 #[Attribute(Attribute::TARGET_METHOD)]
 class Results
 {
-    public function __construct(private string $id = "", private array $value = [])
+    public function __construct(private mixed $value = [], private string $id = "")
     {
     }
 
@@ -14,7 +16,7 @@ class Results
         return $this->id;
     }
 
-    public function value(): array
+    public function value(): mixed
     {
         return $this->value;
     }

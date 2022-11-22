@@ -25,7 +25,8 @@ use MyBatis\Session\{
 
 class PreparedStatementHandler extends BaseStatementHandler
 {
-    public function __construct(ExecutorInterface $executor, MappedStatement $mappedStatement, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, BoundSql $boundSql) {
+    public function __construct(ExecutorInterface $executor, MappedStatement $mappedStatement, $parameter, ?RowBounds $rowBounds, ?ResultHandlerInterface $resultHandler, ?BoundSql $boundSql)
+    {
         parent::__construct($executor, $mappedStatement, $parameter, $rowBounds, $resultHandler, $boundSql);
     }
 
@@ -37,19 +38,19 @@ class PreparedStatementHandler extends BaseStatementHandler
         $keyGenerator->processAfter($this->executor, $this->mappedStatement, $statement, $parameterObject);
         return $rows;
     }
-  
-    public function query(Statement $statement, ResultHandlerInterface $resultHandler): array
+
+    public function query(Statement $statement, ?ResultHandlerInterface $resultHandler): array
     {
         $statement->executeStatement();
         return $this->resultSetHandler->handleResultSets($statement);
     }
-  
+
     public function queryCursor(Statement $statement): CursorInterface
     {
         $statement->executeStatement();
         return $this->resultSetHandler->handleCursorResultSets($statement);
     }
-  
+
     public function instantiateStatement(Connection $connection): Statement
     {
         $sql = $this->boundSql->getSql();

@@ -42,13 +42,13 @@ class SqlCommand
     private function resolveMappedStatement(
         string $mapperInterface,
         string $methodName,
-        string $declaringClass,
+        $declaringClass,
         Configuration $configuration
     ): ?MappedStatement {
-        $statementId = (new \ReflectionClass($mapperInterface))->getShortName() . "." . $methodName;
+        $statementId = (new \ReflectionClass($mapperInterface))->name . "." . $methodName;
         if ($configuration->hasStatement($statementId)) {
             return $configuration->getMappedStatement($statementId);
-        } elseif ($mapperInterface == $declaringClass) {
+        } elseif ($mapperInterface == $declaringClass->name) {
             return null;
         }
         foreach ((new \ReflectionClass($mapperInterface))->getInterfaces() as $superInterface) {

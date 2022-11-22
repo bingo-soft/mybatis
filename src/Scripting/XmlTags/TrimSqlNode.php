@@ -13,7 +13,7 @@ class TrimSqlNode implements SqlNodeInterface
     private $suffixesToOverride = [];
     private $configuration;
 
-    public function __construct(Configuration $configuration, SqlNodeInterface $contents, string $prefix, /*string|array*/$prefixesToOverride, string $suffix, /*string|array*/$suffixesToOverride)
+    public function __construct(Configuration $configuration, SqlNodeInterface $contents, string $prefix, /*string|array*/$prefixesToOverride, ?string $suffix, /*string|array*/$suffixesToOverride)
     {
         $this->contents = $contents;
         $this->prefix = $prefix;
@@ -25,7 +25,7 @@ class TrimSqlNode implements SqlNodeInterface
 
     public function apply(DynamicContext $context): bool
     {
-        $filteredDynamicContext = new TrimFilteredDynamicContext($this->configuration, $context, $this->prefix, $this->suffix);
+        $filteredDynamicContext = new TrimFilteredDynamicContext($this->configuration, $context, $this->prefix, $this->suffix, $this->prefixesToOverride, $this->suffixesToOverride);
         $result = $this->contents->apply($filteredDynamicContext);
         $filteredDynamicContext->applyAll();
         return $result;

@@ -31,15 +31,15 @@ abstract class BaseExecutor implements ExecutorInterface
 {
     protected $transaction;
     protected $wrapper;
-  
+
     protected $deferredLoads;
     protected $localCache;
     //protected $localOutputParameterCache;
     protected $configuration;
-  
+
     protected $queryStack;
-    private $closed;
-  
+    private $closed = false;
+
     public function __construct(Configuration $configuration, TransactionInterface $transaction)
     {
         $this->transaction = $transaction;
@@ -58,7 +58,7 @@ abstract class BaseExecutor implements ExecutorInterface
         }
         return $this->transaction;
     }
-  
+
     public function close(bool $forceRollback): void
     {
         try {
@@ -85,7 +85,7 @@ abstract class BaseExecutor implements ExecutorInterface
     {
         return $this->closed;
     }
-  
+
     public function update(MappedStatement $ms, $parameter): int
     {
         if ($this->closed) {
@@ -94,7 +94,7 @@ abstract class BaseExecutor implements ExecutorInterface
         $this->clearLocalCache();
         return $this->doUpdate($ms, $parameter);
     }
-  
+
     public function flushStatements(bool $isRollBack = false): array
     {
         if ($this->closed) {
@@ -103,7 +103,7 @@ abstract class BaseExecutor implements ExecutorInterface
         return $this->doFlushStatements($isRollBack);
     }
 
-    public function query(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler = null, CacheKey $cacheKey = null, BoundSql $boundSql = null): array
+    public function query(MappedStatement $ms, $parameter, ?RowBounds $rowBounds, ResultHandlerInterface $resultHandler = null, CacheKey $cacheKey = null, BoundSql $boundSql = null): array
     {
         if ($cacheKey === null) {
             $boundSql = $ms->getBoundSql($parameter);
@@ -142,13 +142,13 @@ abstract class BaseExecutor implements ExecutorInterface
             return $list;
         }
     }
-  
+
     public function queryCursor(MappedStatement $ms, $parameter, RowBounds $rowBounds): CursorInterface
     {
         $boundSql = $ms->getBoundSql($parameter);
         return $this->doQueryCursor($ms, $parameter, $rowBounds, $boundSql);
     }
-  
+
     public function deferLoad(MappedStatement $ms, MetaObject $resultObject, string $property, CacheKey $key, string $targetType): void
     {
         if ($this->closed) {
@@ -161,20 +161,23 @@ abstract class BaseExecutor implements ExecutorInterface
             $this->deferredLoads[] = new DeferredLoad($resultObject, $property, $key, $this->localCache, $this->configuration, $targetType);
         }
     }
-  
-    public function createCacheKey(MappedStatement $ms, $parameterObject, RowBounds $rowBounds, BoundSql $boundSql): CacheKey
+
+    public function createCacheKey(MappedStatement $ms, $parameterObject, ?RowBounds $rowBounds, BoundSql $boundSql): CacheKey
     {
         if ($this->closed) {
             throw new ExecutorException("Executor was closed.");
         }
         $cacheKey = new CacheKey();
         $cacheKey->update($ms->getId());
-        $cacheKey->update($rowBounds->getOffset());
-        $cacheKey->update($rowBounds->getLimit());
+        if ($rowBounds !== null) {
+            $cacheKey->update($rowBounds->getOffset());
+            $cacheKey->update($rowBounds->getLimit());
+        }
         $cacheKey->update($boundSql->getSql());
         $parameterMappings = $boundSql->getParameterMappings();
         $typeHandlerRegistry = $ms->getConfiguration()->getTypeHandlerRegistry();
         // mimic DefaultParameterHandler logic
+        $metaObject = null;
         foreach ($parameterMappings as $parameterMapping) {
             if ($parameterMapping->getMode() != ParameterMode::OUT) {
                 $value = null;
@@ -183,10 +186,12 @@ abstract class BaseExecutor implements ExecutorInterface
                     $value = $boundSql->getAdditionalParameter($propertyName);
                 } elseif ($parameterObject === null) {
                     $value = null;
-                } elseif ($typeHandlerRegistry->hasTypeHandler(get_class($parameterObject))) {
+                } elseif ($typeHandlerRegistry->hasTypeHandler(is_object($parameterObject) ? get_class($parameterObject) : gettype($parameterObject))) {
                     $value = $parameterObject;
                 } else {
-                    $metaObject = $this->configuration->newMetaObject($parameterObject);
+                    if ($metaObject === null) {
+                        $metaObject = $this->configuration->newMetaObject($parameterObject);
+                    }
                     $value = $metaObject->getValue($propertyName);
                 }
                 $cacheKey->update($value);
@@ -198,12 +203,12 @@ abstract class BaseExecutor implements ExecutorInterface
         }
         return $cacheKey;
     }
-  
+
     public function isCached(MappedStatement $ms, CacheKey $key): bool
     {
         return $this->localCache->getObject($key) !== null;
     }
-  
+
     public function commit(bool $required): void
     {
         if ($this->closed) {
@@ -212,10 +217,10 @@ abstract class BaseExecutor implements ExecutorInterface
         $this->clearLocalCache();
         $this->flushStatements();
         if ($required) {
-           $this->transaction->commit();
+            $this->transaction->commit();
         }
     }
-  
+
     public function rollback(bool $required): void
     {
         if (!$this->closed) {
@@ -229,7 +234,7 @@ abstract class BaseExecutor implements ExecutorInterface
             }
         }
     }
-  
+
     public function clearLocalCache(): void
     {
         if (!$this->closed) {
@@ -237,16 +242,16 @@ abstract class BaseExecutor implements ExecutorInterface
             //localOutputParameterCache.clear();
         }
     }
-  
+
     abstract protected function doUpdate(MappedStatement $ms, $parameter): int;
-  
+
     abstract protected function doFlushStatements(bool $isRollback): array;
-  
+
     abstract protected function doQuery(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, BoundSql $boundSql): array;
-  
+
     abstract protected function doQueryCursor(MappedStatement $ms, $parameter, RowBounds $rowBounds, BoundSql $boundSql): CursorInterface;
-  
-    protected function closeStatement(Statement $statement): void
+
+    protected function closeStatement(?Statement $statement): void
     {
         if ($statement !== null) {
             try {
@@ -259,7 +264,7 @@ abstract class BaseExecutor implements ExecutorInterface
             }
         }
     }
-  
+
     /**
      * Apply a transaction timeout.
      */
@@ -267,13 +272,13 @@ abstract class BaseExecutor implements ExecutorInterface
     {
         //StatementUtil.applyTransactionTimeout(statement, statement.getQueryTimeout(), transaction.getTimeout());
     }
-  
+
     private function handleLocallyCachedOutputParameters(MappedStatement $ms, CacheKey $key, $parameter, BoundSql $boundSql): void
     {
         //
     }
-  
-    private function queryFromDatabase(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, CacheKey $key, BoundSql $boundSql): array
+
+    private function queryFromDatabase(MappedStatement $ms, $parameter, ?RowBounds $rowBounds, ?ResultHandlerInterface $resultHandler, CacheKey $key, BoundSql $boundSql): array
     {
         $list = [];
         $this->localCache->putObject($key, ExecutionPlaceholder::EXECUTION_PLACEHOLDER);
@@ -285,12 +290,12 @@ abstract class BaseExecutor implements ExecutorInterface
         $this->localCache->putObject($key, $list);
         return $list;
     }
-  
+
     public function getConnection(/*Log statementLog*/): Connection
     {
         return $this->transaction->getConnection();
     }
-  
+
     public function setExecutorWrapper(ExecutorInterface $wrapper): void
     {
         $this->wrapper = $wrapper;

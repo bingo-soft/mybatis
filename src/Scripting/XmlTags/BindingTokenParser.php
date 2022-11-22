@@ -19,13 +19,14 @@ class BindingTokenParser implements TokenHandlerInterface
 
     public function handleToken(string $content): ?string
     {
-        $parameter = $context->getBindings()->get("_parameter");
+        $parameter = $this->context->getBindings()->get("_parameter");
         if ($parameter === null) {
-            $context->getBindings()->put("value", null);
+            $this->context->getBindings()->put("value", null);
         } elseif (( is_object($parameter) && in_array(get_class($parameter), self::SIMPLE_TYPES) ) || (in_array(gettype($parameter), self::SIMPLE_TYPES))) {
             $this->context->getBindings()->put("value", $parameter);
         }
-        $value = JuelCache::getValue($content, $this->context->getBindings());
+        //JUEL expects expression to be enclosed in ${}
+        $value = JuelCache::getValue('${' . $content . '}', $this->context->getBindings());
         $strValue = strval($value);
         $this->checkInjection($strValue);
         return $strValue;

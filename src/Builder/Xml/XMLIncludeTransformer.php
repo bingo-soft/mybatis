@@ -32,7 +32,7 @@ class XMLIncludeTransformer
      * @param variablesContext
      *          Current context for static variables with values
      */
-    private function applyIncludes(\DOMNode $source, array $variablesContext = [], bool $included = false): void
+    public function applyIncludes(\DOMNode $source, array $variablesContext = [], bool $included = false): void
     {
         if (empty($variablesContext)) {
             $configurationVariables = $this->configuration->getVariables();
@@ -91,7 +91,7 @@ class XMLIncludeTransformer
 
     private function getStringAttribute(\DOMNode $node, string $name): string
     {
-        return $node->atributes->getNamedItem($name)->nodeValue;
+        return $node->attributes->getNamedItem($name)->nodeValue;
     }
 
     /**

@@ -62,8 +62,8 @@
   <xs:element name="parameter">
     <xs:complexType>
       <xs:attribute name="property" use="required"/>
-      <xs:attribute name="javaType"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="phpType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="mode">
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -112,26 +112,26 @@
   <xs:element name="id">
     <xs:complexType>
       <xs:attribute name="property"/>
-      <xs:attribute name="javaType"/>
+      <xs:attribute name="phpType"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="typeHandler"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="result">
     <xs:complexType>
       <xs:attribute name="property"/>
-      <xs:attribute name="javaType"/>
+      <xs:attribute name="phpType"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="typeHandler"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="idArg">
     <xs:complexType>
-      <xs:attribute name="javaType"/>
+      <xs:attribute name="phpType"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="typeHandler"/>
       <xs:attribute name="select"/>
       <xs:attribute name="resultMap"/>
@@ -141,9 +141,9 @@
   </xs:element>
   <xs:element name="arg">
     <xs:complexType>
-      <xs:attribute name="javaType"/>
+      <xs:attribute name="phpType"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="typeHandler"/>
       <xs:attribute name="select"/>
       <xs:attribute name="resultMap"/>
@@ -163,9 +163,9 @@
       </xs:sequence>
       <xs:attribute name="property" use="required"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="javaType"/>
+      <xs:attribute name="phpType"/>
       <xs:attribute name="ofType"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="select"/>
       <xs:attribute name="resultMap"/>
       <xs:attribute name="typeHandler"/>
@@ -203,8 +203,8 @@
       </xs:sequence>
       <xs:attribute name="property" use="required"/>
       <xs:attribute name="column"/>
-      <xs:attribute name="javaType"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="phpType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="select"/>
       <xs:attribute name="resultMap"/>
       <xs:attribute name="typeHandler"/>
@@ -236,8 +236,8 @@
         <xs:element maxOccurs="unbounded" ref="case"/>
       </xs:sequence>
       <xs:attribute name="column"/>
-      <xs:attribute name="javaType" use="required"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="phpType" use="required"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="typeHandler"/>
     </xs:complexType>
   </xs:element>

@@ -95,7 +95,7 @@ class ProviderSqlSource implements SqlSourceInterface
 
     private function createSqlSource($parameterObject = null): SqlSourceInterface
     {
-        try {
+        /*try {*/
             $sql = "";
             if (is_array($parameterObject)) {
                 $sql = $this->invokeProviderMethod($this->extractProviderMethodArguments($parameterObject, $this->providerMethodArgumentNames));
@@ -112,13 +112,13 @@ class ProviderSqlSource implements SqlSourceInterface
             } else {
                 throw new BuilderException("Cannot invoke SqlProvider method");
             }
-            $parameterType = $parameterObject == null ? "object" : (class_exists($parameterObject) ? get_class($parameterObject) : gettype($parameterObject));
+            $parameterType = $parameterObject == null ? "object" : (is_object($parameterObject) ? get_class($parameterObject) : gettype($parameterObject));
             return $this->languageDriver->createSqlSource($this->configuration, $sql, $parameterType);
-        } catch (BuilderException $e) {
+        /*} catch (BuilderException $e) {
             throw $e;
         } catch (\Exception $e) {
             throw new BuilderException("Error invoking SqlProvider method. Cause: " . $e->getMessage());
-        }
+        }*/
     }
 
     private function extractProviderMethodArguments($parameterObject, array $argumentNames = []): array

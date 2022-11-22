@@ -56,12 +56,12 @@ class XMLConfigBuilder extends BaseBuilder
         }
         $this->parsed = true;
         $this->parseConfiguration($this->parser->evalNode("/configuration"));
-        return $configuration;
+        return $this->configuration;
     }
 
     private function parseConfiguration(XNode $root): void
     {
-        try {
+        /*try {*/
             // issue #117 read properties first
             $this->propertiesElement($root->evalNode("properties"));
             $settings = $this->settingsAsProperties($root->evalNode("settings"));
@@ -78,14 +78,14 @@ class XMLConfigBuilder extends BaseBuilder
             $this->databaseIdProviderElement($root->evalNode("databaseIdProvider"));
             $this->typeHandlerElement($root->evalNode("typeHandlers"));
             $this->mapperElement($root->evalNode("mappers"));
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " . $e->getMessage());
-        }
+        }*/
     }
 
-    private function settingsAsProperties(XNode $context): array
+    private function settingsAsProperties(?XNode $context): array
     {
-        if ($context == null) {
+        if ($context === null) {
             return [];
         }
         $props = $context->getChildrenAsProperties();
@@ -142,7 +142,7 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }
 
-    private function pluginElement(XNode $parent): void
+    private function pluginElement(?XNode $parent): void
     {
         if ($parent !== null) {
             foreach ($parent->getChildren() as $child) {
@@ -175,7 +175,7 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }*/
 
-    private function reflectorFactoryElement(XNode $context): void
+    private function reflectorFactoryElement(?XNode $context): void
     {
         if ($context !== null) {
             $type = $context->getStringAttribute("type");
@@ -185,7 +185,7 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }
 
-    private function propertiesElement(XNode $context): void
+    private function propertiesElement(?XNode $context): void
     {
         if ($context !== null) {
             $defaults = $context->getChildrenAsProperties();
@@ -208,41 +208,41 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }
 
-    private function settingsElement(array $props): void
+    private function settingsElement(array $props = []): void
     {
-        $this->configuration->setAutoMappingBehavior(constant("AutoMappingBehavior::", array_key_exists("autoMappingBehavior", $props) ? $props["autoMappingBehavior"] : "PARTIAL"));
-        $this->configuration->setAutoMappingUnknownColumnBehavior(constant("AutoMappingUnknownColumnBehavior::", array_key_exists("autoMappingBehavior", $props) ? $props["autoMappingUnknownColumnBehavior"] : "NONE"));
+        $this->configuration->setAutoMappingBehavior(constant(AutoMappingBehavior::class . "::" . (array_key_exists("autoMappingBehavior", $props) ? $props["autoMappingBehavior"] : "PARTIAL")));
+        $this->configuration->setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior::forCode((array_key_exists("autoMappingBehavior", $props) ? $props["autoMappingUnknownColumnBehavior"] : "NONE")));
         $this->configuration->setCacheEnabled(Boolean::parseBoolean(array_key_exists("cacheEnabled", $props) ? $props["cacheEnabled"] : true));
-        $this->configuration->setProxyFactory($this->createInstance($props["proxyFactory"]));
+        $this->configuration->setProxyFactory($this->createInstance(array_key_exists("proxyFactory", $props) ? $props["proxyFactory"] : null));
         $this->configuration->setLazyLoadingEnabled(Boolean::parseBoolean(array_key_exists("lazyLoadingEnabled", $props) ? $props["lazyLoadingEnabled"] : false));
         $this->configuration->setAggressiveLazyLoading(Boolean::parseBoolean(array_key_exists("aggressiveLazyLoadingEnabled", $props) ? $props["aggressiveLazyLoadingEnabled"] : false));
         $this->configuration->setMultipleResultSetsEnabled(Boolean::parseBoolean(array_key_exists("multipleResultSetsEnabled", $props) ? $props["multipleResultSetsEnabled"] : true));
         $this->configuration->setUseColumnLabel(Boolean::parseBoolean(array_key_exists("useColumnLabel", $props) ? $props["useColumnLabel"] : true));
         $this->configuration->setUseGeneratedKeys(Boolean::parseBoolean(array_key_exists("useGeneratedKeys", $props) ? $props["useGeneratedKeys"] : false));
-        $this->configuration->setDefaultExecutorType(constant("ExecutorType::", array_key_exists("defaultExecutorType", $props) ? $props["defaultExecutorType"] : "SIMPLE"));
+        $this->configuration->setDefaultExecutorType(constant(ExecutorType::class . "::" . (array_key_exists("defaultExecutorType", $props) ? $props["defaultExecutorType"] : "SIMPLE")));
         $this->configuration->setDefaultStatementTimeout(array_key_exists("defaultStatementTimeout", $props) ? intval($props["defaultStatementTimeout"]) : null);
         $this->configuration->setDefaultFetchSize(array_key_exists("defaultFetchSize", $props) ? intval($props["defaultFetchSize"]) : null);
         $this->configuration->setDefaultResultSetType($this->resolveResultSetType(array_key_exists("defaultResultSetType", $props) ? intval($props["defaultResultSetType"]) : null));
         $this->configuration->setMapUnderscoreToCamelCase(Boolean::parseBoolean(array_key_exists("mapUnderscoreToCamelCase", $props) ? $props["mapUnderscoreToCamelCase"] : false));
         $this->configuration->setSafeRowBoundsEnabled(Boolean::parseBoolean(array_key_exists("safeRowBoundsEnabled", $props) ? $props["safeRowBoundsEnabled"] : false));
-        $this->configuration->setLocalCacheScope(constant("LocalCacheScope::", array_key_exists("localCacheScope", $props) ? $props["localCacheScope"] : "SESSION"));
+        $this->configuration->setLocalCacheScope(constant(LocalCacheScope::class . "::" . (array_key_exists("localCacheScope", $props) ? $props["localCacheScope"] : "SESSION")));
         $this->configuration->setDbalTypeForNull(DbalType::forCode(array_key_exists("dbalTypeForNull", $props) ? $props["dbalTypeForNull"] : "OTHER"));
         //$this->configuration->setLazyLoadTriggerMethods(stringSetValueOf(props->getProperty("lazyLoadTriggerMethods"), "equals,clone,hashCode,toString"));
         $this->configuration->setSafeResultHandlerEnabled(Boolean::parseBoolean(array_key_exists("safeResultHandlerEnabled", $props) ? $props["safeResultHandlerEnabled"] : true));
-        $this->configuration->setDefaultScriptingLanguage($this->resolveClass($props["defaultScriptingLanguage"]));
-        $this->configuration->setDefaultEnumTypeHandler($this->resolveClass($props["defaultEnumTypeHandler"]));
+        $this->configuration->setDefaultScriptingLanguage($this->resolveClass(array_key_exists("defaultScriptingLanguage", $props) ? intval($props["defaultScriptingLanguage"]) : null));
+        $this->configuration->setDefaultEnumTypeHandler($this->resolveClass(array_key_exists("defaultEnumTypeHandler", $props) ? intval($props["defaultEnumTypeHandler"]) : null));
         $this->configuration->setCallSettersOnNulls(Boolean::parseBoolean(array_key_exists("callSettersOnNulls", $props) ? $props["callSettersOnNulls"] : false));
         $this->configuration->setUseActualParamName(Boolean::parseBoolean(array_key_exists("useActualParamName", $props) ? $props["useActualParamName"] : true));
         $this->configuration->setReturnInstanceForEmptyRow(Boolean::parseBoolean(array_key_exists("returnInstanceForEmptyRow", $props) ? $props["returnInstanceForEmptyRow"] : false));
-        $this->configuration->setLogPrefix($props["logPrefix"]);
+        //$this->configuration->setLogPrefix(array_key_exists("logPrefix", $props) ? intval($props["logPrefix"]) : "");
         //$this->configuration->setConfigurationFactory(resolveClass(props->getProperty("configurationFactory")));
         $this->configuration->setShrinkWhitespacesInSql(Boolean::parseBoolean(array_key_exists("shrinkWhitespacesInSql", $props) ? $props["shrinkWhitespacesInSql"] : false));
         $this->configuration->setArgNameBasedConstructorAutoMapping(Boolean::parseBoolean(array_key_exists("argNameBasedConstructorAutoMapping", $props) ? $props["argNameBasedConstructorAutoMapping"] : false));
-        $this->configuration->setDefaultSqlProviderType($this->resolveClass($props["defaultSqlProviderType"]));
+        $this->configuration->setDefaultSqlProviderType($this->resolveClass(array_key_exists("defaultSqlProviderType", $props) ? intval($props["defaultSqlProviderType"]) : null));
         $this->configuration->setNullableOnForEach(Boolean::parseBoolean(array_key_exists("nullableOnForEach", $props) ? $props["nullableOnForEach"] : false));
     }
 
-    private function environmentsElement(XNode $context): void
+    private function environmentsElement(?XNode $context): void
     {
         if ($context !== null) {
             if ($this->environment === null) {
@@ -264,7 +264,7 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }
 
-    private function databaseIdProviderElement(XNode $context): void
+    private function databaseIdProviderElement(?XNode $context): void
     {
         $databaseIdProvider = null;
         if ($context !== null) {
@@ -311,7 +311,7 @@ class XMLConfigBuilder extends BaseBuilder
         throw new BuilderException("Environment declaration requires a DataSourceFactory.");
     }
 
-    private function typeHandlerElement(XNode $parent): void
+    private function typeHandlerElement(?XNode $parent): void
     {
         if ($parent !== null) {
             foreach ($parent->getChildren() as $child) {
@@ -323,7 +323,7 @@ class XMLConfigBuilder extends BaseBuilder
                     $dbalTypeName = $child->getStringAttribute("dbalType");
                     $handlerTypeName = $child->getStringAttribute("handler");
                     $phpTypeClass = $this->resolveClass($phpTypeName);
-                    $dbalType = $this->resolveJdbcType($dbalTypeName);
+                    $dbalType = $this->resolveDbalType($dbalTypeName);
                     $typeHandlerClass = $this->resolveClass($handlerTypeName);
                     if ($phpTypeClass !== null) {
                         if ($dbalType === null) {
@@ -339,7 +339,7 @@ class XMLConfigBuilder extends BaseBuilder
         }
     }
 
-    private function mapperElement(XNode $parent): void
+    private function mapperElement(?XNode $parent): void
     {
         if ($parent !== null) {
             foreach ($parent->getChildren() as $child) {
@@ -354,12 +354,12 @@ class XMLConfigBuilder extends BaseBuilder
                         $inputStream = Resources::getResourceAsStream($resource);
                         $mapperParser = new XMLMapperBuilder($inputStream, $this->configuration, $resource, $this->configuration->getSqlFragments());
                         $mapperParser->parse();
-                        fclose($inputStream);
+                        //fclose($inputStream);
                     } elseif ($resource === null && $url !== null && $mapperClass === null) {
                         $inputStream = Resources::getUrlAsStream($url);
                         $mapperParser = new XMLMapperBuilder($inputStream, $this->configuration, $url, $this->configuration->getSqlFragments());
                         $mapperParser->parse();
-                        fclose($inputStream);
+                        //fclose($inputStream);
                     } elseif ($resource === null && $url === null && $mapperClass !== null) {
                         $this->configuration->addMapper($mapperClass);
                     } else {

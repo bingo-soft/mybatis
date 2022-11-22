@@ -3,6 +3,7 @@
 namespace MyBatis\Type;
 
 use Doctrine\DBAL\Types\Types;
+use MyBatis\Binding\ParamMap;
 use MyBatis\Io\{
     IsA,
     ResolverUtil
@@ -70,6 +71,9 @@ class TypeHandlerRegistry
 
     public function getTypeHandler($type): ?TypeHandlerInterface
     {
+        if (ParamMap::class == $type) {
+            return null;
+        }
         foreach ($this->allTypeHandlersMap as $pair) {
             if ($pair[0] == $type) {
                 return $pair[1];

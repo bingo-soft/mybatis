@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Io;
+namespace Tests\Builder;
 
 use MyBatis\Builder\{
     BuilderException,
@@ -30,7 +30,7 @@ class ParameterExpressionTest extends TestCase
         $result = new ParameterExpression("id:VARCHAR");
         $this->assertCount(2, $result);
         $this->assertEquals("id", $result->get('property'));
-        $this->assertEquals("VARCHAR", $result->get('sqlType'));
+        $this->assertEquals("VARCHAR", $result->get('dbalType'));
     }
 
     public function testOldStyleSqlTypeWithExtraWhitespaces(): void
@@ -38,7 +38,7 @@ class ParameterExpressionTest extends TestCase
         $result = new ParameterExpression(" id :  VARCHAR");
         $this->assertCount(2, $result);
         $this->assertEquals("id", $result->get('property'));
-        $this->assertEquals("VARCHAR", $result->get('sqlType'));
+        $this->assertEquals("VARCHAR", $result->get('dbalType'));
     }
 
     public function testExpressionWithOldStyleDbalType(): void
@@ -46,7 +46,7 @@ class ParameterExpressionTest extends TestCase
         $result = new ParameterExpression("(id.toString()):VARCHAR");
         $this->assertCount(2, $result);
         $this->assertEquals("id.toString()", $result->get('expression'));
-        $this->assertEquals("VARCHAR", $result->get('sqlType'));
+        $this->assertEquals("VARCHAR", $result->get('dbalType'));
     }
 
     public function testSimplePropertyWithOneAttribute(): void
@@ -90,7 +90,7 @@ class ParameterExpressionTest extends TestCase
         $result = new ParameterExpression("id:VARCHAR, attr1=val1, attr2=val2");
         $this->assertCount(4, $result);
         $this->assertEquals("id", $result->get('property'));
-        $this->assertEquals("VARCHAR", $result->get('sqlType'));
+        $this->assertEquals("VARCHAR", $result->get('dbalType'));
         $this->assertEquals("val1", $result->get('attr1'));
         $this->assertEquals("val2", $result->get('attr2'));
     }
@@ -107,10 +107,10 @@ class ParameterExpressionTest extends TestCase
 
     public function testShouldIgnoreLeadingAndTrailingSpaces(): void
     {
-        $result = new ParameterExpression(" id , sqlType =  VARCHAR,  attr1 = val1 ,  attr2 = val2 ");
+        $result = new ParameterExpression(" id , dbalType =  VARCHAR,  attr1 = val1 ,  attr2 = val2 ");
         $this->assertCount(4, $result);
         $this->assertEquals("id", $result->get('property'));
-        $this->assertEquals("VARCHAR", $result->get('sqlType'));
+        $this->assertEquals("VARCHAR", $result->get('dbalType'));
         $this->assertEquals("val1", $result->get('attr1'));
         $this->assertEquals("val2", $result->get('attr2'));
     }

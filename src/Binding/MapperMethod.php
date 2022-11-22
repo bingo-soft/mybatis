@@ -2,6 +2,10 @@
 
 namespace MyBatis\Binding;
 
+use MyBatis\Annotations\{
+    Flush,
+    MapKey
+};
 use MyBatis\Mapping\{
     SqlCommandType,
     StatementType

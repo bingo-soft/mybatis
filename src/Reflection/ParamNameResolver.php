@@ -2,6 +2,8 @@
 
 namespace MyBatis\Reflection;
 
+use MyBatis\Annotations\Param;
+use MyBatis\Binding\ParamMap;
 use MyBatis\Session\{
     Configuration,
     ResultHandlerInterface,
@@ -12,7 +14,7 @@ class ParamNameResolver
 {
     public const GENERIC_NAME_PREFIX = "param";
 
-    private $useActualParamName;
+    private $useActualParamName = false;
 
     /**
      * <p>
@@ -27,7 +29,7 @@ class ParamNameResolver
      * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
      * </ul>
      */
-    private $names;
+    private $names = [];
 
     private $hasParamAnnotation = false;
 
@@ -37,6 +39,7 @@ class ParamNameResolver
 
         $paramTypes = [];
         $parameters = $method->getParameters();
+        $paramIndex = 0;
         foreach ($parameters as $parameter) {
             $type = $parameter->getType();
             $typeName = null;
@@ -44,15 +47,28 @@ class ParamNameResolver
                 $typeName = $type->getName();
             }
             if (self::isSpecialParameter($typeName)) {
+                $paramIndex += 1;
                 continue;
             }
+
             $name = null;
-            if ($this->useActualParamName) {
-                $name = $parameter->name;
-            } else {
-                $name = count($this->names);
+
+            $paramAnnos = $parameter->getAttributes(Param::class);
+
+            if (!empty($paramAnnos)) {
+                $paramAnno = $paramAnnos[0]->newInstance();
+                $name = $paramAnno->value();
             }
-            $this->names[] = $name;
+
+            if ($name === null) {
+                if ($this->useActualParamName) {
+                    $name = $parameter->name;
+                } else {
+                    $name = count($this->names);
+                }
+            }
+            $this->names[$paramIndex] = $name;
+            $paramIndex += 1;
         }
     }
 
@@ -83,45 +99,41 @@ class ParamNameResolver
      *          the args
      * @return the named params
      */
-    public function getNamedParams(array $args = []): array
+    public function getNamedParams(array $args = [])
     {
         $paramCount = count($this->names);
         if (empty($args) || $paramCount == 0) {
             return [];
         } elseif (!$this->hasParamAnnotation && $paramCount == 1) {
-            $key = array_keys($this->names)[0];
-            $value = null;
-            if (array_key_exists($key, $args)) {
-                $value = $args[$key];
-            }
-            if ($this->useActualParamName) {
-                $key = $this->names[0];
-                return [ $key => $value ];
-            } else {
-                return [ 'array' => $value ];
-            }
+            $value = $args[array_keys($this->names)[0]];
+            return self::wrapToMapIfCollection($value, $this->useActualParamName ? $this->names[array_keys($this->names)[0]] : null);
         } else {
-            $param = [];
+            $param = new ParamMap();
             $i = 0;
             foreach ($this->names as $key => $value) {
-                if (array_key_exists($key, $args)) {
-                    $param[$value] = $args[$key];
-                } else {
-                    $param[$value] = null;
-                }
+                $param->put($value, $args[$key]);
                 // add generic param names (param1, param2, ...)
                 $genericParamName = self::GENERIC_NAME_PREFIX . ($i + 1);
                 // ensure not to overwrite parameter named with @Param
                 if (!in_array($genericParamName, $this->names)) {
-                    if (array_key_exists($key, $args)) {
-                        $param[$genericParamName] = $args[$key];
-                    } else {
-                        $param[$genericParamName] = null;
-                    }
+                    $param->put($genericParamName, $args[$key]);
                 }
                 $i += 1;
             }
             return $param;
         }
+    }
+
+    public static function wrapToMapIfCollection($object, ?string $actualParamName)
+    {
+        if (is_array($object)) {
+            $map = new ParamMap();
+            $map->put("array", $object);
+            if ($actualParamName !== null) {
+                $map->put($actualParamName, $object);
+            }
+            return $map;
+        }
+        return $object;
     }
 }

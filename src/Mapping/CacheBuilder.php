@@ -28,9 +28,9 @@ class CacheBuilder
     private $size;
     //in seconds
     private $clearInterval;
-    private $readWrite;
+    private $readWrite = false;
     private $properties;
-    private $blocking;
+    private $blocking = false;
 
     public function __construct(string $id)
     {
@@ -57,7 +57,7 @@ class CacheBuilder
         return $this;
     }
 
-    public function clearInterval(int $clearInterval): CacheBuilder
+    public function clearInterval(?int $clearInterval): CacheBuilder
     {
         $this->clearInterval = $clearInterval;
         return $this;
@@ -112,7 +112,7 @@ class CacheBuilder
         try {
             $metaCache = SystemMetaObject::forObject($cache);
             if ($this->size !== null && $metaCache->hasSetter("size")) {
-                $metaCache->setValue("size", $size);
+                $metaCache->setValue("size", $this->size);
             }
             if ($this->clearInterval !== null) {
                 $cache = new ScheduledCache($cache);

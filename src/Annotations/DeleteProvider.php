@@ -2,8 +2,9 @@
 
 namespace MyBatis\Annotations;
 
-#[Attribute(Attribute::TARGET_METHOD)]
-#[Attribute(Attribute::IS_REPEATABLE)]
+use Attribute;
+
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class DeleteProvider
 {
     public function __construct(private string $type = "void", private string $method = "", private string $databaseId = "")

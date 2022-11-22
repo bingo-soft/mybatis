@@ -14,6 +14,17 @@ class Resources
         $resourceStream = null;
         if (file_exists($resource)) {
             $resourceStream = fopen($resource, 'r+');
+        } else {
+            //lookup in relative Resources folder
+            $parts = explode(DIRECTORY_SEPARATOR, $resource);
+            $root = array_shift($parts);
+            $relativePath = implode(DIRECTORY_SEPARATOR, $parts);
+            if (!file_exists($root) && file_exists($root = strtolower($root))) {
+            }
+            $resource = implode(DIRECTORY_SEPARATOR, [$root, 'Resources', $relativePath]);
+            if (file_exists($resource)) {
+                $resourceStream = fopen($resource, 'r+');
+            }
         }
         return $resourceStream;
     }
@@ -32,13 +43,15 @@ class Resources
     {
         $props = [];
         $fp = self::getResourceAsStream($resource);
-        while (($line = fgets($fp, 4096)) !== false) {
-            $tokens = explode("=", $line);
-            if (count($tokens) == 2) {
-                $props[$tokens[0]] = trim($tokens[1]);
+        if ($fp !== null) {
+            while (($line = fgets($fp, 4096)) !== false) {
+                $tokens = explode("=", $line);
+                if (count($tokens) == 2) {
+                    $props[$tokens[0]] = trim($tokens[1]);
+                }
             }
+            fclose($fp);
         }
-        fclose($fp);
         return $props;
     }
 

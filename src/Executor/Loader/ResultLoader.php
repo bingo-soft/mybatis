@@ -34,7 +34,7 @@ class ResultLoader
     public $boundSql;
     protected $resultExtractor;
 
-    protected $loaded;
+    protected $loaded = false;
     protected $resultObject;
 
     public function __construct(Configuration $config, ExecutorInterface $executor, MappedStatement $mappedStatement, $parameterObject, $targetType, CacheKey $cacheKey, BoundSql $boundSql)

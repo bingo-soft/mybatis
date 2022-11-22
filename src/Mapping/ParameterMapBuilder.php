@@ -8,7 +8,7 @@ class ParameterMapBuilder
 {
     private $parameterMap;
 
-    public function __construct(Configuration $configuration, string $id, string $type, array $parameterMappings)
+    public function __construct(Configuration $configuration, string $id, ?string $type, array $parameterMappings)
     {
         $this->parameterMap = new ParameterMap();
         $this->parameterMap->setId($id);

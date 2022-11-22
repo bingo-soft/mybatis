@@ -2,6 +2,7 @@
 
 namespace MyBatis\Scripting\XmlTags;
 
+use MyBatis\Parsing\TokenHandlerInterface;
 use MyBatis\Parsing\GenericTokenParser;
 
 class TextSqlNode implements SqlNodeInterface
@@ -26,12 +27,13 @@ class TextSqlNode implements SqlNodeInterface
     public function apply(DynamicContext $context): bool
     {
         $parser = $this->createParser(new BindingTokenParser($context, $this->injectionFilter));
-        $context->appendSql($parser->parse($this->text));
+        $res = $parser->parse($this->text);
+        $context->appendSql($res);
         return true;
     }
 
     private function createParser(TokenHandlerInterface $handler): GenericTokenParser
     {
-        return new GenericTokenParser("${", "}", $handler);
+        return new GenericTokenParser('${', '}', $handler);
     }
 }

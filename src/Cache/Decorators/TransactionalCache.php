@@ -2,12 +2,15 @@
 
 namespace MyBatis\Cache\Decorators;
 
-use MyBatis\Cache\CacheInterface;
+use MyBatis\Cache\{
+    CacheInterface,
+    CacheKey
+};
 
 class TransactionalCache implements CacheInterface
 {
     private $delegate;
-    private $clearOnCommit;
+    private $clearOnCommit = false;
     private $entriesToAddOnCommit = [];
     private $entriesMissedInCache = [];
 
@@ -42,7 +45,21 @@ class TransactionalCache implements CacheInterface
 
     public function putObject($key, $object): void
     {
-        $this->entriesToAddOnCommit[$key] = $object;
+        if ($key instanceof CacheKey) {
+            $exists = false;
+            foreach ($this->entriesToAddOnCommit as $it => $pair) {
+                if ($pair[0]->equals($key)) {
+                    $exists = true;
+                    $this->entriesToAddOnCommit[$it] = [ $key, $object ];
+                    break;
+                }
+            }
+            if (!$exists) {
+                $this->entriesToAddOnCommit[] = [ $key, $object ];
+            }
+        } else {
+            $this->entriesToAddOnCommit[$key] = $object;
+        }
     }
 
     public function removeObject($key)
@@ -81,10 +98,25 @@ class TransactionalCache implements CacheInterface
     private function flushPendingEntries(): void
     {
         foreach ($this->entriesToAddOnCommit as $key => $value) {
-            $this->delegate->putObject($key, $value);
+            if (is_array($value) && $value[0] instanceof CacheKey) {
+                $this->delegate->putObject($value[0], $value[1]);
+            } else {
+                $this->delegate->putObject($key, $value);
+            }
         }
         foreach ($this->entriesMissedInCache as $key) {
-            if (!array_key_exists($key, $this->entriesToAddOnCommit)) {
+            if ($key instanceof CacheKey) {
+                $exists = false;
+                foreach ($this->entriesToAddOnCommit as $pair) {
+                    if ($pair[0]->equals($key)) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $this->delegate->putObject($key, null);
+                }
+            } elseif (!array_key_exists($key, $this->entriesToAddOnCommit)) {
                 $this->delegate->putObject($key, null);
             }
         }

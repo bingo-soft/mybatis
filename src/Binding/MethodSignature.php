@@ -41,7 +41,8 @@ class MethodSignature
 
     public function convertArgsToSqlCommandParam(array $args)
     {
-        return $this->paramNameResolver->getNamedParams($args);
+        $ret = $this->paramNameResolver->getNamedParams($args);
+        return $ret;
     }
 
     public function hasRowBounds(): bool

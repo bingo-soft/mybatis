@@ -72,20 +72,20 @@ use Util\Reflection\{
 class Configuration
 {
     protected $environment;
-    protected $safeRowBoundsEnabled;
+    protected $safeRowBoundsEnabled = false;
     protected $safeResultHandlerEnabled = true;
-    protected $mapUnderscoreToCamelCase;
-    protected $aggressiveLazyLoading;
+    protected $mapUnderscoreToCamelCase = false;
+    protected $aggressiveLazyLoading = false;
     protected $multipleResultSetsEnabled = true;
-    protected $useGeneratedKeys;
+    protected $useGeneratedKeys = false;
     protected $useColumnLabel = true;
     protected $cacheEnabled = true;
-    protected $callSettersOnNulls;
+    protected $callSettersOnNulls = false;
     protected $useActualParamName = true;
-    protected $returnInstanceForEmptyRow;
-    protected $shrinkWhitespacesInSql;
-    protected $nullableOnForEach;
-    protected $argNameBasedConstructorAutoMapping;
+    protected $returnInstanceForEmptyRow = false;
+    protected $shrinkWhitespacesInSql = false;
+    protected $nullableOnForEach = false;
+    protected $argNameBasedConstructorAutoMapping = false;
     /*protected $logPrefix;
     protected $logImpl;
     protected $vfsImpl;*/
@@ -181,7 +181,7 @@ class Configuration
      *
      * @return the default type for sql provider annotation
      */
-    public function getDefaultSqlProviderType(): string
+    public function getDefaultSqlProviderType(): ?string
     {
         return $this->defaultSqlProviderType;
     }
@@ -192,7 +192,7 @@ class Configuration
      * @param defaultSqlProviderType
      *          the default type for sql provider annotation
      */
-    public function setDefaultSqlProviderType(string $defaultSqlProviderType): void
+    public function setDefaultSqlProviderType(?string $defaultSqlProviderType): void
     {
         $this->defaultSqlProviderType = $defaultSqlProviderType;
     }
@@ -227,7 +227,7 @@ class Configuration
         $this->returnInstanceForEmptyRow = $returnEmptyInstance;
     }
 
-    public function isShrinkWhitespacesInSql(): bool
+    public function isShrinkWhitespacesInSql(): ?bool
     {
         return $this->shrinkWhitespacesInSql;
     }
@@ -257,7 +257,7 @@ class Configuration
         $this->argNameBasedConstructorAutoMapping = $argNameBasedConstructorAutoMapping;
     }
 
-    public function getDatabaseId(): string
+    public function getDatabaseId(): ?string
     {
         return $this->databaseId;
     }
@@ -400,7 +400,7 @@ class Configuration
         $this->lazyLoadTriggerMethods = $lazyLoadTriggerMethods;
     }
 
-    public function isUseGeneratedKeys(): bool
+    public function isUseGeneratedKeys(): ?bool
     {
         return $this->useGeneratedKeys;
     }
@@ -430,32 +430,32 @@ class Configuration
         $this->cacheEnabled = $cacheEnabled;
     }
 
-    public function getDefaultStatementTimeout(): int
+    public function getDefaultStatementTimeout(): ?int
     {
         return $this->defaultStatementTimeout;
     }
 
-    public function setDefaultStatementTimeout(int $defaultStatementTimeout): void
+    public function setDefaultStatementTimeout(?int $defaultStatementTimeout): void
     {
         $this->defaultStatementTimeout = $defaultStatementTimeout;
     }
 
-    public function getDefaultFetchSize(): int
+    public function getDefaultFetchSize(): ?int
     {
         return $this->defaultFetchSize;
     }
 
-    public function setDefaultFetchSize(int $defaultFetchSize): void
+    public function setDefaultFetchSize(?int $defaultFetchSize): void
     {
         $this->defaultFetchSize = $defaultFetchSize;
     }
 
-    public function getDefaultResultSetType(): ResultSetType
+    public function getDefaultResultSetType(): ?ResultSetType
     {
         return $this->defaultResultSetType;
     }
 
-    public function setDefaultResultSetType(ResultSetType $defaultResultSetType): void
+    public function setDefaultResultSetType(?ResultSetType $defaultResultSetType): void
     {
         $this->defaultResultSetType = $defaultResultSetType;
     }
@@ -564,7 +564,7 @@ class Configuration
         return $this->languageRegistry->getDriver($langClass);
     }
 
-    public function newMetaObject($object): MetaObject
+    public function newMetaObject(&$object): MetaObject
     {
         return new MetaObject($object);
     }
@@ -576,18 +576,18 @@ class Configuration
         return $parameterHandler;
     }
 
-    public function newResultSetHandler(ExecutorInterface $executor, MappedStatement $mappedStatement, RowBounds $rowBounds, ParameterHandlerInterface $parameterHandler, ResultHandlerInterface $resultHandler, BoundSql $boundSql): ResultSetHandlerInterface
+    public function newResultSetHandler(ExecutorInterface $executor, MappedStatement $mappedStatement, ?RowBounds $rowBounds, ParameterHandlerInterface $parameterHandler, ?ResultHandlerInterface $resultHandler, BoundSql $boundSql): ResultSetHandlerInterface
     {
         $resultSetHandler = new DefaultResultSetHandler($executor, $mappedStatement, $parameterHandler, $resultHandler, $boundSql, $rowBounds);
         $resultSetHandler = $this->interceptorChain->pluginAll($resultSetHandler);
         return $resultSetHandler;
     }
 
-    public function newStatementHandler(ExecutorInterface $executor, MappedStatement $mappedStatement, $parameterObject, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, BoundSql $boundSql): StatementHandlerInterface
+    public function newStatementHandler(ExecutorInterface $executor, MappedStatement $mappedStatement, $parameterObject, ?RowBounds $rowBounds, ?ResultHandlerInterface $resultHandler, ?BoundSql $boundSql): StatementHandlerInterface
     {
         $statementHandler = new RoutingStatementHandler($executor, $mappedStatement, $parameterObject, $rowBounds, $resultHandler, $boundSql);
         $statementHandler = $this->interceptorChain->pluginAll($statementHandler);
-        return statementHandler;
+        return $statementHandler;
     }
 
     public function newExecutor(TransactionInterface $transaction, ?string $executorType = null): ExecutorInterface
@@ -602,7 +602,7 @@ class Configuration
         } else {
             $executor = new SimpleExecutor($this, $transaction);
         }
-        if ($cacheEnabled) {
+        if ($this->cacheEnabled) {
             $executor = new CachingExecutor($executor);
         }
         $executor = $this->interceptorChain->pluginAll($executor);
@@ -611,7 +611,7 @@ class Configuration
 
     public function addKeyGenerator(string $id, KeyGeneratorInterface $keyGenerator): void
     {
-        $this->keyGenerators[$id] = $keyGenerator;
+        $this->keyGenerators->put($id, $keyGenerator);
     }
 
     public function getKeyGeneratorNames(): array
@@ -626,7 +626,7 @@ class Configuration
 
     public function getKeyGenerator(string $id): ?KeyGeneratorInterface
     {
-        if (array_key_exists($id, $this->keyGenerators)) {
+        if (array_key_exists($id, $this->keyGenerators->getArrayCopy())) {
             return $this->keyGenerators[$id];
         }
         return null;
@@ -634,12 +634,12 @@ class Configuration
 
     public function hasKeyGenerator(string $id): bool
     {
-        return array_key_exists($id, $this->keyGenerators);
+        return array_key_exists($id, $this->keyGenerators->getArrayCopy());
     }
 
     public function addCache(CacheInterface $cache): void
     {
-        $this->caches[$cache->getId()] = $cache;
+        $this->caches->put($cache->getId(), $cache);
     }
 
     public function getCacheNames(): array
@@ -654,7 +654,7 @@ class Configuration
 
     public function getCache(string $id): ?CacheInterface
     {
-        if (array_key_exists($id, $this->caches)) {
+        if (array_key_exists($id, $this->caches->getArrayCopy())) {
             return $this->caches[$id];
         }
         return null;
@@ -662,12 +662,12 @@ class Configuration
 
     public function hasCache(string $id): bool
     {
-        return array_key_exists($id, $this->caches);
+        return array_key_exists($id, $this->caches->getArrayCopy());
     }
 
     public function addResultMap(ResultMap $rm): void
     {
-        $this->resultMaps[$rm->getId()] = $rm;
+        $this->resultMaps->put($rm->getId(), $rm);
         $this->checkLocallyForDiscriminatedNestedResultMaps($rm);
         $this->checkGloballyForDiscriminatedNestedResultMaps($rm);
     }
@@ -684,7 +684,7 @@ class Configuration
 
     public function getResultMap(string $id): ?ResultMap
     {
-        if (array_key_exists($id, $this->resultMaps)) {
+        if (array_key_exists($id, $this->resultMaps->getArrayCopy())) {
             return $this->resultMaps[$id];
         }
         return null;
@@ -692,12 +692,12 @@ class Configuration
 
     public function hasResultMap(string $id): bool
     {
-        return array_key_exists($id, $this->resultMaps);
+        return array_key_exists($id, $this->resultMaps->getArrayCopy());
     }
 
     public function addParameterMap(ParameterMap $pm): void
     {
-        $this->parameterMaps[$pm->getId()] = $pm;
+        $this->parameterMaps->put($pm->getId(), $pm);
     }
 
     public function getParameterMapNames(): array
@@ -712,7 +712,7 @@ class Configuration
 
     public function getParameterMap(string $id): ?ParameterMap
     {
-        if (array_key_exists($id, $this->parameterMaps)) {
+        if (array_key_exists($id, $this->parameterMaps->getArrayCopy())) {
             return $this->parameterMaps[$id];
         }
         return null;
@@ -720,12 +720,12 @@ class Configuration
 
     public function hasParameterMap(string $id): bool
     {
-        return array_key_exists($id, $this->parameterMaps);
+        return array_key_exists($id, $this->parameterMaps->getArrayCopy());
     }
 
     public function addMappedStatement(MappedStatement $ms): void
     {
-        $this->mappedStatements[$ms->getId()] = $ms;
+        $this->mappedStatements->put($ms->getId(), $ms);
     }
 
     public function getMappedStatementNames(): array
@@ -785,7 +785,7 @@ class Configuration
         if ($validateIncompleteStatements) {
             $this->buildAllStatements();
         }
-        if (array_key_exists($id, $this->mappedStatements)) {
+        if (array_key_exists($id, $this->mappedStatements->getArrayCopy())) {
             return $this->mappedStatements[$id];
         }
         return null;
@@ -793,7 +793,7 @@ class Configuration
 
     public function getSqlFragments(): array
     {
-        return $this->sqlFragments;
+        return $this->sqlFragments->getArrayCopy();
     }
 
     public function addInterceptor(Interceptor $interceptor): void
@@ -826,7 +826,7 @@ class Configuration
         if ($validateIncompleteStatements) {
             $this->buildAllStatements();
         }
-        return array_key_exists($statementName, $this->mappedStatements);
+        return array_key_exists($statementName, $this->mappedStatements->getArrayCopy());
     }
 
     public function addCacheRef(string $namespace, string $referencedNamespace): void

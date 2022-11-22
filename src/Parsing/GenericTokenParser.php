@@ -60,6 +60,7 @@ class GenericTokenParser
                     $builder .= substr($src, $start, strlen($src) - $start);
                     $offset = strlen($src);
                 } else {
+                    //JUEL expects enclosed expression
                     $builder .= $this->handler->handleToken($expression);
                     $offset = $end + strlen($this->closeToken);
                 }

@@ -25,9 +25,12 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
         $this->configuration = $configuration;
     }
 
-    public function openSession(Connection $connection): SqlSessionInterface
+    public function openSession(?Connection $connection = null): SqlSessionInterface
     {
-        return $this->openSessionFromConnection($configuration->getDefaultExecutorType(), $connection);
+        if ($connection === null) {
+            $connection = $this->configuration->getEnvironment()->getDataSource()->getConnection();
+        }
+        return $this->openSessionFromConnection($this->configuration->getDefaultExecutorType(), $connection);
     }
 
     public function getConfiguration(): Configuration
@@ -46,11 +49,11 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
                 // or databases won't support transactions
                 $autoCommit = true;
             }
-            $environment = $configuration->getEnvironment();
+            $environment = $this->configuration->getEnvironment();
             $transactionFactory = $this->getTransactionFactoryFromEnvironment($environment);
             $tx = $transactionFactory->newTransaction($connection);
-            $executor = $configuration->newExecutor($tx, $execType);
-            return new DefaultSqlSession($configuration, $executor, $autoCommit);
+            $executor = $this->configuration->newExecutor($tx, $execType);
+            return new DefaultSqlSession($this->configuration, $executor, $autoCommit);
         } catch (\Exception $e) {
             throw new \Exception("Error opening session.  Cause: " . $e->getMessage());
         } finally {

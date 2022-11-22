@@ -13,7 +13,7 @@ class ResultMappingBuilder
 {
     private $resultMapping;
 
-    public function __construct(Configuration $configuration, string $property, ?string $column = null, /*TypeHandlerInterface|string*/$handlerOrType)
+    public function __construct(Configuration $configuration, ?string $property, ?string $column = null, /*TypeHandlerInterface|string*/$handlerOrType)
     {
         $this->resultMapping = new ResultMapping();
         $this->resultMapping->configuration = $configuration;
@@ -25,7 +25,7 @@ class ResultMappingBuilder
         if ($handlerOrType instanceof TypeHandlerInterface) {
             $this->resultMapping->typeHandler = $handlerOrType;
         } elseif (is_string($handlerOrType)) {
-            $this->phpType = $handlerOrType;
+            $this->resultMapping->phpType = $handlerOrType;
         }
     }
 
@@ -35,31 +35,31 @@ class ResultMappingBuilder
         return $this;
     }
 
-    public function dbalType(DbalType $dbalType): ResultMappingBuilder
+    public function dbalType(?DbalType $dbalType): ResultMappingBuilder
     {
         $this->resultMapping->dbalType = $dbalType;
         return $this;
     }
 
-    public function nestedResultMapId(string $nestedResultMapId): ResultMappingBuilder
+    public function nestedResultMapId(?string $nestedResultMapId): ResultMappingBuilder
     {
         $this->resultMapping->nestedResultMapId = $nestedResultMapId;
         return $this;
     }
 
-    public function nestedQueryId(string $nestedQueryId): ResultMappingBuilder
+    public function nestedQueryId(?string $nestedQueryId): ResultMappingBuilder
     {
         $this->resultMapping->nestedQueryId = $nestedQueryId;
         return $this;
     }
 
-    public function resultSet(string $resultSet): ResultMappingBuilder
+    public function resultSet(?string $resultSet): ResultMappingBuilder
     {
         $this->resultMapping->resultSet = $resultSet;
         return $this;
     }
 
-    public function foreignColumn(string $foreignColumn): ResultMappingBuilder
+    public function foreignColumn(?string $foreignColumn): ResultMappingBuilder
     {
         $this->resultMapping->foreignColumn = $foreignColumn;
         return $this;
@@ -71,7 +71,7 @@ class ResultMappingBuilder
         return $this;
     }
 
-    public function columnPrefix(string $columnPrefix): ResultMappingBuilder
+    public function columnPrefix(?string $columnPrefix): ResultMappingBuilder
     {
         $this->resultMapping->columnPrefix = $columnPrefix;
         return $this;
@@ -83,7 +83,7 @@ class ResultMappingBuilder
         return $this;
     }
 
-    public function typeHandler(TypeHandlerInterface $typeHandler): ResultMappingBuilder
+    public function typeHandler(?TypeHandlerInterface $typeHandler): ResultMappingBuilder
     {
         $this->resultMapping->typeHandler = $typeHandler;
         return $this;

@@ -2,6 +2,7 @@
 
 namespace MyBatis\Annotations;
 
+use Attribute;
 use MyBatis\Cache\Decorators\LruCache;
 use MyBatis\Cache\Impl\PerpetualCache;
 
@@ -14,6 +15,7 @@ class CacheNamespace
         private int $flushInterval = 0,
         private int $size = 1024,
         private bool $blocking = false,
+        private bool $readWrite = true,
         private array $properties = []
     ) {
     }
@@ -41,6 +43,11 @@ class CacheNamespace
     public function blocking(): bool
     {
         return $this->blocking;
+    }
+
+    public function readWrite(): bool
+    {
+        return $this->readWrite;
     }
 
     public function properties(): array

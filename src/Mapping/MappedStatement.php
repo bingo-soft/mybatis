@@ -13,29 +13,29 @@ use MyBatis\Session\Configuration;
 
 class MappedStatement
 {
-    private $resource;
-    private $configuration;
-    private $id;
-    private $fetchSize;
-    private $timeout;
-    private $statementType;
-    private $resultSetType;
-    private $sqlSource;
-    private $cache;
-    private $parameterMap;
-    private $resultMaps;
-    private $flushCacheRequired;
-    private $useCache;
-    private $resultOrdered;
-    private $sqlCommandType;
-    private $keyGenerator;
-    private $keyProperties = [];
-    private $keyColumns = [];
-    private $hasNestedResultMaps;
-    private $databaseId;
+    public $resource;
+    public $configuration;
+    public $id;
+    public $fetchSize;
+    public $timeout;
+    public $statementType;
+    public $resultSetType;
+    public $sqlSource;
+    public $cache;
+    public $parameterMap;
+    public $resultMaps;
+    public $flushCacheRequired = false;
+    public $useCache = false;
+    public $resultOrdered = false;
+    public $sqlCommandType;
+    public $keyGenerator;
+    public $keyProperties = [];
+    public $keyColumns = [];
+    public $hasNestedResultMaps = false;
+    public $databaseId;
     //private Log statementLog;
-    private $lang;
-    private $resultSets = [];
+    public $lang;
+    public $resultSets = [];
 
     public function getKeyGenerator(): KeyGeneratorInterface
     {
@@ -102,7 +102,7 @@ class MappedStatement
          return $this->resultMaps;
     }
 
-    public function getCache(): CacheInterface
+    public function getCache(): ?CacheInterface
     {
         return $this->cache;
     }
@@ -122,7 +122,7 @@ class MappedStatement
         return $this->resultOrdered;
     }
 
-    public function getDatabaseId(): string
+    public function getDatabaseId(): ?string
     {
         return $this->databaseId;
     }
@@ -173,7 +173,7 @@ class MappedStatement
         return $boundSql;
     }
 
-    private static function delimitedStringToArray(?string $in): array
+    public static function delimitedStringToArray(?string $in): array
     {
         if (empty($in)) {
             return [];

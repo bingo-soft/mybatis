@@ -16,7 +16,7 @@ class ResultSetType
 
     private function __construct(int $type)
     {
-        $this->value = $value;
+        $this->value = $type;
     }
 
     public function getValue(): int

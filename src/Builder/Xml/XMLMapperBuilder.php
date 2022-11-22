@@ -14,18 +14,20 @@ use MyBatis\Mapping\{
     Discriminator,
     ParameterMapping,
     ParameterMode,
+    ResultFlag,
+    ResultMap,
     ResultMapping
 };
 use MyBatis\Parsing\{
     XNode,
     XPathParser
 };
-use MyBatis\Reflection\MetaClass;
 use MyBatis\Session\Configuration;
 use MyBatis\Type\{
     DbalType,
     TypeHandlerInterface
 };
+use Util\Reflection\MetaClass;
 
 class XMLMapperBuilder extends BaseBuilder
 {
@@ -48,9 +50,9 @@ class XMLMapperBuilder extends BaseBuilder
 
     public function parse(): void
     {
-        if (!$this->configuration->isResourceLoaded($resource)) {
-            $this->configurationElement($parser->evalNode("/mapper"));
-            $this->configuration->addLoadedResource($resource);
+        if (!$this->configuration->isResourceLoaded($this->resource)) {
+            $this->configurationElement($this->parser->evalNode("/mapper"));
+            $this->configuration->addLoadedResource($this->resource);
             $this->bindMapperForNamespace();
         }
 
@@ -69,7 +71,7 @@ class XMLMapperBuilder extends BaseBuilder
 
     private function configurationElement(XNode $context): void
     {
-        try {
+        /*try {*/
             $namespace = $context->getStringAttribute("namespace");
             if (empty($namespace)) {
                 throw new BuilderException("Mapper's namespace cannot be empty");
@@ -81,9 +83,9 @@ class XMLMapperBuilder extends BaseBuilder
             $this->resultMapElements($context->evalNodes("/mapper/resultMap"));
             $this->sqlElement($context->evalNodes("/mapper/sql"));
             $this->buildStatementFromContext($context->evalNodes("select|insert|update|delete"));
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             throw new BuilderException("Error parsing Mapper XML. The XML location is '" . $this->resource . "'. Cause: " . $e->getMessage());
-        }
+        }*/
     }
 
     private function buildStatementFromContext(array $list, ?string $requiredDatabaseId = null): void
@@ -265,7 +267,7 @@ class XMLMapperBuilder extends BaseBuilder
         return null;
     }
 
-    private function processConstructorElement(XNode $resultChild, string $resultType, array &$resultMappings): void
+    private function processConstructorElement(XNode $resultChild, ?string $resultType, array &$resultMappings): void
     {
         $argChildren = $resultChild->getChildren();
         foreach ($argChildren as $argChild) {
@@ -327,7 +329,7 @@ class XMLMapperBuilder extends BaseBuilder
         return $context->getStringAttribute("databaseId") === null;
     }
 
-    private function buildResultMappingFromContext(XNode $context, string $resultType, array $flags): ResultMapping
+    private function buildResultMappingFromContext(XNode $context, ?string $resultType, array $flags): ResultMapping
     {
         $property = null;
         if (in_array(ResultFlag::CONSTRUCTOR, $flags)) {
@@ -352,7 +354,7 @@ class XMLMapperBuilder extends BaseBuilder
         return $this->builderAssistant->buildResultMapping($resultType, $property, $column, $phpTypeClass, $dbalTypeEnum, $nestedSelect, $nestedResultMap, $notNullColumn, $columnPrefix, $typeHandlerClass, $flags, $resultSet, $foreignColumn, $lazy);
     }
 
-    private function processNestedResultMappings(XNode $context, array $resultMappings, string $enclosingType): string
+    private function processNestedResultMappings(XNode $context, array $resultMappings, ?string $enclosingType): ?string
     {
         if (
             in_array($context->getName(), ["association", "collection", "case"])
@@ -365,7 +367,7 @@ class XMLMapperBuilder extends BaseBuilder
         return null;
     }
 
-    protected function validateCollection(XNode $context, string $enclosingType): void
+    protected function validateCollection(XNode $context, ?string $enclosingType): void
     {
         if (
             "collection" == $context->getName() && $context->getStringAttribute("resultMap") === null

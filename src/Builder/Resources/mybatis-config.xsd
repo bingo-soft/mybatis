@@ -93,8 +93,8 @@
   </xs:element>
   <xs:element name="typeHandler">
     <xs:complexType>
-      <xs:attribute name="javaType"/>
-      <xs:attribute name="jdbcType"/>
+      <xs:attribute name="phpType"/>
+      <xs:attribute name="dbalType"/>
       <xs:attribute name="handler" use="required"/>
     </xs:complexType>
   </xs:element>

@@ -28,7 +28,7 @@ class XMLLanguageDriver implements LanguageDriverInterface
         return new DefaultParameterHandler($mappedStatement, $parameterObject, $boundSql);
     }
 
-    public function createSqlSource(Configuration $configuration, /*XNode|string*/$script, string $parameterType): SqlSourceInterface
+    public function createSqlSource(Configuration $configuration, /*XNode|string*/$script, ?string $parameterType): SqlSourceInterface
     {
         if ($script instanceof XNode) {
             $builder = new XMLScriptBuilder($configuration, $script, $parameterType);

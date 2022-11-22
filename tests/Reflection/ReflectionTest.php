@@ -67,6 +67,6 @@ class ReflectionTest extends TestCase
         $method = $ref->getMethod('doo');
         $resolver = new ParamNameResolver($conf, $method);
         $this->assertEquals(['goo', 'zoo'], $resolver->getNames());
-        $this->assertEquals(['goo' => 100, 'param1' => 100, 'zoo' => 'hello', 'param2' => 'hello'], $resolver->getNamedParams([100, 'hello']));
+        $this->assertEquals(['goo' => 100, 'param1' => 100, 'zoo' => 'hello', 'param2' => 'hello'], $resolver->getNamedParams([100, 'hello'])->getArrayCopy());
     }
 }

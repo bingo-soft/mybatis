@@ -10,7 +10,7 @@ class ResultMapBuilder
 {
     private $resultMap;
 
-    public function __construct(Configuration $configuration, string $id, string $type, array $resultMappings, bool $autoMapping = false)
+    public function __construct(Configuration $configuration, string $id, ?string $type, array $resultMappings, ?bool $autoMapping)
     {
         $this->resultMap = new ResultMap();
         $this->resultMap->configuration = $configuration;
@@ -20,7 +20,7 @@ class ResultMapBuilder
         $this->resultMap->autoMapping = $autoMapping;
     }
 
-    public function discriminator(Discriminator $discriminator): ResultMapBuilder
+    public function discriminator(?Discriminator $discriminator): ResultMapBuilder
     {
         $this->resultMap->discriminator = $discriminator;
         return $this;
@@ -90,11 +90,6 @@ class ResultMapBuilder
             });
         }
         // lock down collections
-        $this->resultMap->resultMappings = $this->resultMap->resultMappings;
-        $this->resultMap->idResultMappings = $this->resultMap->idResultMappings;
-        $this->resultMap->constructorResultMappings = $this->resultMap->constructorResultMappings;
-        $this->resultMap->propertyResultMappings = $this->resultMap->propertyResultMappings;
-        $this->resultMap->mappedColumns = $this->resultMap->mappedColumns;
         return $this->resultMap;
     }
 

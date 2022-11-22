@@ -28,6 +28,6 @@ class ResolverUtilTest extends TestCase
 
         $resolverUtil = new ResolverUtil();
         $resolverUtil->find(new IsA('object'), "tests\Io");
-        $this->assertCount(4, $resolverUtil->getClasses());
+        $this->assertCount(5, $resolverUtil->getClasses());
     }
 }

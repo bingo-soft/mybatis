@@ -8,14 +8,13 @@ class PrefixedContext extends DynamicContext
 {
     private $delegate;
     private $prefix;
-    private $prefixApplied;
+    private $prefixApplied = false;
 
     public function __construct(Configuration $configuration, DynamicContext $delegate, string $prefix)
     {
         parent::__construct($configuration, null);
         $this->delegate = $delegate;
         $this->prefix = $prefix;
-        $this->prefixApplied = false;
     }
 
     public function isPrefixApplied(): bool
@@ -33,7 +32,7 @@ class PrefixedContext extends DynamicContext
         $this->delegate->bind($name, $value);
     }
 
-    public function appendSql(?string $sql): void
+    public function appendSql(?string $sql = ""): void
     {
         if (!$this->prefixApplied && !empty($sql)) {
             $this->delegate->appendSql($this->prefix);

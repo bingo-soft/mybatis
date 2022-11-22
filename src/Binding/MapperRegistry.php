@@ -2,6 +2,7 @@
 
 namespace MyBatis\Binding;
 
+use MyBatis\Builder\Annotation\MapperAnnotationBuilder;
 use MyBatis\Io\{
     IsA,
     ResolverUtil
@@ -44,13 +45,34 @@ class MapperRegistry
 
     public function addMapper(string $type): void
     {
-        $refType = new \ReflectionClass($type);
-        if ($refType->isInterface()) {
+        $refType = null;
+        if (!class_exists($type)) {
+            try {
+                $refType = new \ReflectionClass($type);
+            } catch (\Exception $e) {
+                //ignore
+                $refType = null;
+            }
+        } else {
+            $refType = new \ReflectionClass($type);
+        }
+        if ($refType !== null && $refType->isInterface()) {
             if ($this->hasMapper($type)) {
                 throw new BindingException("Type " . $type . " is already known to the MapperRegistry.");
             }
-            $this->knownMappers[$type] = new MapperProxyFactory($type);
+            $loadCompleted = false;
+            try {
+                $this->knownMappers[$type] = new MapperProxyFactory($type);
+                $parser = new MapperAnnotationBuilder($this->config, $type);
+                $parser->parse();
+                $loadCompleted = true;
+            } finally {
+                if (!$loadCompleted) {
+                    unset($this->knownMappers[$type]);
+                }
+            }
         }
+        
     }
 
     /**

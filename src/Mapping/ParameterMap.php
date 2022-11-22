@@ -19,7 +19,7 @@ class ParameterMap
         return $this->id;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -34,7 +34,7 @@ class ParameterMap
         $this->id = $id;
     }
 
-    public function setType(string $type): void
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }

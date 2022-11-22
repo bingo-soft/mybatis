@@ -2,10 +2,12 @@
 
 namespace MyBatis\Parsing;
 
+use Sax\EntityResolverInterface;
+
 class XPathParser
 {
     private $document;
-    private $validation;
+    private $validation = false;
     private $entityResolver;
     private $variables;
     private $xpath;
@@ -122,7 +124,7 @@ class XPathParser
             return $this->evalNode($this->document, $rootOrExpression);
         }
         $node = $this->evaluate($expression, $rootOrExpression/*, XPathConstants.NODE*/);
-        if ($node === null || $node === false) {
+        if ($node === null || $node === false || ($node instanceof \DOMNodeList && $node->length == 0)) {
             return null;
         }
         return new XNode($this, $node->item(0), $this->variables);

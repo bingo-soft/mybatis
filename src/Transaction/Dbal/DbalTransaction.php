@@ -17,8 +17,8 @@ class DbalTransaction implements TransactionInterface
     protected $connection;
     protected $dataSource;
     protected $level;
-    protected $autoCommit;
-    protected $skipSetAutoCommitOnClose;
+    protected $autoCommit = false;
+    protected $skipSetAutoCommitOnClose = false;
 
     public function __construct(/*Connection|DataSourceInterface*/$connOrDatasource, int $desiredLevel = null, bool $desiredAutoCommit = true, bool $skipSetAutoCommitOnClose = false)
     {
@@ -51,7 +51,7 @@ class DbalTransaction implements TransactionInterface
 
     public function rollback(): void
     {
-        if ($this->connection !== null && !$this->connection->isAutoCommit()) {
+        if ($this->connection !== null && !$this->connection->isAutoCommit() && $this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
     }

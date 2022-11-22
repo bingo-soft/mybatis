@@ -32,20 +32,20 @@ class SimpleExecutor extends BaseExecutor
         try {
             $configuration = $ms->getConfiguration();
             $handler = $configuration->newStatementHandler($this, $ms, $parameter, RowBounds::default(), null, null);
-            $stmt = $this->prepareStatement($handler, $ms->getStatementLog());
+            $stmt = $this->prepareStatement($handler);
             return $handler->update($stmt);
         } finally {
             $this->closeStatement($stmt);
         }
     }
-  
-    public function doQuery(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler, BoundSql $boundSql): array
+
+    public function doQuery(MappedStatement $ms, $parameter, ?RowBounds $rowBounds, ?ResultHandlerInterface $resultHandler, BoundSql $boundSql): array
     {
         $stmt = null;
         try {
             $configuration = $ms->getConfiguration();
-            $handler = $configuration->newStatementHandler($wrapper, $ms, $parameter, $rowBounds, $resultHandler, $boundSql);
-            $stmt = $this->prepareStatement($handler, $ms->getStatementLog());
+            $handler = $configuration->newStatementHandler($this->wrapper, $ms, $parameter, $rowBounds, $resultHandler, $boundSql);
+            $stmt = $this->prepareStatement($handler);
             return $handler->query($stmt, $resultHandler);
         } finally {
             $this->closeStatement($stmt);
@@ -55,8 +55,8 @@ class SimpleExecutor extends BaseExecutor
     protected function doQueryCursor(MappedStatement $ms, $parameter, RowBounds $rowBounds, BoundSql $boundSql): CursorInterface
     {
         $configuration = $ms->getConfiguration();
-        $handler = $configuration->newStatementHandler($wrapper, $ms, $parameter, $rowBounds, null, $boundSql);
-        $stmt = $this->prepareStatement($handler, $ms->getStatementLog());
+        $handler = $configuration->newStatementHandler($this->wrapper, $ms, $parameter, $rowBounds, null, $boundSql);
+        $stmt = $this->prepareStatement($handler);
         $cursor = $handler->queryCursor($stmt);
         $stmt->closeOnCompletion();
         return $cursor;
@@ -66,12 +66,12 @@ class SimpleExecutor extends BaseExecutor
     {
         return [];
     }
-  
-    private function prepareStatement(StatementHandlerInterface $handler/*, Log statementLog*/): Statement
+
+    private function prepareStatement(StatementHandlerInterface $handler): Statement
     {
-        $connection = $this->getConnection(/*statementLog*/);
-        $stmt = $handler->prepare($connection, 0/*transaction.getTimeout()*/);
+        $connection = $this->getConnection();
+        $stmt = $handler->prepare($connection, 0);
         $handler->parameterize($stmt);
         return $stmt;
-    }  
+    }
 }

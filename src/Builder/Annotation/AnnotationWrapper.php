@@ -27,30 +27,30 @@ class AnnotationWrapper
         $this->annotation = $annotation;
         if ($annotation instanceof Select) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::SELECT;
+            $this->sqlCommandType = SqlCommandType::SELECT;
         } elseif ($annotation instanceof Update) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::UPDATE;
+            $this->sqlCommandType = SqlCommandType::UPDATE;
         } elseif ($annotation instanceof Insert) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::INSERT;
+            $this->sqlCommandType = SqlCommandType::INSERT;
         } elseif ($annotation instanceof Delete) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::DELETE;
+            $this->sqlCommandType = SqlCommandType::DELETE;
         } elseif ($annotation instanceof SelectProvider) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::SELECT;
+            $this->sqlCommandType = SqlCommandType::SELECT;
         } elseif ($annotation instanceof UpdateProvider) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::UPDATE;
+            $this->sqlCommandType = SqlCommandType::UPDATE;
         } elseif ($annotation instanceof InsertProvider) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::INSERT;
+            $this->sqlCommandType = SqlCommandType::INSERT;
         } elseif ($annotation instanceof DeleteProvider) {
             $this->databaseId = $annotation->databaseId();
-            $sqlCommandType = SqlCommandType::DELETE;
+            $this->sqlCommandType = SqlCommandType::DELETE;
         } else {
-            $sqlCommandType = SqlCommandType::UNKNOWN;
+            $this->sqlCommandType = SqlCommandType::UNKNOWN;
             if ($annotation instanceof Options) {
                 $this->databaseId = $annotation->databaseId();
             } elseif ($annotation instanceof SelectKey) {

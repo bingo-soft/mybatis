@@ -25,18 +25,18 @@ class ResultMapping
     public $composites = [];
     public $resultSet;
     public $foreignColumn;
-    public $lazy;
+    public $lazy = false;
 
     public function __construct()
     {
     }
 
-    public function getProperty(): string
+    public function getProperty(): ?string
     {
         return $this->property;
     }
 
-    public function getColumn(): string
+    public function getColumn(): ?string
     {
         return $this->column;
     }
@@ -56,12 +56,12 @@ class ResultMapping
         return $this->typeHandler;
     }
 
-    public function getNestedResultMapId(): string
+    public function getNestedResultMapId(): ?string
     {
         return $this->nestedResultMapId;
     }
 
-    public function getNestedQueryId(): string
+    public function getNestedQueryId(): ?string
     {
         return $this->nestedQueryId;
     }
@@ -91,7 +91,7 @@ class ResultMapping
         return !empty($this->composites);
     }
 
-    public function getResultSet(): string
+    public function getResultSet(): ?string
     {
         return $this->resultSet;
     }

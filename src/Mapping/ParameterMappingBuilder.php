@@ -39,7 +39,7 @@ class ParameterMappingBuilder
         return $this;
     }
 
-    public function dbalType(DbalType $dbalType): ParameterMappingBuilder
+    public function dbalType(?DbalType $dbalType): ParameterMappingBuilder
     {
         $this->parameterMapping->dbalType = $dbalType;
         return $this;
@@ -51,13 +51,13 @@ class ParameterMappingBuilder
         return $this;
     }
 
-    public function resultMapId(string $resultMapId): ParameterMappingBuilder
+    public function resultMapId(?string $resultMapId): ParameterMappingBuilder
     {
         $this->parameterMapping->resultMapId = $resultMapId;
         return $this;
     }
 
-    public function typeHandler(TypeHandlerInterface $typeHandler): ParameterMappingBuilder
+    public function typeHandler(?TypeHandlerInterface $typeHandler): ParameterMappingBuilder
     {
         $this->parameterMapping->typeHandler = $typeHandler;
         return $this;

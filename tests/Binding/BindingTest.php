@@ -1,16 +1,141 @@
 <?php
 
-namespace Tests\Bindibg;
+namespace Tests\Binding;
 
+use MyBatis\Binding\MapperMethodInvokerInterface;
+use MyBatis\Cursor\CursorInterface;
+use MyBatis\Exception\PersistenceException;
+use MyBatis\Executor\Result\DefaultResultHandler;
+use MyBatis\Mapping\Environment;
+use MyBatis\Session\{
+    Configuration,
+    RowBounds,
+    SqlSessionInterface,
+    SqlSessionFactoryInterface,
+    SqlSessionFactoryBuilder
+};
+use MyBatis\Transaction\TransactionFactoryInterface;
+use MyBatis\Transaction\Dbal\DbalTransactionFactory;
 use PHPUnit\Framework\TestCase;
 use Tests\BaseDataTest;
+use Tests\Domain\Blog\{
+    Author,
+    Blog,
+    DraftPost,
+    Post,
+    Section
+};
 
-abstract class BindingTest extends TestCase
+class BindingTest extends TestCase
 {
-    private $dataSource;
+    private static $sqlSessionFactory;
 
-    public function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        $this->dataSource = BaseDataTest::createBlogDataSource();
+        $dataSource = BaseDataTest::createBlogDataSource();
+        $transactionFactory = new DbalTransactionFactory();
+        $environment = new Environment("Production", $transactionFactory, $dataSource);
+        $configuration = new Configuration($environment);
+        $configuration->setLazyLoadingEnabled(true);
+        $configuration->setUseActualParamName(false); // to test legacy style reference (#{0} #{1})
+        $configuration->getTypeAliasRegistry()->registerAlias(Blog::class);
+        $configuration->getTypeAliasRegistry()->registerAlias(Post::class);
+        $configuration->getTypeAliasRegistry()->registerAlias(Author::class);
+        //$configuration->addMapper(BoundBlogMapper.class);
+        $configuration->addMapper(BoundAuthorMapper::class);
+        self::$sqlSessionFactory = (new SqlSessionFactoryBuilder())->build($configuration);
+    }
+
+    public function testShouldFindPostsInList(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundAuthorMapper::class);
+            $posts = $mapper->findPostsInList([1, 3, 5]);
+            $this->assertCount(3, $posts);
+            $session->rollback();
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldFindThreeSpecificPosts(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundAuthorMapper::class);
+            $posts = $mapper->findThreeSpecificPosts(1, new RowBounds(1, 1), 3, 5);
+            $this->assertCount(1, $posts);
+            $this->assertEquals(3, $posts[0]->getId());
+            $session->rollback();
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldInsertAuthorWithSelectKey(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundAuthorMapper::class);
+            $author = new Author(-1, "cbegin", "******", "cbegin@nowhere.com", "N/A", Section::NEWS);
+            $rows = $mapper->insertAuthor($author);
+            $this->assertEquals(1, $rows);
+            $session->rollback();
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testVerifyErrorMessageFromSelectKey(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            try {
+                $mapper = $session->getMapper(BoundAuthorMapper::class);
+                $author = new Author(-1, "cbegin", "******", "cbegin@nowhere.com", "N/A", Section::NEWS);
+                $this->expectException(\Exception::class);
+                $mapper->insertAuthorInvalidSelectKey($author);
+            } finally {
+                $session->rollback();
+            }
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testVerifyErrorMessageFromInsertAfterSelectKey(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            try {
+                $mapper = $session->getMapper(BoundAuthorMapper::class);
+                $author = new Author(-1, "cbegin", "******", "cbegin@nowhere.com", "N/A", Section::NEWS);
+                $this->expectException(\Exception::class);
+                $mapper->insertAuthorInvalidInsert($author);
+            } finally {
+                $session->rollback();
+            }
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldInsertAuthorWithSelectKeyAndDynamicParams(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundAuthorMapper::class);
+            $author = new Author(-1, "cbegin", "******", "cbegin@nowhere.com", "N/A", Section::NEWS);
+            $rows = $mapper->insertAuthorDynamic($author);
+            $this->assertEquals(1, $rows);
+            $this->assertNotEquals(-1, $author->getId()); // id must be autogenerated
+            $author2 = $mapper->selectAuthor($author->getId());
+            $this->assertNotNull($author2);
+            $this->assertEquals($author->getEmail(), $author2->getEmail());
+            $session->rollback();
+        } finally {
+            $session->close();
+        }
     }
 }

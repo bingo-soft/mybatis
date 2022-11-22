@@ -36,7 +36,7 @@ class DynamicContext
         $this->bindings->put($name, $value);
     }
 
-    public function appendSql(?string $sql): void
+    public function appendSql(?string $sql = ""): void
     {
         $this->sqlBuilder = implode(" ", [ $this->sqlBuilder, $sql ]);
     }

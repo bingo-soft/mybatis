@@ -7,21 +7,23 @@ use MyBatis\Session\Configuration;
 class TrimFilteredDynamicContext extends DynamicContext
 {
     private $delegate;
-    private $prefixApplied;
-    private $suffixApplied;
+    private $prefixApplied = false;
+    private $suffixApplied = false;
+    private $prefixesToOverride;
+    private $suffixesToOverride;
     private $sqlBuffer = "";
     private $prefix;
     private $suffix;
 
-    public function __construct(Configuration $configuration, DynamicContext $delegate, ?string $prefix, ?string $suffix)
+    public function __construct(Configuration $configuration, DynamicContext $delegate, ?string $prefix, ?string $suffix, ?array $prefixesToOverride = [], ?array $suffixesToOverride = [])
     {
         parent::__construct($configuration, null);
         $this->delegate = $delegate;
-        $this->prefixApplied = false;
-        $this->suffixApplied = false;
         $this->sqlBuffer = $this->sqlBuffer;
         $this->prefix = $prefix;
         $this->suffix = $suffix;
+        $this->prefixesToOverride = $prefixesToOverride;
+        $this->suffixesToOverride = $suffixesToOverride;
     }
 
     public function applyAll(): void
@@ -50,9 +52,9 @@ class TrimFilteredDynamicContext extends DynamicContext
         return $this->delegate->getUniqueNumber();
     }
 
-    public function appendSql(string $sql): void
+    public function appendSql(?string $sql = ""): void
     {
-        $this->sqlBuffer->append($sql);
+        $this->sqlBuffer .= $sql;
     }
 
     public function getSql(): string
@@ -85,7 +87,7 @@ class TrimFilteredDynamicContext extends DynamicContext
             $this->suffixApplied = true;
             if (!empty($this->suffixesToOverride)) {
                 foreach ($this->suffixesToOverride as $toRemove) {
-                    if (endsWith($trimmedUppercaseSql, $toRemove) || endsWith($trimmedUppercaseSql, trim($toRemove))) {
+                    if ($this->endsWith($trimmedUppercaseSql, $toRemove) || $this->endsWith($trimmedUppercaseSql, trim($toRemove))) {
                         $start = strlen($sql) - strlen(trim($toRemove));
                         $end = strlen($sql) - $start;
                         $sql = substr_replace($sql, "", $start, $end);

@@ -66,7 +66,7 @@ abstract class BaseBuilder
         }
     }
 
-    protected function resolveResultSetType(?string $alias): ResultSetType
+    protected function resolveResultSetType(?string $alias): ?ResultSetType
     {
         if ($alias === null) {
             return null;
@@ -79,7 +79,7 @@ abstract class BaseBuilder
         }
     }
 
-    protected function resolveParameterMode(string $alias): string
+    protected function resolveParameterMode(?string $alias): string
     {
         return strtolower($alias);
     }

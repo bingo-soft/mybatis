@@ -3,7 +3,11 @@
 namespace MyBatis\Mapping;
 
 use MyBatis\Cache\CacheInterface;
-use MyBatis\Executor\Keygen\KeyGeneratorInterface;
+use MyBatis\Executor\Keygen\{
+    DbalKeyGenerator,
+    KeyGeneratorInterface,
+    NoKeyGenerator
+};
 use MyBatis\Scripting\LanguageDriverInterface;
 use MyBatis\Session\Configuration;
 
@@ -58,13 +62,13 @@ class MappedStatementBuilder
         return $this;
     }
 
-    public function fetchSize(int $fetchSize): MappedStatementBuilder
+    public function fetchSize(?int $fetchSize): MappedStatementBuilder
     {
         $this->mappedStatement->fetchSize = $fetchSize;
         return $this;
     }
 
-    public function timeout(int $timeout): MappedStatementBuilder
+    public function timeout(?int $timeout): MappedStatementBuilder
     {
         $this->mappedStatement->timeout = $timeout;
         return $this;
@@ -82,7 +86,7 @@ class MappedStatementBuilder
         return $this;
     }
 
-    public function cache(CacheInterface $cache): MappedStatementBuilder
+    public function cache(?CacheInterface $cache): MappedStatementBuilder
     {
         $this->mappedStatement->cache = $cache;
         return $this;
@@ -112,19 +116,19 @@ class MappedStatementBuilder
         return $this;
     }
 
-    public function keyProperty(string $keyProperty): MappedStatementBuilder
+    public function keyProperty(?string $keyProperty): MappedStatementBuilder
     {
-        $this->mappedStatement->keyProperties = $this->delimitedStringToArray($keyProperty);
+        $this->mappedStatement->keyProperties = MappedStatement::delimitedStringToArray($keyProperty);
         return $this;
     }
 
-    public function keyColumn(string $keyColumn): MappedStatementBuilder
+    public function keyColumn(?string $keyColumn): MappedStatementBuilder
     {
-        $this->mappedStatement->keyColumns = $this->delimitedStringToArray($keyColumn);
+        $this->mappedStatement->keyColumns = MappedStatement::delimitedStringToArray($keyColumn);
         return $this;
     }
 
-    public function databaseId(string $databaseId): MappedStatementBuilder
+    public function databaseId(?string $databaseId): MappedStatementBuilder
     {
         $this->mappedStatement->databaseId = $databaseId;
         return $this;
@@ -136,9 +140,9 @@ class MappedStatementBuilder
         return $this;
     }
 
-    public function resultSets(string $resultSet): MappedStatementBuilder
+    public function resultSets(?string $resultSet): MappedStatementBuilder
     {
-        $this->mappedStatement->resultSets = $this->delimitedStringToArray($resultSet);
+        $this->mappedStatement->resultSets = MappedStatement::delimitedStringToArray($resultSet);
         return $this;
     }
 

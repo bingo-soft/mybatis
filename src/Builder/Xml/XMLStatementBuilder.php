@@ -47,7 +47,7 @@ class XMLStatementBuilder extends BaseBuilder
         }
 
         $nodeName = $this->context->getNode()->nodeName;
-        $sqlCommandType = constant("SqlCommandType::", strtoupper($nodeName));
+        $sqlCommandType = constant(SqlCommandType::class . "::" .  strtoupper($nodeName));
         $isSelect = $sqlCommandType == SqlCommandType::SELECT;
         $flushCache = $this->context->getBooleanAttribute("flushCache", !$isSelect);
         $useCache = $this->context->getBooleanAttribute("useCache", $isSelect);
@@ -80,7 +80,7 @@ class XMLStatementBuilder extends BaseBuilder
         }
 
         $sqlSource = $langDriver->createSqlSource($this->configuration, $this->context, $parameterTypeClass);
-        $statementType = constant("SqlCommandType::", strtoupper($this->context->getStringAttribute("statementType", StatementType::PREPARED)));
+        $statementType = constant(StatementType::class . "::" . strtoupper($this->context->getStringAttribute("statementType", StatementType::PREPARED)));
         $fetchSize = $this->context->getIntAttribute("fetchSize");
         $timeout = $this->context->getIntAttribute("timeout");
         $parameterMap = $this->context->getStringAttribute("parameterMap");
@@ -88,7 +88,7 @@ class XMLStatementBuilder extends BaseBuilder
         $resultTypeClass = $this->resolveClass($resultType);
         $resultMap = $this->context->getStringAttribute("resultMap");
         $resultSetType = $this->context->getStringAttribute("resultSetType");
-        $resultSetTypeEnum = resolveResultSetType($resultSetType);
+        $resultSetTypeEnum = $this->resolveResultSetType($resultSetType);
         if ($resultSetTypeEnum === null) {
             $resultSetTypeEnum = $this->configuration->getDefaultResultSetType();
         }
@@ -120,7 +120,7 @@ class XMLStatementBuilder extends BaseBuilder
         );
     }
 
-    private function processSelectKeyNodes(string $id, string $parameterTypeClass, LanguageDriverInterface $langDriver): void
+    private function processSelectKeyNodes(string $id, ?string $parameterTypeClass, LanguageDriverInterface $langDriver): void
     {
         $selectKeyNodes = $this->context->evalNodes("selectKey");
         if ($this->configuration->getDatabaseId() !== null) {
@@ -130,7 +130,7 @@ class XMLStatementBuilder extends BaseBuilder
         $this->removeSelectKeyNodes($selectKeyNodes);
     }
 
-    private function parseSelectKeyNodes(string $parentId, array $list, string $parameterTypeClass, LanguageDriverInterface $langDriver, string $skRequiredDatabaseId): void
+    private function parseSelectKeyNodes(string $parentId, array $list, ?string $parameterTypeClass, LanguageDriverInterface $langDriver, ?string $skRequiredDatabaseId): void
     {
         foreach ($list as $nodeToHandle) {
             $id = $parentId . SelectKeyGenerator::SELECT_KEY_SUFFIX;
@@ -141,11 +141,11 @@ class XMLStatementBuilder extends BaseBuilder
         }
     }
 
-    private function parseSelectKeyNode(string $id, XNode $nodeToHandle, string $parameterTypeClass, LanguageDriverInterface $langDriver, string $databaseId): void
+    private function parseSelectKeyNode(string $id, XNode $nodeToHandle, ?string $parameterTypeClass, LanguageDriverInterface $langDriver, ?string $databaseId): void
     {
         $resultType = $nodeToHandle->getStringAttribute("resultType");
         $resultTypeClass = $this->resolveClass($resultType);
-        $statementType = constant("SqlCommandType::", strtoupper($nodeToHandle->getStringAttribute("statementType", StatementType::PREPARED)));
+        $statementType = constant(StatementType::class . "::" . strtoupper($nodeToHandle->getStringAttribute("statementType", StatementType::PREPARED)));
         $keyProperty = $nodeToHandle->getStringAttribute("keyProperty");
         $keyColumn = $nodeToHandle->getStringAttribute("keyColumn");
         $executeBefore = "BEFORE" == $nodeToHandle->getStringAttribute("order", "AFTER");

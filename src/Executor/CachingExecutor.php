@@ -26,7 +26,7 @@ class CachingExecutor implements ExecutorInterface
 {
     private $delegate;
     private $tcm;// = new TransactionalCacheManager();
-  
+
     public function __construct(ExecutorInterface $delegate)
     {
         $this->tcm = new TransactionalCacheManager();
@@ -38,7 +38,7 @@ class CachingExecutor implements ExecutorInterface
     {
         return $this->delegate->getTransaction();
     }
-  
+
     public function close(bool $forceRollback): void
     {
         try {
@@ -52,25 +52,25 @@ class CachingExecutor implements ExecutorInterface
             $this->delegate->close($forceRollback);
         }
     }
-  
+
     public function isClosed(): bool
     {
         return $this->delegate->isClosed();
     }
-  
+
     public function update(MappedStatement $ms, $parameterObject): int
     {
         $this->flushCacheIfRequired($ms);
         return $this->delegate->update($ms, $parameterObject);
     }
-  
+
     public function queryCursor(MappedStatement $ms, $parameter, RowBounds $rowBounds): CursorInterface
     {
         $this->flushCacheIfRequired($ms);
         return $this->delegate->queryCursor($ms, $parameter, $rowBounds);
     }
-  
-    public function query(MappedStatement $ms, $parameter, RowBounds $rowBounds, ResultHandlerInterface $resultHandler = null, CacheKey $cacheKey = null, BoundSql $boundSql = null): array
+
+    public function query(MappedStatement $ms, $parameterObject, ?RowBounds $rowBounds, ResultHandlerInterface $resultHandler = null, CacheKey $cacheKey = null, BoundSql $boundSql = null): array
     {
         if ($cacheKey === null) {
             $boundSql = $ms->getBoundSql($parameterObject);
@@ -82,7 +82,7 @@ class CachingExecutor implements ExecutorInterface
                 $this->flushCacheIfRequired($ms);
                 if ($ms->isUseCache() && $resultHandler === null) {
                     //$this->ensureNoOutParams($ms, $boundSql);
-                    $list = $this->tcm->getObject($cache, $key);
+                    $list = $this->tcm->getObject($cache, $cacheKey);
                     if (empty($list)) {
                         $list = $this->delegate->query($ms, $parameterObject, $rowBounds, $resultHandler, $cacheKey, $boundSql);
                         $this->tcm->putObject($cache, $cacheKey, $list);
@@ -98,13 +98,13 @@ class CachingExecutor implements ExecutorInterface
     {
         return $this->delegate->flushStatements();
     }
-  
+
     public function commit(bool $required): void
     {
         $this->delegate->commit($required);
         $this->tcm->commit();
     }
-  
+
     public function rollback(bool $required): void
     {
         try {
@@ -115,8 +115,8 @@ class CachingExecutor implements ExecutorInterface
             }
         }
     }
-  
-    public function createCacheKey(MappedStatement $ms, $parameterObject, RowBounds $rowBounds, BoundSql $boundSql): CacheKey
+
+    public function createCacheKey(MappedStatement $ms, $parameterObject, ?RowBounds $rowBounds, BoundSql $boundSql): CacheKey
     {
         return $this->delegate->createCacheKey($ms, $parameterObject, $rowBounds, $boundSql);
     }
@@ -135,7 +135,7 @@ class CachingExecutor implements ExecutorInterface
     {
         $this->delegate->clearLocalCache();
     }
-  
+
     private function flushCacheIfRequired(MappedStatement $ms): void
     {
         $cache = $ms->getCache();
@@ -147,5 +147,5 @@ class CachingExecutor implements ExecutorInterface
     public function setExecutorWrapper(ExecutorInterface $executor): void
     {
         throw new UnsupportedOperationException("This method should not be called");
-    }  
+    }
 }
