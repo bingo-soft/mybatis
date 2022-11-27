@@ -338,7 +338,6 @@ class MapperBuilderAssistant extends BaseBuilder
         string $statementId
     ): array {
         $resultMap = $this->applyCurrentNamespace($resultMap, true);
-
         $resultMaps = [];
         if ($resultMap !== null) {
             $resultMapNames = explode(',', $resultMap);

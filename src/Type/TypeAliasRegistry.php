@@ -13,6 +13,7 @@ class TypeAliasRegistry
         $this->registerAlias("string", "string");
         $this->registerAlias("char", "string");
         $this->registerAlias("character", "string");
+        $this->registerAlias("varchar", "string");
         $this->registerAlias("long", "integer");
         $this->registerAlias("short", "integer");
         $this->registerAlias("int", "integer");
@@ -61,6 +62,7 @@ class TypeAliasRegistry
         $this->registerAlias("map", "array");
         $this->registerAlias("hashmap", "array");
         $this->registerAlias("list", "array");
+        $this->registerAlias("array", "array");
         $this->registerAlias("arraylist", "array");
         $this->registerAlias("collection", "array");
         $this->registerAlias("iterator", "array");

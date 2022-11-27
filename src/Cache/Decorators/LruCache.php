@@ -74,11 +74,13 @@ class LruCache implements CacheInterface
     public function getObject($key)
     {
         $value = null;
+        $keyId = 0;
         if ($key instanceof CacheKey) {
             $exists = false;
             foreach ($this->keyRanks as $it => $pair) {
                 if ($pair[0]->equals($key)) {
-                    $value = $pair[1];
+                    $keyId = $it;
+                    $exists = true;
                     break;
                 }
             }
@@ -89,12 +91,10 @@ class LruCache implements CacheInterface
             return null;
         }
 
-        $value = $value ?? $this->keyRanks[$key];
-
         $this->rank += 1;
 
         if ($key instanceof CacheKey) {
-            $this->keyRanks[] = [ $key, $this->rank ];
+            $this->keyRanks[$keyId] = [ $key, $this->rank ];
         } else {
             $this->keyRanks[$key] = $this->rank;
         }

@@ -45,7 +45,7 @@ class LoadPair implements \Serializable
      */
     private $mappedParameter;
 
-    private function __construct(string $property, ?MetaObject $metaResultObject, ?ResultLoader $resultLoader)
+    public function __construct(string $property, ?MetaObject $metaResultObject, ?ResultLoader $resultLoader)
     {
         $this->property = $property;
         $this->metaResultObject = $metaResultObject;

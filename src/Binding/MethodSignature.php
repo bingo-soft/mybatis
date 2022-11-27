@@ -2,6 +2,11 @@
 
 namespace MyBatis\Binding;
 
+use MyBatis\Annotations\{
+    MapKey,
+    MapType,
+    ResultType
+};
 use MyBatis\Reflection\ParamNameResolver;
 use MyBatis\Session\{
     Configuration,
@@ -17,7 +22,7 @@ class MethodSignature
     private $returnsCursor;
     private $returnsOptional;
     private $returnType;
-    //private $mapKey;
+    private $mapKey;
     private $resultHandlerIndex;
     private $rowBoundsIndex;
     private $paramNameResolver;
@@ -25,15 +30,26 @@ class MethodSignature
     public function __construct(Configuration $configuration, string $mapperInterface, \ReflectionMethod $method)
     {
         $resolvedReturnType = null;
+
+        $attrs = $method->getAttributes(ResultType::class);
+        if (!empty($attrs)) {
+            $resultType = $attrs[0]->newInstance();
+            if ($resultType->value() instanceof MapType) {
+                $this->returnsMany = false;
+            }
+        }
+
         $retType = $method->getReturnType();
         if ($retType instanceof \ReflectionNamedType) {
             $this->returnType = $retType->getName();
         }
+        $this->returnsMany ??= ($this->returnType == 'array');
         $this->returnsVoid = $this->returnType == 'void';
-        $this->returnsMany = $this->returnType == 'array';
+
         $this->returnsCursor = false;
         $this->returnsOptional = false;
-        $this->returnsMap = $this->returnType == 'array';
+        $this->mapKey = $this->getMapKey($method);
+        $this->returnsMap = $this->mapKey !== null;
         $this->rowBoundsIndex = $this->getUniqueParamIndex($method, RowBounds::class);
         $this->resultHandlerIndex = $this->getUniqueParamIndex($method, ResultHandlerInterface::class);
         $this->paramNameResolver = new ParamNameResolver($configuration, $method);
@@ -110,5 +126,20 @@ class MethodSignature
             }
         }
         return $index;
+    }
+
+    public function getMapKey(?\ReflectionMethod $method = null): ?string
+    {
+        if ($method === null) {
+            return $this->mapKey;
+        } else {
+            $mapKey = null;
+            $mapKeyAnnotations = $method->getAttributes(MapKey::class);
+            if (!empty($mapKeyAnnotations)) {
+                $mapKeyAnnotation = $mapKeyAnnotations[0]->newInstance();
+                $mapKey = $mapKeyAnnotation->value();
+            }
+            return $mapKey;
+        }
     }
 }

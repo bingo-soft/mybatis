@@ -56,6 +56,19 @@ class DefaultSqlSession implements SqlSessionInterface
         }*/
     }
 
+    public function selectMap(string $statement, $parameter, string $mapKey, ?RowBounds $rowBounds = null): array
+    {
+        $rowBounds ??= RowBounds::default();
+        $list = $this->selectList($statement, $parameter, $rowBounds);
+        $mapResultHandler = new DefaultMapResultHandler($mapKey);
+        $context = new DefaultResultContext();
+        foreach ($list as $o) {
+            $context->nextResultObject($o);
+            $mapResultHandler->handleResult($context);
+        }
+        return $mapResultHandler->getMappedResults();
+    }
+
     public function select(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): void
     {
         $this->selectList($statement, $parameter, $rowBounds ?? RowBounds::default(), $handler);

@@ -46,7 +46,7 @@ class ResultLoader
         $this->targetType = $targetType;
         $this->cacheKey = $cacheKey;
         $this->boundSql = $boundSql;
-        $this->resultExtractor = new ResultExtractor($configuration);
+        $this->resultExtractor = new ResultExtractor($this->configuration);
     }
 
     public function loadResult()
@@ -63,7 +63,7 @@ class ResultLoader
             $localExecutor = $this->newExecutor();
         }
         try {
-            return $localExecutor->query($this->mappedStatement, $this->parameterObject, RowBounds::DEFAULT, null, $this->cacheKey, $this->boundSql);
+            return $localExecutor->query($this->mappedStatement, $this->parameterObject, RowBounds::default(), null, $this->cacheKey, $this->boundSql);
         } finally {
             if ($localExecutor != $this->executor) {
                 $localExecutor->close(false);

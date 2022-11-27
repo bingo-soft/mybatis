@@ -11,6 +11,8 @@ interface SqlSessionInterface
 
     public function selectList(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): array;
 
+    public function selectMap(string $statement, $parameter, string $mapKey, ?RowBounds $rowBounds = null): array;
+
     //public function selectCursor(string $statement, $parameter = null, ?RowBounds $rowBounds = null): CursorInterface;
 
     public function select(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): void;

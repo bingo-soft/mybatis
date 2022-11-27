@@ -126,7 +126,7 @@ class ParamNameResolver
 
     public static function wrapToMapIfCollection($object, ?string $actualParamName)
     {
-        if (is_array($object)) {
+        if (is_array($object) && !empty($object) && is_int(array_keys($object)[0])) {
             $map = new ParamMap();
             $map->put("array", $object);
             if ($actualParamName !== null) {

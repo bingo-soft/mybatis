@@ -5,13 +5,13 @@ namespace MyBatis\Annotations;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class ResultType
+class MapType implements ParametrizedType
 {
-    public function __construct(private mixed $value)
+    public function __construct(private string $value)
     {
     }
 
-    public function value(): mixed
+    public function value(): string
     {
         return $this->value;
     }

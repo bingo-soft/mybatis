@@ -14,9 +14,11 @@ use MyBatis\Annotations\{
     Insert,
     InsertProvider,
     Lang,
+    ListType,
     MapKey,
     Options,
     FlushCachePolicy,
+    ParametrizedType,
     Property,
     Result,
     ResultMap,
@@ -198,38 +200,31 @@ class MapperAnnotationBuilder
     private function parseResultMap(\ReflectionMethod $method): string
     {
         $returnType = $this->getReturnType($method);
-
-        //Arg on top or ConstructorArgs as root
-        $args = array_map(function ($a) {
-            return $a->newInstance();
-        }, $method->getAttributes(Arg::class));
-        //Args may be nested in ConstructorArgs
-        if (empty($args)) {
-            $constructorArgs = $method->getAttributes(ConstructorArgs::class);
-            if (!empty($constructorArgs)) {
-                $constructor = $constructorArgs[0]->newInstance();
-                if (is_array($constructor->value()) && !empty($constructor->value()))
-                {
-                    $args = $constructor->value();
-                }
-            }
-        }
-        //Result on top or Results as root
-        $results = array_map(function ($r) {
-            return $r->newInstance();
-        }, $method->getAttributes(Result::class));
         $resultMapId = null;
-        //Result may be nested in Results annotation/attribute
-        if (empty($results)) {
-            $rootResults = $method->getAttributes(Results::class);
-            if (!empty($rootResults)) {
-                $rootResult = $rootResults[0]->newInstance();
-                if (!empty($rootResult->id())) {
-                    $resultMapId = $this->refType->name . "." . $rootResult->id();
+        $args = [];
+        $results = [];
+        $refAttributes = $method->getAttributes();
+        foreach ($refAttributes as $attribute) {
+            if ($attribute->getName() == Arg::class) {
+                $args[] = $attribute->newInstance();
+            } elseif ($attribute->getName() == ConstructorArgs::class) {
+                $constructor = $attribute->newInstance();
+                if (is_array($constructor->value()) && !empty($constructor->value())) {
+                    $args = array_merge($args, $constructor->value());
+                } elseif ($constructor->value() instanceof Arg) {
+                    $args[] = $constructor->value();
                 }
-                if (is_array($rootResult->value()) && !empty($rootResult->value()))
-                {
-                    $results = $rootResult->value();
+            } elseif ($attribute->getName() == Result::class) {
+                $results[] = $attribute->newInstance();
+            } elseif ($attribute->getName() == Results::class) {
+                $constructor = $attribute->newInstance();
+                if (!empty($constructor->id())) {
+                    $resultMapId = $this->refType->name . "." . $constructor->id();
+                }
+                if (is_array($constructor->value()) && !empty($constructor->value())) {
+                    $results = array_merge($results, $constructor->value());
+                } elseif ($constructor->value() instanceof Result) {
+                    $results[] = $constructor->value();
                 }
             }
         }
@@ -446,18 +441,29 @@ class MapperAnnotationBuilder
 
     private function getReturnType(\ReflectionMethod $method)
     {
-        if ($method->hasReturnType()) {
+        //Unlike Java we can not parametrize returned Map with some class, so move this logic to MapKey
+        $type = null;
+        $attrs = $method->getAttributes(ResultType::class);
+        if (!empty($attrs)) {
+            $result = $attrs[0]->newInstance();
+            $rvalue = $result->value();
+            if (is_string($rvalue)) {
+                $type = $rvalue;
+            } elseif ($rvalue instanceof ParametrizedType) {
+                $value = $rvalue->value();
+                if (is_string($value)) {
+                    $type = $value;
+                } elseif ($value instanceof ParametrizedType) {
+                    $type = $value->value();
+                }
+            }
+        } elseif ($method->hasReturnType()) {
             $refType = $method->getReturnType();
             if ($refType instanceof \ReflectionNamedType) {
                 $type = $refType->getName();
-                //array is deprecated in Doctrine
-                if ($type === 'array') {
-                    $type = Types::JSON;
-                }
-                return $type;
             }
         }
-        return null;
+        return $type;
     }
 
     private function applyResults(array $results, ?string $resultType, array &$resultMappings): void
@@ -521,7 +527,7 @@ class MapperAnnotationBuilder
     private function nestedSelectId($result): string
     {
         $nestedSelect = $result->one()->select();
-        if (strlen($strlennestedSelect) < 1) {
+        if (strlen($nestedSelect) < 1) {
             $nestedSelect = $result->many()->select();
         }
         if (strpos($nestedSelect, ".") === false) {

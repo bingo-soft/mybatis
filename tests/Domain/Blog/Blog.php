@@ -4,7 +4,7 @@ namespace Tests\Domain\Blog;
 
 class Blog
 {
-    public function __construct(private ?int $id = null, private ?string $title = null, private ?Author $author, private ?array $posts = [])
+    public function __construct(private int $id = -1, private ?string $title = null, private ?Author $author = null, private ?array $posts = [])
     {
     }
 

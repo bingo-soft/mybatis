@@ -71,7 +71,7 @@ class ResultMapping
         return $this->notNullColumns;
     }
 
-    public function getColumnPrefix(): string
+    public function getColumnPrefix(): ?string
     {
         return $this->columnPrefix;
     }
@@ -146,7 +146,7 @@ class ResultMapping
         $sb .= ", nestedQueryId='" . $this->nestedQueryId . '\'';
         $sb .= ", notNullColumns=" . json_encode($this->notNullColumns);
         $sb .= ", columnPrefix='" . $this->columnPrefix . '\'';
-        $sb .= ", flags=" . json_encode($flags);
+        $sb .= ", flags=" . json_encode($this->flags);
         $sb .= ", composites=" . json_encode($this->composites);
         $sb .= ", resultSet='" . $this->resultSet . '\'';
         $sb .= ", foreignColumn='" . $this->foreignColumn . '\'';

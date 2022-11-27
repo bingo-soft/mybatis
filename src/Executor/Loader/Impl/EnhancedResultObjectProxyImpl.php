@@ -12,7 +12,6 @@ use Util\Proxy\MethodHandlerInterface;
 
 class EnhancedResultObjectProxyImpl implements MethodHandlerInterface
 {
-    private $scope;
     private $type;
     private $lazyLoader;
     private $aggressive;
@@ -21,7 +20,6 @@ class EnhancedResultObjectProxyImpl implements MethodHandlerInterface
 
     public function __construct(string $type, ResultLoaderMap $lazyLoader, Configuration $configuration, array $constructorArgs)
     {
-        $this->scope = $scope;
         $this->type = $type;
         $this->lazyLoader = $lazyLoader;
         $this->aggressive = $configuration->isAggressiveLazyLoading();

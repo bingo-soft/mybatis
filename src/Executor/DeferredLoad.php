@@ -40,7 +40,7 @@ class DeferredLoad
 
     public function load(): void
     {
-        // we suppose we get back a List
+        // we suppose we get back a ListType
         $list = $this->localCache->getObject($this->key);
         $value = $this->resultExtractor->extractObjectFromList($list, $this->targetType);
         $this->resultObject->setValue($this->property, $value);

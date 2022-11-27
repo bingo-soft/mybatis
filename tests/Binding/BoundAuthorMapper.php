@@ -7,9 +7,11 @@ use MyBatis\Annotations\{
     CacheNamespace,
     ConstructorArgs,
     Flush,
+    ListType,
     Param,
     Result,
     Results,
+    ResultType,
     Select
 };
 use MyBatis\Session\RowBounds;
@@ -177,5 +179,5 @@ interface BoundAuthorMapper
     ): array;
 
     //@Flush
-    //List<BatchResult> flush();
+    //ListType<BatchResult> flush();
 }

@@ -86,6 +86,9 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     // temporary marking flag that indicate using constructor mapping (use field to reduce memory usage)
     private $useConstructorMappings = false;
 
+    private static $defaultConstructorCheck = [];
+    private static $reflectionsCache = [];
+
     public function __construct(
         ExecutorInterface $executor,
         MappedStatement $mappedStatement,
@@ -150,7 +153,6 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                 $resultSetCount += 1;
             }
         }
-
         return $this->collapseSingleResultList($multipleResults);
     }
 
@@ -345,7 +347,17 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $rowValue = $foundValues || $this->configuration->isReturnInstanceForEmptyRow() ? $rowValue : null;
                 }
                 if ($prefixOrKey != CacheKey::nullCacheKey()) {
-                    $this->nestedResultObjects[$prefixOrKey] = $rowValue;
+                    $exists = false;
+                    foreach ($this->nestedResultObjects as $it => $pair) {
+                        if ($prefixOrKey->equals($pair[0])) {
+                            $exists = true;
+                            $this->nestedResultObjects[$it] = [ $prefixOrKey, $rowValue ];
+                            break;
+                        }
+                    }
+                    if (!$exists) {
+                        $this->nestedResultObjects[] = [ $prefixOrKey, $rowValue ];
+                    }
                 }
             }
             return $rowValue;
@@ -409,7 +421,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                 $property = $propertyMapping->getProperty();
                 if ($property === null) {
                     continue;
-                } elseif ($value == self::$DEFERRED) {
+                } elseif (is_object($value) && $value == self::$DEFERRED) {
                     $foundValues = true;
                     continue;
                 }
@@ -602,13 +614,50 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                 return $this->createPrimitiveResultObject($rsw, $resultMap, $rowData, $columnPrefix);
             } elseif (!empty($constructorMappings)) {
                 return $this->createParameterizedResultObject($rsw, $resultType, $rowData, $constructorMappings, $lazyLoaderOrConstructorArgs, $columnPrefix);
-            } elseif (class_exists($resultType)) {
+            } elseif ($resultType == 'array') {
+                return [];
+            } elseif ($this->hasDefaultConstructor($resultType)) {
                 return new $resultType();
             } elseif ($this->shouldApplyAutomaticMappings($resultMap, false)) {
                 return $this->createByConstructorSignature($rsw, $resultMap, $rowData, $columnPrefix, $resultType, $lazyLoaderOrConstructorArgs);
             }
+
             throw new ExecutorException("Do not know how to create an instance of " . $resultType);
         }
+    }
+
+    private function hasDefaultConstructor(string $clazz): bool
+    {
+        if (array_key_exists($clazz, self::$defaultConstructorCheck)) {
+            return self::$defaultConstructorCheck[$clazz];
+        }
+        $hasDefaultCtor = false;
+        try {
+            if (array_key_exists($clazz, self::$reflectionsCache)) {
+                $ref = self::$reflectionsCache[$clazz];
+            } else {
+                $ref = new \ReflectionClass($clazz);
+            }
+            if (($ctor = $ref->getConstructor()) !== null) {
+                if (empty($params = $ctor->getParameters())) {
+                    $hasDefaultCtor = true;
+                } else {
+                    $hasDefaultCtor = true;
+                    foreach ($params as $param) {
+                        if (!($param->isOptional() || $param->isDefaultValueAvailable())) {
+                            $hasDefaultCtor = false;
+                            break;
+                        }
+                    }
+                }
+            } elseif (!$ref->isInterface()) {
+                $hasDefaultCtor = true;
+            }
+        } catch (\Exception $e) {
+            //ignore
+        }
+        self::$defaultConstructorCheck[$clazz] = $hasDefaultCtor;
+        return $hasDefaultCtor;
     }
 
     public function createParameterizedResultObject(ResultSetWrapper $rsw, string $resultType, array $rowData, array $constructorMappings, array $constructorArgs, ?string $columnPrefix)
@@ -913,18 +962,21 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     // HANDLE NESTED RESULT MAPS
     //
 
-    private function handleRowValuesForNestedResultMap(ResultSetWrapper $rsw, ResultMap $resultMap, ResultHandlerInterface $resultHandler, RowBounds $rowBounds, ResultMapping $parentMapping): void
+    private function handleRowValuesForNestedResultMap(ResultSetWrapper $rsw, ResultMap $resultMap, ResultHandlerInterface $resultHandler, ?RowBounds $rowBounds, ?ResultMapping $parentMapping): void
     {
         $resultContext = new DefaultResultContext();
         $resultSet = $rsw->getResultSet();
         $this->skipRows($resultSet, $rowBounds);
-        $rowValue = $previousRowValue;
+        $rowValue = $this->previousRowValue;
         while ($this->shouldProcessMoreRows($resultContext, $rowBounds) && ($rs = $resultSet->fetchAssociative())) {
             $discriminatedResultMap = $this->resolveDiscriminatedResultMap($rs, $resultMap, null);
             $rowKey = $this->createRowKey($discriminatedResultMap, $rs, $rsw, null);
             $partialObject = null;
-            if (array_key_exists($rowKey, $this->nestedResultObject)) {
-                $partialObject = $this->nestedResultObjects[$rowKey];
+            foreach ($this->nestedResultObjects as $pair) {
+                if ($rowKey->equals($pair[0])) {
+                    $partialObject = $pair[1];
+                    break;
+                }
             }
             // issue #577 && #542
             if ($this->mappedStatement->isResultOrdered()) {
@@ -977,8 +1029,11 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $rowKey = $this->createRowKey($nestedResultMap, $res, $rsw, $columnPrefix);
                     $combinedKey = $this->combineKeys($rowKey, $parentRowKey);
                     $rowValue = null;
-                    if (array_key_exists($combinedKey, $this->nestedResultObjects)) {
-                        $rowValue = $this->nestedResultObjects[$combinedKey];
+                    foreach ($this->nestedResultObjects as $pair) {
+                        if ($combinedKey->equals($pair[0])) {
+                            $rowValue = $pair[1];
+                            break;
+                        }
                     }
                     $knownValue = $rowValue !== null;
                     $this->instantiateCollectionPropertyIfAppropriate($resultMapping, $metaObject); // mandatory

@@ -41,24 +41,24 @@ class SimpleStatementHandler extends BaseStatementHandler
         } elseif ($keyGenerator instanceof SelectKeyGenerator) {
             $rows = $statement->executeStatement();
             $keyGenerator->processAfter($this->executor, $this->mappedStatement, $statement, $parameterObject);
-        } else {            
+        } else {
             $rows = $this->executor->getTransaction()->getConnection()->executeStatement($sql);
         }
         return $rows;
     }
-  
+
     public function query(Statement $statement, ResultHandlerInterface $resultHandler): array
     {
         $statement->executeStatement();
         return $this->resultSetHandler->handleResultSets($statement);
     }
-  
+
     public function queryCursor(Statement $statement): CursorInterface
     {
         $statement->executeStatement();
         return $this->resultSetHandler->handleCursorResultSets($statement);
     }
-  
+
     public function instantiateStatement(Connection $connection): Statement
     {
         $sql = $this->boundSql->getSql();
@@ -68,5 +68,5 @@ class SimpleStatementHandler extends BaseStatementHandler
     public function parameterize(Statement $statement): void
     {
         // N/A
-    }  
+    }
 }

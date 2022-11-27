@@ -46,7 +46,9 @@ class MapperMethod
                 if ($this->method->returnsVoid() && $this->method->hasResultHandler()) {
                     $this->executeWithResultHandler($sqlSession, $args);
                     $result = null;
-                } elseif ($this->method->returnsMany() || $this->method->returnsMap()) {
+                } elseif ($this->method->returnsMap()) {
+                    $result = $this->executeForMap($sqlSession, $args);
+                } elseif ($this->method->returnsMany()) {
                     $result = $this->executeForMany($sqlSession, $args);
                 } else {
                     $param = $this->method->convertArgsToSqlCommandParam($args);
@@ -107,6 +109,19 @@ class MapperMethod
             $result = $sqlSession->selectList($this->command->getName(), $param, $rowBounds);
         } else {
             $result = $sqlSession->selectList($this->command->getName(), $param);
+        }
+        return $result;
+    }
+
+    private function executeForMap(SqlSessionInterface $sqlSession, array $args): array
+    {
+        $result = [];
+        $param = $this->method->convertArgsToSqlCommandParam($args);
+        if ($this->method->hasRowBounds()) {
+            $rowBounds = $this->method->extractRowBounds($args);
+            $result = $sqlSession->selectMap($this->command->getName(), $param, $this->method->getMapKey(), $rowBounds);
+        } else {
+            $result = $sqlSession->selectMap($this->command->getName(), $param, $this->method->getMapKey());
         }
         return $result;
     }
