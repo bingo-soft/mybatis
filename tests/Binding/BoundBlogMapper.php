@@ -7,6 +7,7 @@ use MyBatis\Annotations\{
     CacheNamespace,
     Cases,
     ConstructorArgs,
+    CursorType,
     Flush,
     ListType,
     Many,
@@ -55,6 +56,7 @@ interface BoundBlogMapper
 
     #[Select(["SELECT * FROM blog ORDER BY id"])]
     #[MapKey("id")]
+    #[ResultType(new MapType(Blog::class))]
     public function selectRangeBlogsAsMapById(RowBounds $rowBounds): array;
 
     //======================================================
@@ -80,6 +82,7 @@ interface BoundBlogMapper
             "FROM blog",
             "ORDER BY id"
     ])]
+    #[ResultType(new CursorType(Blog::class))]
     public function openRangeBlogs(RowBounds $rowBounds): CursorInterface;
 
     //======================================================
@@ -109,6 +112,7 @@ interface BoundBlogMapper
         phpType: "string",
         cases: [ new Cases(value: "1", type: DraftPost::class) ]
     )]
+    #[ResultType(new ListType(Post::class))]
     public function selectPosts(): array;
 
     //======================================================
@@ -126,6 +130,7 @@ interface BoundBlogMapper
             results: [new Result(id: true, property: "id", column: "id")]
         )]
     )]
+    #[ResultType(new ListType(Post::class))]
     public function selectPostsWithResultMap(): array;
 
     //======================================================
@@ -179,6 +184,7 @@ interface BoundBlogMapper
     //======================================================
 
     #[Select("SELECT * FROM post WHERE id = #{id}")]
+    #[ResultType(new ListType(Post::class))]
     public function selectPostsById(int $id): array;
 
     //======================================================
@@ -230,6 +236,7 @@ interface BoundBlogMapper
         new Result(property: "author", column: "author_id", one: new One(select: "Tests\Binding\BoundAuthorMapper.selectAuthor")),
         new Result(property: "posts", column: "id", many: new Many(select: "selectPostsById"))
     ])]
+    #[ResultType(new ListType(Blog::class))]
     public function selectBlogsWithAutorAndPosts(): array;
 
     #[Select([
@@ -239,5 +246,6 @@ interface BoundBlogMapper
         new Result(property: "author", column: "author_id", one: new One(select: "Tests\Binding\BoundAuthorMapper.selectAuthor", fetchType: FetchType::EAGER)),
         new Result(property: "posts", column: "id", many: new Many(select: "selectPostsById", fetchType: FetchType::EAGER))
     ])]
+    #[ResultType(new ListType(Blog::class))]
     public function selectBlogsWithAutorAndPostsEagerly(): array;
 }

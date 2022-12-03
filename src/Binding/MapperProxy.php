@@ -4,19 +4,14 @@ namespace MyBatis\Binding;
 
 use MyBatis\Session\SqlSessionInterface;
 use Util\Proxy\MethodHandlerInterface;
+use Util\Reflection\MapUtil;
 
 class MapperProxy implements MethodHandlerInterface
 {
-    private $sqlSession;
-    private $mapperInterface;
     private $mapperRefInterface;
-    private $methodCache = [];
 
-    public function __construct(SqlSessionInterface $sqlSession, string $mapperInterface, array $methodCache = [])
+    public function __construct(private SqlSessionInterface $sqlSession, private string $mapperInterface, private MethodCache $methodCache)
     {
-        $this->sqlSession = $sqlSession;
-        $this->mapperInterface = $mapperInterface;
-        $this->methodCache = $methodCache;
     }
 
     public function __call(string $name, array $args)
@@ -41,6 +36,11 @@ class MapperProxy implements MethodHandlerInterface
 
     private function cachedInvoker(\ReflectionMethod $method): MapperMethodInvokerInterface
     {
-        return new PlainMethodInvoker(new MapperMethod($this->mapperInterface, $method, $this->sqlSession->getConfiguration()));
+        $mapperInterface = $this->mapperInterface;
+        $sqlSession = $this->sqlSession;
+        $ret = &MapUtil::computeIfAbsent($this->methodCache, $method->name, function () use ($mapperInterface, $method, $sqlSession) {
+            return new PlainMethodInvoker(new MapperMethod($this->mapperInterface, $method, $this->sqlSession->getConfiguration()));
+        });
+        return $ret;
     }
 }

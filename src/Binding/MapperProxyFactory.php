@@ -9,11 +9,12 @@ class MapperProxyFactory
 {
     private $sqlSession;
     private $mapperInterface;
-    private $methodCache = [];
+    private $methodCache;
 
     public function __construct(string $mapperInterface)
     {
         $this->mapperInterface = $mapperInterface;
+        $this->methodCache = new MethodCache();
     }
 
     public function getMapperInterface(): string
@@ -21,7 +22,7 @@ class MapperProxyFactory
         return $this->mapperInterface;
     }
 
-    public function getMethodCache(): array
+    public function &getMethodCache(): MethodCache
     {
         return $this->methodCache;
     }
@@ -30,13 +31,13 @@ class MapperProxyFactory
     {
         if ($sessionOrHandler instanceof SqlSessionInterface) {
             $this->sqlSession = $sessionOrHandler;
-            $mapperProxy = new MapperProxy($sessionOrHandler, $this->mapperInterface, $this->methodCache);
+            $mapperProxy = new MapperProxy($sessionOrHandler, $this->mapperInterface, $this->getMethodCache());
             return $this->newInstance($mapperProxy);
         } elseif ($sessionOrHandler instanceof MapperProxy) {
             $enhancer = new ProxyFactory();
             $enhancer->setSuperclass(MapperProxy::class);
             //$enhancer->setInterfaces([ $this->mapperInterface ]);
-            $proxy = $enhancer->create([$this->sqlSession, $this->mapperInterface, $this->methodCache]);
+            $proxy = $enhancer->create([$this->sqlSession, $this->mapperInterface, $this->getMethodCache()]);
             //$proxy->setHandler($sessionOrHandler);
             return $proxy;
         }

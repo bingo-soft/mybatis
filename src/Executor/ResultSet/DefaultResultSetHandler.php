@@ -160,7 +160,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     {
         $rsw = $this->getFirstResultSet($stmt);
 
-        $resultMaps = $mappedStatement->getResultMaps();
+        $resultMaps = $this->mappedStatement->getResultMaps();
 
         $resultMapCount = count($resultMaps);
         $this->validateResultMapsCount($rsw, $resultMapCount);

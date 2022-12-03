@@ -72,7 +72,7 @@ class DefaultCursor implements CursorInterface
             return;
         }
 
-        $rs = $rsw->getResultSet();
+        $rs = $this->rsw->getResultSet();
         try {
             if ($rs !== null) {
                 $rs->free();
@@ -84,7 +84,7 @@ class DefaultCursor implements CursorInterface
         }
     }
 
-    protected function fetchNextUsingRowBound()
+    public function fetchNextUsingRowBound()
     {
         $result = $this->fetchNextObjectFromDatabase();
         while ($this->objectWrapperResultHandler->fetched && $this->indexWithRowBound < $this->rowBounds->getOffset()) {

@@ -63,7 +63,7 @@ class DefaultParameterHandler implements ParameterHandlerInterface
                     }
                     $typeHandler = $parameterMapping->getTypeHandler();
                     $dbalType = $parameterMapping->getDbalType();
-                    if ($value == null && $dbalType === null) {
+                    if ($value === null && $dbalType === null) {
                         $dbalType = $this->configuration->getDbalTypeForNull();
                     }
                     try {

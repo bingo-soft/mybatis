@@ -61,8 +61,8 @@ class ForEachSqlNode implements SqlNodeInterface
             $i++;
         }
         $this->applyClose($context);
-        $context->getBindings()->remove($item);
-        $context->getBindings()->remove($index);
+        $context->getBindings()->remove($this->item);
+        $context->getBindings()->remove($this->index);
         return true;
     }
 

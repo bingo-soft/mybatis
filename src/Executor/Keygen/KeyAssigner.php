@@ -2,7 +2,6 @@
 
 namespace MyBatis\Executor\Keygen;
 
-use Doctrine\DBAL\Result;
 use MyBatis\Executor\ExecutorException;
 use MyBatis\Session\Configuration;
 use MyBatis\Type\DbalType;

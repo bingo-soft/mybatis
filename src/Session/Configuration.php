@@ -690,9 +690,12 @@ class Configuration
         return null;
     }
 
-    public function hasResultMap(string $id): bool
+    public function hasResultMap(?string $id): bool
     {
-        return array_key_exists($id, $this->resultMaps->getArrayCopy());
+        if ($id !== null) {
+            return array_key_exists($id, $this->resultMaps->getArrayCopy());
+        }
+        return false;
     }
 
     public function addParameterMap(ParameterMap $pm): void

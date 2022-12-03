@@ -338,9 +338,10 @@ class DynamicSqlSourceTest extends TestCase
         return new MixedSqlNode(...$contents);
     }
 
-    private function createDynamicSqlSource(...$contents): DynamicSqlSource
+    private function createDynamicSqlSource(...$contents): ?DynamicSqlSource
     {
-        BaseDataTest::createBlogDataSource();
+        //No data is needed
+        //BaseDataTest::createBlogDataSource();
         $resource = "tests/Resources/Builder/MapperConfig.xml";
         $reader = Resources::getResourceAsStream($resource);
         $sqlMapper = (new SqlSessionFactoryBuilder())->build($reader);

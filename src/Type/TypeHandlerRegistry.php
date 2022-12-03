@@ -14,6 +14,7 @@ class TypeHandlerRegistry
 {
     private $unknownTypeHandler;
     private $allTypeHandlersMap = [];
+    private $defaultEnumTypeHandler;
 
     /**
      * The constructor that pass the MyBatis configuration.
@@ -22,8 +23,8 @@ class TypeHandlerRegistry
      */
     public function __construct(?Configuration $configuration = null)
     {
-
         $this->unknownTypeHandler = new UnknownTypeHandler($configuration);
+        $this->defaultEnumTypeHandler = EnumTypeHandler::class;
 
         $this->register("bool", new BooleanTypeHandler());
         $this->register("boolean", new BooleanTypeHandler());
@@ -64,6 +65,11 @@ class TypeHandlerRegistry
         $this->register(DbalType::forCode(Types::DATETIME_MUTABLE), new DatetimeTypeHandler());
     }
 
+    public function setDefaultEnumTypeHandler(TypeHandlerInterface $typeHandler): void
+    {
+        $this->defaultEnumTypeHandler = $typeHandler;
+    }
+
     public function hasTypeHandler($type): bool
     {
         return $this->getTypeHandler($type) !== null;
@@ -85,6 +91,12 @@ class TypeHandlerRegistry
                 if (is_string($pair[0]) && class_exists($pair[0]) && (new IsA($pair[0]))->matches($type)) {
                     return $pair[1];
                 }
+            }
+            //if handler not defined for enum
+            if (is_a($type, \UnitEnum::class, true)) {
+                $handler = $this->getInstance($type, $this->defaultEnumTypeHandler);
+                $this->register($type, $handler);
+                return $handler;
             }
         }
         return null;

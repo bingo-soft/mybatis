@@ -25,7 +25,7 @@ class DynamicSqlSource implements SqlSourceInterface
         $context = new DynamicContext($this->configuration, $parameterObject);
         $this->rootSqlNode->apply($context);
         $sqlSourceParser = new SqlSourceBuilder($this->configuration);
-        $parameterType = $parameterObject == null ? "object" : get_class($parameterObject);
+        $parameterType = $parameterObject == null ? "object" : (is_object($parameterObject) ? get_class($parameterObject) : gettype($parameterObject));
         $sqlSource = $sqlSourceParser->parse($context->getSql(), $parameterType, $context->getBindings());
         $boundSql = $sqlSource->getBoundSql($parameterObject);
         foreach ($context->getBindings() as $key => $value) {

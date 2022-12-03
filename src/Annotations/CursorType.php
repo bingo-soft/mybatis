@@ -5,7 +5,7 @@ namespace MyBatis\Annotations;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class ListType implements ParametrizedType
+class CursorType implements ParametrizedType
 {
     public function __construct(private mixed $value)
     {

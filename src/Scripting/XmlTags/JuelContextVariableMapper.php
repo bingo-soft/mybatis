@@ -28,7 +28,7 @@ class JuelContextVariableMapper extends VariableMapper
         }
     }
 
-    public function setVariable(string $variable, ValueExpression $expression): ValueExpression
+    public function setVariable(string $name, ValueExpression $value): ValueExpression
     {
         $previousValue = $this->resolveVariable($name);
         $this->scriptContext->put($name, $value);

@@ -2,7 +2,10 @@
 
 namespace Tests\Binding;
 
-use MyBatis\Binding\MapperMethodInvokerInterface;
+use MyBatis\Binding\{
+    MapperMethodInvokerInterface,
+    MapperProxyFactory
+};
 use MyBatis\Cursor\CursorInterface;
 use MyBatis\Exception\PersistenceException;
 use MyBatis\Executor\Result\DefaultResultHandler;
@@ -26,6 +29,7 @@ use Tests\Domain\Blog\{
     Post,
     Section
 };
+use Util\Proxy\ProxyInterface;
 
 class BindingTest extends TestCase
 {
@@ -606,5 +610,256 @@ class BindingTest extends TestCase
         } finally {
             $session->close();
         }
+    }
+
+    public function testShouldSelectDraftTypedPosts(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $posts = $mapper->selectPosts();
+            $this->assertEquals(5, count($posts));
+            $this->assertTrue($posts[0] instanceof DraftPost);
+            $this->assertFalse($posts[1] instanceof DraftPost);
+            $this->assertTrue($posts[2] instanceof DraftPost);
+            $this->assertFalse($posts[3] instanceof DraftPost);
+            $this->assertFalse($posts[4] instanceof DraftPost);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldSelectDraftTypedPostsWithResultMap(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $posts = $mapper->selectPostsWithResultMap();
+            $this->assertEquals(5, count($posts));
+            $this->assertTrue($posts[0] instanceof DraftPost);
+            $this->assertFalse($posts[1] instanceof DraftPost);
+            $this->assertTrue($posts[2] instanceof DraftPost);
+            $this->assertFalse($posts[3] instanceof DraftPost);
+            $this->assertFalse($posts[4] instanceof DraftPost);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldCompareTwoMappers(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $mapper2 = $session->getMapper(BoundBlogMapper::class);
+            $this->assertNotEquals($mapper, $mapper2);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldFailWhenSelectingOneBlogWithNonExistentParam(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $this->expectException(\Exception::class);
+            $blog = $mapper->selectBlogByNonExistentParam(1);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldFailWhenSelectingOneBlogWithNullParam(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $this->expectException(\Exception::class);
+            $mapper->selectBlogByNullParam(null);
+        } finally {
+            $session->close();
+        }
+    }
+
+    /*public function testShouldFailWhenSelectingOneBlogWithNonExistentNestedParam(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $mapper->selectBlogByNonExistentNestedParam(1, []);
+        } finally {
+            $session->close();
+        }
+    }*/
+
+    public function testShouldSelectBlogWithDefault30ParamNames(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blog = $mapper->selectBlogByDefault30ParamNames(1, "Jim Business");
+            $this->assertNotNull($blog);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldSelectBlogWithDefault31ParamNames(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blog = $mapper->selectBlogByDefault31ParamNames(1, "Jim Business");
+            $this->assertNotNull($blog);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldSelectBlogWithAParamNamedValue(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blog = $mapper->selectBlogWithAParamNamedValue("id", 1, "Jim Business");
+            $this->assertNotNull($blog);
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldCacheMapperMethod(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            // Create another mapper instance with a method cache we can test against:
+            $mapperProxyFactory = new MapperProxyFactory(BoundBlogMapper::class);
+            $this->assertEquals(BoundBlogMapper::class, $mapperProxyFactory->getMapperInterface());
+            $mapper = $mapperProxyFactory->newInstance($session);
+            $this->assertNotSame($mapper, $mapperProxyFactory->newInstance($session));
+            $this->assertTrue(count($mapperProxyFactory->getMethodCache()) == 0);
+
+            // Mapper methods we will call later:
+            $ref = new \ReflectionClass(BoundBlogMapper::class);
+            $selectBlog = $ref->getMethod("selectBlog");
+            $selectBlogByIdUsingConstructor = $ref->getMethod("selectBlogByIdUsingConstructor");
+
+            // Call mapper method and verify it is cached:
+            $mapper->selectBlog(1);
+            $this->assertEquals(1, count($mapperProxyFactory->getMethodCache()));
+            $this->assertTrue(array_key_exists("selectBlog", $mapperProxyFactory->getMethodCache()->getArrayCopy()));
+            $cachedSelectBlog = $mapperProxyFactory->getMethodCache()['selectBlog'];
+
+            // Call mapper method again and verify the cache is unchanged:
+            $session->clearCache();
+            $mapper->selectBlog(1);
+            $this->assertEquals(1, count($mapperProxyFactory->getMethodCache()));
+            $this->assertSame($cachedSelectBlog, $mapperProxyFactory->getMethodCache()['selectBlog']);
+
+            // Call another mapper method and verify that it shows up in the cache as well:
+            $session->clearCache();
+            $mapper->selectBlogByIdUsingConstructor(1);
+            $this->assertEquals(2, count($mapperProxyFactory->getMethodCache()));
+            $this->assertSame($cachedSelectBlog, $mapperProxyFactory->getMethodCache()['selectBlog']);
+            $this->assertTrue(array_key_exists("selectBlogByIdUsingConstructor", $mapperProxyFactory->getMethodCache()->getArrayCopy()));
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldGetBlogsWithAuthorsAndPosts(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blogs = $mapper->selectBlogsWithAutorAndPosts();
+            $this->assertEquals(2, count($blogs));
+            $this->assertTrue($blogs[0] instanceof ProxyInterface);
+            $this->assertEquals(101, $blogs[0]->getAuthor()->getId());
+            $this->assertEquals(1, count($blogs[0]->getPosts()));
+            $this->assertEquals(1, $blogs[0]->getPosts()[0]->getId());
+            $this->assertTrue($blogs[1] instanceof ProxyInterface);
+            $this->assertEquals(102, $blogs[1]->getAuthor()->getId());
+            $this->assertEquals(1, count($blogs[1]->getPosts()));
+            $this->assertEquals(2, $blogs[1]->getPosts()[0]->getId());
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testShouldGetBlogsWithAuthorsAndPostsEagerly(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blogs = $mapper->selectBlogsWithAutorAndPostsEagerly();
+            $this->assertEquals(2, count($blogs));
+            $this->assertEquals(101, $blogs[0]->getAuthor()->getId());
+            $this->assertEquals(1, count($blogs[0]->getPosts()));
+            $this->assertEquals(1, $blogs[0]->getPosts()[0]->getId());
+            $this->assertEquals(102, $blogs[1]->getAuthor()->getId());
+            $this->assertEquals(1, count($blogs[1]->getPosts()));
+            $this->assertEquals(2, $blogs[1]->getPosts()[0]->getId());
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testExecuteWithResultHandlerAndRowBounds(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $handler = new DefaultResultHandler();
+            $mapper->collectRangeBlogs($handler, new RowBounds(1, 1));
+            $this->assertEquals(1, count($handler->getResultList()));
+            $blog = $handler->getResultList()[0];
+            $this->assertEquals(2, $blog->getId());
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testExecuteWithMapKeyAndRowBounds(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            $blogs = $mapper->selectRangeBlogsAsMapById(new RowBounds(1, 1));
+
+            $this->assertEquals(1, count($blogs));
+            $blog = $blogs[2];
+            $this->assertEquals(2, $blog->getId());
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testExecuteWithCursorAndRowBounds(): void
+    {
+        try {
+            $session = self::$sqlSessionFactory->openSession();
+            $mapper = $session->getMapper(BoundBlogMapper::class);
+            try {
+                $blogs = $mapper->openRangeBlogs(new RowBounds(1, 1));
+                $blogIterator = $blogs->iterator();
+                $blog = $blogIterator->next();
+                $this->assertEquals(2, $blog->getId());
+                $this->assertFalse($blogIterator->hasNext());
+            } finally {
+                //
+            }
+        } finally {
+            $session->close();
+        }
+    }
+
+    public function testRegisteredMappers(): void
+    {
+        $mapperClasses = self::$sqlSessionFactory->getConfiguration()->getMapperRegistry()->getMappers();
+        $this->assertEquals(2, count($mapperClasses));
+        $this->assertTrue(in_array(BoundBlogMapper::class, $mapperClasses));
+        $this->assertTrue(in_array(BoundAuthorMapper::class, $mapperClasses));
     }
 }

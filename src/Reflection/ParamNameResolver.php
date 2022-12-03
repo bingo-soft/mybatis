@@ -56,6 +56,7 @@ class ParamNameResolver
             $paramAnnos = $parameter->getAttributes(Param::class);
 
             if (!empty($paramAnnos)) {
+                $this->hasParamAnnotation = true;
                 $paramAnno = $paramAnnos[0]->newInstance();
                 $name = $paramAnno->value();
             }

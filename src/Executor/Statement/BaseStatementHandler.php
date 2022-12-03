@@ -50,7 +50,6 @@ abstract class BaseStatementHandler implements StatementHandlerInterface
         }
 
         $this->boundSql = $boundSql;
-
         $this->parameterHandler = $this->configuration->newParameterHandler($this->mappedStatement, $parameterObject, $this->boundSql);
         $this->resultSetHandler = $this->configuration->newResultSetHandler($this->executor, $this->mappedStatement, $this->rowBounds, $this->parameterHandler, $resultHandler, $this->boundSql);
     }

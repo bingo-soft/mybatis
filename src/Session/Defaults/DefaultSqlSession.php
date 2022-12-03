@@ -56,6 +56,19 @@ class DefaultSqlSession implements SqlSessionInterface
         }*/
     }
 
+    public function selectCursor(string $statement, $parameter = null, ?RowBounds $rowBounds = null): CursorInterface
+    {
+        /*try {*/
+            $ms = $this->configuration->getMappedStatement($statement);
+            $cursor = $this->executor->queryCursor($ms, $this->wrapCollection($parameter), $rowBounds);
+            //registerCursor(cursor);
+            return $cursor;
+        /*} catch (\Exception $e) {
+            throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
+        } finally {
+        }*/
+    }
+
     public function selectMap(string $statement, $parameter, string $mapKey, ?RowBounds $rowBounds = null): array
     {
         $rowBounds ??= RowBounds::default();

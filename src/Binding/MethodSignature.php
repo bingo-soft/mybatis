@@ -7,6 +7,7 @@ use MyBatis\Annotations\{
     MapType,
     ResultType
 };
+use MyBatis\Cursor\CursorInterface;
 use MyBatis\Reflection\ParamNameResolver;
 use MyBatis\Session\{
     Configuration,
@@ -46,7 +47,7 @@ class MethodSignature
         $this->returnsMany ??= ($this->returnType == 'array');
         $this->returnsVoid = $this->returnType == 'void';
 
-        $this->returnsCursor = false;
+        $this->returnsCursor = $this->returnType == CursorInterface::class;
         $this->returnsOptional = false;
         $this->mapKey = $this->getMapKey($method);
         $this->returnsMap = $this->mapKey !== null;
@@ -57,8 +58,7 @@ class MethodSignature
 
     public function convertArgsToSqlCommandParam(array $args)
     {
-        $ret = $this->paramNameResolver->getNamedParams($args);
-        return $ret;
+        return $this->paramNameResolver->getNamedParams($args);
     }
 
     public function hasRowBounds(): bool

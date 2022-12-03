@@ -37,7 +37,7 @@ class AutoConstructorTest extends TestCase
         $sqlSession = self::$sqlSessionFactory->openSession();
         $mapper = $sqlSession->getMapper(AutoConstructorMapper::class);
         $subject = $mapper->getSubject(1);
-        $this->assertEquals(1, $subject);
+        $this->assertNotNull($subject);
         $sqlSession->close();
     }
 
@@ -46,7 +46,7 @@ class AutoConstructorTest extends TestCase
         $sqlSession = self::$sqlSessionFactory->openSession();
         $mapper = $sqlSession->getMapper(AutoConstructorMapper::class);
         $subjects = $mapper->getAnnotatedSubjects();
-        $this->assertEquals([1, 2, 2], $subjects);
+        $this->assertCount(3, $subjects);
         $sqlSession->close();
     }
 }

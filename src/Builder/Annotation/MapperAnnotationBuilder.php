@@ -14,7 +14,6 @@ use MyBatis\Annotations\{
     Insert,
     InsertProvider,
     Lang,
-    ListType,
     MapKey,
     Options,
     FlushCachePolicy,

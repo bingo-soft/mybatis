@@ -13,7 +13,7 @@ class FilteredDynamicContext extends DynamicContext
     private $itemIndex;
     private $item;
 
-    public function __construct(Configuration $configuration, DynamicContext $delegate, string $itemIndex, string $item, int $i)
+    public function __construct(Configuration $configuration, DynamicContext $delegate, ?string $itemIndex, string $item, int $i)
     {
         parent::__construct($configuration, null);
         $this->delegate = $delegate;

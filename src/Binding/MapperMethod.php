@@ -6,6 +6,7 @@ use MyBatis\Annotations\{
     Flush,
     MapKey
 };
+use MyBatis\Cursor\CursorInterface;
 use MyBatis\Mapping\{
     SqlCommandType,
     StatementType
@@ -48,6 +49,8 @@ class MapperMethod
                     $result = null;
                 } elseif ($this->method->returnsMap()) {
                     $result = $this->executeForMap($sqlSession, $args);
+                } elseif ($this->method->returnsCursor()) {
+                    $result = $this->executeForCursor($sqlSession, $args);
                 } elseif ($this->method->returnsMany()) {
                     $result = $this->executeForMany($sqlSession, $args);
                 } else {
@@ -122,6 +125,19 @@ class MapperMethod
             $result = $sqlSession->selectMap($this->command->getName(), $param, $this->method->getMapKey(), $rowBounds);
         } else {
             $result = $sqlSession->selectMap($this->command->getName(), $param, $this->method->getMapKey());
+        }
+        return $result;
+    }
+
+    private function executeForCursor(SqlSessionInterface $sqlSession, array $args): CursorInterface
+    {
+        $result = null;
+        $param = $this->method->convertArgsToSqlCommandParam($args);
+        if ($this->method->hasRowBounds()) {
+            $rowBounds = $this->method->extractRowBounds($args);
+            $result = $sqlSession->selectCursor($this->command->getName(), $param, $rowBounds);
+        } else {
+            $result = $sqlSession->selectCursor($this->command->getName(), $param);
         }
         return $result;
     }

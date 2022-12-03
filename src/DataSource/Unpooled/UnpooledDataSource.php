@@ -2,8 +2,10 @@
 
 namespace MyBatis\DataSource\Unpooled;
 
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\{
+    DriverManager,
+    Connection
+};
 use MyBatis\DataSource\DataSourceInterface;
 
 class UnpooledDataSource implements DataSourceInterface

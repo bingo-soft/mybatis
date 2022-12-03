@@ -58,7 +58,7 @@ class SimpleExecutor extends BaseExecutor
         $handler = $configuration->newStatementHandler($this->wrapper, $ms, $parameter, $rowBounds, null, $boundSql);
         $stmt = $this->prepareStatement($handler);
         $cursor = $handler->queryCursor($stmt);
-        $stmt->closeOnCompletion();
+        //$stmt->closeOnCompletion();
         return $cursor;
     }
 

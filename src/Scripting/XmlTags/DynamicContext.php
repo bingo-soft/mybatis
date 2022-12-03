@@ -16,8 +16,12 @@ class DynamicContext
     public function __construct(Configuration $configuration, $parameterObject = null)
     {
         if ($parameterObject !== null && !(is_array($parameterObject))) {
-            $metaObject = $configuration->newMetaObject($parameterObject);
-            $existsTypeHandler = $configuration->getTypeHandlerRegistry()->hasTypeHandler(get_class($parameterObject));
+            $metaObject = null;
+            if (is_object($parameterObject)) {
+                $metaObject = $configuration->newMetaObject($parameterObject);
+                $existsTypeHandler = $configuration->getTypeHandlerRegistry()->hasTypeHandler(get_class($parameterObject));
+            }
+            $existsTypeHandler = $configuration->getTypeHandlerRegistry()->hasTypeHandler(gettype($parameterObject));
             $this->bindings = new ContextMap($metaObject, $existsTypeHandler);
         } else {
             $this->bindings = new ContextMap(null, false);
