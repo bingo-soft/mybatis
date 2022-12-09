@@ -29,7 +29,7 @@ class DbalTransactionFactory implements TransactionFactoryInterface
         }
     }
 
-    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, bool $autoCommit = true): TransactionInterface
+    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, ?bool $autoCommit = false): TransactionInterface
     {
         return new DbalTransaction($connOrSource, $level, $autoCommit, $this->skipSetAutoCommitOnClose);
     }

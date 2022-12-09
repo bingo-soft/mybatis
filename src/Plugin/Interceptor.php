@@ -2,7 +2,7 @@
 
 namespace MyBatis\Plugin;
 
-abstract class Interceptor
+abstract class Interceptor implements InterceptorInterface
 {
     abstract public function intercept(Invocation $invocation);
 

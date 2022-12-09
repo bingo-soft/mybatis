@@ -63,7 +63,6 @@ class FilteredDynamicContext extends DynamicContext
                 return "#{" . $newContent . "}";
             }
         });
-
         $this->delegate->appendSql($parser->parse($sql));
     }
 

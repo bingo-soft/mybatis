@@ -99,7 +99,7 @@ class MapperMethod
             $rowBounds = $this->method->extractRowBounds($args);
             $sqlSession->select($this->command->getName(), $param, $rowBounds, $this->method->extractResultHandler($args));
         } else {
-            $sqlSession->select($this->command->getName(), $param, $this->method->extractResultHandler($args));
+            $sqlSession->select($this->command->getName(), $param, null, $this->method->extractResultHandler($args));
         }
     }
 

@@ -15,14 +15,15 @@ class PluginFactory
     {
         $signatureMap = self::getSignatureMap($interceptor);
         $interfaces = self::getAllInterfaces($target, $signatureMap);
-        $enhancer = new ProxyFactory();
-        $enhancer->setSuperclass(get_class($target));
         if (!empty($interfaces)) {
+            $enhancer = new ProxyFactory();
+            $enhancer->setSuperclass(get_class($target));
             $enhancer->setInterfaces($interfaces);
+            $proxy = $enhancer->create([]);
+            $proxy->setHandler(new Plugin($target, $interceptor, $signatureMap));
+            return $proxy;
         }
-        $proxy = $enhancer->create([]);
-        $proxy->setHandler(new Plugin($target, $interceptor, $signatureMap));
-        return $proxy;
+        return $target;
     }
 
     private static function getSignatureMap(Interceptor $interceptor): array
@@ -52,7 +53,7 @@ class PluginFactory
     private static function getAllInterfaces($type, array $signatureMap): array
     {
         $interfaces = [];
-        $ref = new MetaObject($type);
+        $ref = new \ReflectionClass($type);
         while ($ref !== null && $ref !== false) {
             foreach ($ref->getInterfaceNames() as $c) {
                 if (array_key_exists($c, $signatureMap)) {

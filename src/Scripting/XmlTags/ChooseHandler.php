@@ -24,11 +24,11 @@ class ChooseHandler implements NodeHandlerInterface
         $targetContents[] = $chooseSqlNode;
     }
 
-    private function handleWhenOtherwiseNodes(XNode $chooseSqlNode, array $ifSqlNodes, array $defaultSqlNodes): void
+    private function handleWhenOtherwiseNodes(XNode $chooseSqlNode, array &$ifSqlNodes, array &$defaultSqlNodes): void
     {
         $children = $chooseSqlNode->getChildren();
         foreach ($children as $child) {
-            $nodeName = $child->getNode()->getNodeName();
+            $nodeName = $child->getNode()->nodeName;
             $handler = $this->scope->getNodeHandler($nodeName);
             if ($handler instanceof IfHandler) {
                 $handler->handleNode($child, $ifSqlNodes);

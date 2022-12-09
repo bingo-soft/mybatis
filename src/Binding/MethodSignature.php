@@ -66,9 +66,9 @@ class MethodSignature
         return $this->rowBoundsIndex !== null;
     }
 
-    public function extractRowBounds(array $args): RowBounds
+    public function extractRowBounds(array $args): ?RowBounds
     {
-        return $this->hasRowBounds() ? $args[$this->rowBoundsIndex] : null;
+        return $this->hasRowBounds() && array_key_exists($this->rowBoundsIndex, $args) ? $args[$this->rowBoundsIndex] : null;
     }
 
     public function hasResultHandler(): bool
@@ -76,9 +76,9 @@ class MethodSignature
         return $this->resultHandlerIndex !== null;
     }
 
-    public function extractResultHandler(array $args): ResultHandlerInterface
+    public function extractResultHandler(array $args): ?ResultHandlerInterface
     {
-        return $this->hasResultHandler() ? $args[$this->resultHandlerIndex] : null;
+        return $this->hasResultHandler() && array_key_exists($this->resultHandlerIndex, $args) ? $args[$this->resultHandlerIndex] : null;
     }
 
     public function getReturnType(): string

@@ -34,7 +34,7 @@ class SelectKeyGenerator implements KeyGeneratorInterface
         }
     }
 
-    public function processAfter(ExecutorInterface $executor, MappedStatement $ms, Statement $stmt, $parameter): void
+    public function processAfter(ExecutorInterface $executor, MappedStatement $ms, ?Statement $stmt, $parameter): void
     {
         if (!$this->executeBefore) {
             $this->processGeneratedKeys($executor, $ms, $parameter);

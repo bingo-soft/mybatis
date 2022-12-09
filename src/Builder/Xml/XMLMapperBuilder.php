@@ -22,7 +22,10 @@ use MyBatis\Parsing\{
     XNode,
     XPathParser
 };
-use MyBatis\Session\Configuration;
+use MyBatis\Session\{
+    Configuration,
+    StrictMap
+};
 use MyBatis\Type\{
     DbalType,
     TypeHandlerInterface
@@ -33,10 +36,10 @@ class XMLMapperBuilder extends BaseBuilder
 {
     private $parser;
     private $builderAssistant;
-    private $sqlFragments = [];
+    private $sqlFragments;
     private $resource;
 
-    public function __construct($stream, Configuration $configuration, string $resource, array $sqlFragments, ?string $namespace = null)
+    public function __construct($stream, Configuration $configuration, string $resource, StrictMap $sqlFragments, ?string $namespace = null)
     {
         parent::__construct($configuration);
         $this->builderAssistant = new MapperBuilderAssistant($configuration, $resource);
@@ -63,7 +66,7 @@ class XMLMapperBuilder extends BaseBuilder
 
     public function getSqlFragment(string $refid): ?XNode
     {
-        if (array_key_exists($refid, $this->sqlFragments)) {
+        if (array_key_exists($refid, $this->sqlFragments->getArrayCopy())) {
             return $this->sqlFragments[$refid];
         }
         return null;
@@ -71,7 +74,7 @@ class XMLMapperBuilder extends BaseBuilder
 
     private function configurationElement(XNode $context): void
     {
-        /*try {*/
+        try {
             $namespace = $context->getStringAttribute("namespace");
             if (empty($namespace)) {
                 throw new BuilderException("Mapper's namespace cannot be empty");
@@ -83,9 +86,9 @@ class XMLMapperBuilder extends BaseBuilder
             $this->resultMapElements($context->evalNodes("/mapper/resultMap"));
             $this->sqlElement($context->evalNodes("/mapper/sql"));
             $this->buildStatementFromContext($context->evalNodes("select|insert|update|delete"));
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new BuilderException("Error parsing Mapper XML. The XML location is '" . $this->resource . "'. Cause: " . $e->getMessage());
-        }*/
+        }
     }
 
     private function buildStatementFromContext(array $list, ?string $requiredDatabaseId = null): void
@@ -321,7 +324,7 @@ class XMLMapperBuilder extends BaseBuilder
         if ($databaseId !== null) {
             return false;
         }
-        if (!array_key_exists($id, $this->sqlFragments)) {
+        if (!array_key_exists($id, $this->sqlFragments->getArrayCopy())) {
             return true;
         }
         // skip this fragment if there is a previous one with a not null databaseId

@@ -17,7 +17,7 @@
 
 <configuration>
 
-  <properties resource="tests/Resources/Databases/Blog/blog-derby.properties"/>
+  <properties resource="tests/Resources/Databases/Blog/blog.properties"/>
 
   <settings>
     <setting name="cacheEnabled" value="true"/>

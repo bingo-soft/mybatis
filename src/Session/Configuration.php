@@ -123,7 +123,7 @@ class Configuration
     protected $keyGenerators;
 
     protected $loadedResources = [];
-    protected $sqlFragments;// = new StrictMap<>("XML fragments parsed from previous mappers");
+    protected $sqlFragments;
 
     protected $incompleteStatements = [];
     protected $incompleteCacheRefs = [];
@@ -652,12 +652,12 @@ class Configuration
         return array_values($this->caches);
     }
 
-    public function getCache(string $id): ?CacheInterface
+    public function getCache(string $id)
     {
         if (array_key_exists($id, $this->caches->getArrayCopy())) {
             return $this->caches[$id];
         }
-        return null;
+        throw new \Exception("Illegal name \"$id\" for cache. Cache not found.");
     }
 
     public function hasCache(string $id): bool
@@ -794,9 +794,9 @@ class Configuration
         return null;
     }
 
-    public function getSqlFragments(): array
+    public function getSqlFragments(): StrictMap
     {
-        return $this->sqlFragments->getArrayCopy();
+        return $this->sqlFragments;
     }
 
     public function addInterceptor(Interceptor $interceptor): void

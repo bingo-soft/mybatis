@@ -57,9 +57,9 @@ class SqlSessionManager implements SqlSessionFactoryInterface, SqlSessionInterfa
         return $this->localSqlSession;
     }
 
-    public function openSession(?Connection $connection = null): SqlSessionInterface
+    public function openSession(/*?Connection*/$connectionOrIsolationLevel = null): SqlSessionInterface
     {
-        return $this->sqlSessionFactory->openSession($connection);
+        return $this->sqlSessionFactory->openSession($connectionOrIsolationLevel);
     }
 
     public function getConfiguration(): Configuration

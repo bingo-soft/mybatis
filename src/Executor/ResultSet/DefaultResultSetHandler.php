@@ -324,7 +324,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             if ($rowValue !== null) {
                 $metaObject = $this->configuration->newMetaObject($rowValue);
                 $this->putAncestor($rowValue, $resultMapId);
-                $this->applyNestedResultMappings($rsw, $resultMap, $metaObject, $columnPrefix, $prefixOrKey, false);
+                $this->applyNestedResultMappings($rsw, $resultMap, $rowData, $metaObject, $columnPrefix, $prefixOrKey, false);
                 if (array_key_exists($resultMapId, $this->ancestorObjects)) {
                     unset($this->ancestorObjects[$resultMapId]);
                 }
@@ -339,12 +339,12 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     }
                     $foundValues = $this->applyPropertyMappings($rsw, $resultMap, $rowData, $metaObject, $lazyLoader, $columnPrefix) || $foundValues;
                     $this->putAncestor($rowValue, $resultMapId);
-                    $foundValues = $this->applyNestedResultMappings($rsw, $resultMap, $metaObject, $columnPrefix, $prefixOrKey, true) || $foundValues;
+                    $foundValues = $this->applyNestedResultMappings($rsw, $resultMap, $rowData, $metaObject, $columnPrefix, $prefixOrKey, true) || $foundValues;
                     if (array_key_exists($resultMapId, $this->ancestorObjects)) {
                         unset($this->ancestorObjects[$resultMapId]);
                     }
                     $foundValues = $lazyLoader->size() > 0 || $foundValues;
-                    $rowValue = $foundValues || $this->configuration->isReturnInstanceForEmptyRow() ? $rowValue : null;
+                    $rowValue = ($foundValues || $this->configuration->isReturnInstanceForEmptyRow()) ? $rowValue : null;
                 }
                 if ($prefixOrKey != CacheKey::nullCacheKey()) {
                     $exists = false;
@@ -1004,17 +1004,15 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     // NESTED RESULT MAP (JOIN MAPPING)
     //
 
-    private function applyNestedResultMappings(ResultSetWrapper $rsw, ResultMap $resultMap, MetaObject $metaObject, ?string $parentPrefix, ?CacheKey $parentRowKey, bool $newObject): bool
+    private function applyNestedResultMappings(ResultSetWrapper $rsw, ResultMap $resultMap, array $rowData, MetaObject $metaObject, ?string $parentPrefix, ?CacheKey $parentRowKey, bool $newObject): bool
     {
         $foundValues = false;
-        $rs = $rsw->getResultSet();
         foreach ($resultMap->getPropertyResultMappings() as $resultMapping) {
             $nestedResultMapId = $resultMapping->getNestedResultMapId();
             if ($nestedResultMapId !== null && $resultMapping->getResultSet() === null) {
                 try {
                     $columnPrefix = $this->getColumnPrefix($parentPrefix, $resultMapping);
-                    $res = $rs->fetchAssociative();
-                    $nestedResultMap = $this->getNestedResultMap($res, $nestedResultMapId, $columnPrefix);
+                    $nestedResultMap = $this->getNestedResultMap($rowData, $nestedResultMapId, $columnPrefix);
                     if ($resultMapping->getColumnPrefix() === null) {
                         // try to fill circular reference only when columnPrefix
                         // is not specified for the nested result map (issue #215)
@@ -1026,7 +1024,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                             continue;
                         }
                     }
-                    $rowKey = $this->createRowKey($nestedResultMap, $res, $rsw, $columnPrefix);
+                    $rowKey = $this->createRowKey($nestedResultMap, $rowData, $rsw, $columnPrefix);
                     $combinedKey = $this->combineKeys($rowKey, $parentRowKey);
                     $rowValue = null;
                     foreach ($this->nestedResultObjects as $pair) {
@@ -1038,7 +1036,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $knownValue = $rowValue !== null;
                     $this->instantiateCollectionPropertyIfAppropriate($resultMapping, $metaObject); // mandatory
                     if ($this->anyNotNullColumnHasValue($resultMapping, $columnPrefix, $rsw)) {
-                        $rowValue = $this->getRowValue($rsw, $nestedResultMap, $res, $combinedKey, $columnPrefix, $rowValue);
+                        $rowValue = $this->getRowValue($rsw, $nestedResultMap, $rowData, $combinedKey, $columnPrefix, $rowValue);
                         if ($rowValue !== null && !$knownValue) {
                             $this->linkObjects($metaObject, $resultMapping, $rowValue);
                             $foundValues = true;
@@ -1202,8 +1200,14 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
     {
         $collectionProperty = $this->instantiateCollectionPropertyIfAppropriate($resultMapping, $metaObject);
         if ($collectionProperty !== null) {
-            $targetMetaObject = $this->configuration->newMetaObject($collectionProperty);
-            $targetMetaObject->add($rowValue);
+            //$targetMetaObject = $this->configuration->newMetaObject($collectionProperty);
+            //$targetMetaObject->add($rowValue);
+            if ($collectionProperty instanceof \ArrayObject && method_exists($collectionProperty, 'add')) {
+                $collectionProperty->add($rowValue);
+            } else {
+                $collectionProperty[] = $rowValue;
+            }
+            $metaObject->setValue($resultMapping->getProperty(), $collectionProperty);
         } else {
             $metaObject->setValue($resultMapping->getProperty(), $rowValue);
         }

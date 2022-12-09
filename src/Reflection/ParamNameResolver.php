@@ -39,15 +39,16 @@ class ParamNameResolver
 
         $paramTypes = [];
         $parameters = $method->getParameters();
-        $paramIndex = 0;
-        foreach ($parameters as $parameter) {
+        $paramCount = count($parameters);
+        for ($paramIndex = 0; $paramIndex < $paramCount; $paramIndex += 1) {
+            $parameter = $parameters[$paramIndex];
             $type = $parameter->getType();
+
             $typeName = null;
             if ($type !== null && $type instanceof \ReflectionNamedType) {
                 $typeName = $type->getName();
             }
             if (self::isSpecialParameter($typeName)) {
-                $paramIndex += 1;
                 continue;
             }
 
@@ -69,13 +70,12 @@ class ParamNameResolver
                 }
             }
             $this->names[$paramIndex] = $name;
-            $paramIndex += 1;
         }
     }
 
-    private static function isSpecialParameter(string $clazz): bool
+    private static function isSpecialParameter(?string $clazz): bool
     {
-        return is_a($clazz, RowBounds::class, true) || is_a($clazz, ResultHandlerInterface::class, true);
+        return $clazz !== null && (is_a($clazz, RowBounds::class, true) || is_a($clazz, ResultHandlerInterface::class, true));
     }
 
     /**
@@ -106,7 +106,11 @@ class ParamNameResolver
         if (empty($args) || $paramCount == 0) {
             return [];
         } elseif (!$this->hasParamAnnotation && $paramCount == 1) {
-            $value = $args[array_keys($this->names)[0]];
+            $key = array_keys($this->names)[0];
+            $value = null;
+            if (array_key_exists($key, $args)) {
+                $value = $args[$key];
+            }
             return self::wrapToMapIfCollection($value, $this->useActualParamName ? $this->names[array_keys($this->names)[0]] : null);
         } else {
             $param = new ParamMap();

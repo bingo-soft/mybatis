@@ -4,15 +4,15 @@ namespace Tests\Domain\Blog;
 
 class Post
 {
-    private $id;
-    private $author;
-    private $blog;
-    private $createdOn;
-    private $section;
-    private $subject;
-    private $body;
-    private $comments = [];
-    private $tags = [];
+    protected $id;
+    protected $author;
+    protected $blog;
+    protected $createdOn;
+    protected $section;
+    protected $subject;
+    protected $body;
+    protected $comments = [];
+    protected $tags = [];
 
     public function getId(): int
     {

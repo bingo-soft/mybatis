@@ -48,24 +48,28 @@ class XMLIncludeTransformer
                 $toInclude = $source->ownerDocument->importNode($toInclude, true);
             }
             $source->parentNode->replaceChild($toInclude, $source);
-            $i = 0;
-            while ($toInclude->hasChildNodes()) {
-                $child = $toInclude->childNodes->item($i);
-                $toInclude->parentNode->insertBefore($child, $toInclude);
-                $i += 1;
+            if ($toInclude->hasChildNodes()) {
+                $children = $toInclude->childNodes;
+                $cnt = count($children);
+                for ($i = $cnt - 1; $i >= 0; $i -= 1) {
+                    $child = $children->item($i);
+                    $toInclude->parentNode->insertBefore($child, $toInclude);
+                }
             }
             $toInclude->parentNode->removeChild($toInclude);
         } elseif ($source->nodeType == XML_ELEMENT_NODE) {
             if ($included && !empty($variablesContext)) {
                 // replace variables in attribute values
                 $attributes = $source->attributes;
-                for ($i = 0; $i < $attributes->count(); $i += 1) {
+                $cnt = count($source->attributes);
+                for ($i = 0; $i < $cnt; $i += 1) {
                     $attr = $attributes->item($i);
                     $attr->nodeValue = PropertyParser::parse($attr->nodeValue, $variablesContext);
                 }
             }
             $children = $source->childNodes;
-            for ($i = 0; $i < $children->count(); $i += 1) {
+            $cnt = count($children);
+            for ($i = 0; $i < $cnt; $i += 1) {
                 $this->applyIncludes($children->item($i), $variablesContext, $included);
             }
         } elseif (
@@ -82,8 +86,12 @@ class XMLIncludeTransformer
         $refid = PropertyParser::parse($refid, $variables);
         $refid = $this->builderAssistant->applyCurrentNamespace($refid, true);
         try {
-            $nodeToInclude = $this->configuration->getSqlFragments()[$refid];
-            return $nodeToInclude->getNode()->cloneNode(true);
+            $frags = $this->configuration->getSqlFragments();
+            if (array_key_exists($refid, $frags->getArrayCopy())) {
+                $nodeToInclude = $frags[$refid];
+                return $nodeToInclude->getNode()->cloneNode(true);
+            }
+            return null;
         } catch (\Exception $e) {
             throw new IncompleteElementException("Could not find SQL statement to include with refid '" . $refid . "'");
         }

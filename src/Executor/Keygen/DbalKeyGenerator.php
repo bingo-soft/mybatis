@@ -40,12 +40,12 @@ class DbalKeyGenerator implements KeyGeneratorInterface
     private const MSG_TOO_MANY_KEYS = "Too many keys are generated. There are only %d target objects. "
         . "You either specified a wrong 'keyProperty' or encountered a driver bug like #1523.";
 
-    public function processBefore(ExecutorInterface $executor, MappedStatement $ms, Statement $stmt, $parameter): void
+    public function processBefore(ExecutorInterface $executor, MappedStatement $ms, ?Statement $stmt, $parameter): void
     {
         // do nothing
     }
 
-    public function processAfter(ExecutorInterface $executor, MappedStatement $ms, Statement $stmt, $parameter): void
+    public function processAfter(ExecutorInterface $executor, MappedStatement $ms, ?Statement $stmt, $parameter): void
     {
         //$this->processBatch($ms, $stmt, $parameter);
     }

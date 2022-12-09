@@ -2,7 +2,12 @@
 
 namespace Tests\Domain\Blog\Mappers;
 
-use MyBatis\Annotations\Select;
+use MyBatis\Annotations\{
+    ListType,
+    MapType,
+    ResultType,
+    Select
+};
 use MyBatis\Session\ResultHandlerInterface;
 use Tests\Domain\Blog\Author;
 
@@ -18,13 +23,19 @@ interface AuthorMapper
 
     public function selectAllAuthorsArray(): array;
 
-    public function selectAllAuthors(?ResultHandlerInterface $handler = null): void;
+    #[ResultType(new ListType(Author::class))]
+    public function selectAllAuthors(?ResultHandlerInterface $handler = null): array;
+
+    public function selectAllAuthorsWithHandler(ResultHandlerInterface $handler = null): void;
 
     //public function selectAuthor(int $id): Author;
 
     public function selectAuthorLinkedHashMap(int $id): array;
 
-    public function selectAuthor(int $id, ?ResultHandlerInterface $handler = null): void;
+    #[ResultType(Author::class)]
+    public function selectAuthor(int $id, ?ResultHandlerInterface $handler = null): Author;
+
+    public function selectAuthorWithHandler(int $id, ResultHandlerInterface $handler): void;
 
     #[Select("select")]
     public function selectAuthor2(int $id, ResultHandlerInterface $handler): void;

@@ -10,7 +10,7 @@ class Plugin implements MethodHandlerInterface
     private $interceptor;
     private $signatureMap = [];
 
-    public function __construct($target, Interceptor $interceptor, array $signatureMap)
+    public function __construct($target, Interceptor $interceptor, array $signatureMap = [])
     {
         $this->target = $target;
         $this->interceptor = $interceptor;
@@ -19,14 +19,25 @@ class Plugin implements MethodHandlerInterface
 
     public function invoke($proxy, \ReflectionMethod $thisMethod, \ReflectionMethod $proceed, array $args)
     {
-        $cls = $proceed->getDeclaringClass()->name;
-        $methods = [];
-        if (array_key_exists($cls, $this->signatureMap)) {
-            $methods = $this->signatureMap[$cls];
+        $methodExists = false;
+        if (!empty($this->signatureMap)) {
+            foreach ($this->signatureMap as $interface => $methods) {
+                foreach ($methods as $method) {
+                    if ($method->name == $proceed->name) {
+                        $methodExists = true;
+                        break;
+                    }
+                }
+            }
         }
-        if (!empty($methods) && in_array($proceed, $methods)) {
+        if ($methodExists) {
             return $this->interceptor->intercept(new Invocation($this->target, $proceed, $args));
         }
         return $proceed->invoke($this->target, ...$args);
+    }
+
+    public static function wrap($target, Interceptor $interceptor)
+    {
+        return PluginFactory::wrap($target, $interceptor);
     }
 }

@@ -34,8 +34,6 @@ class ManagedTransaction implements TransactionInterface
         if ($this->closeConnection === null && is_bool($closeConnection)) {
             $this->closeConnection = $closeConnection;
         }
-        //difference from Java MyBatis
-        $this->getConnection()->beginTransaction();
     }
 
     public function getConnection(): Connection

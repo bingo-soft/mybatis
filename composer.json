@@ -20,7 +20,7 @@
         "bingo-soft/sax": "^1.1",
         "bingo-soft/heap": "^1.7",
         "doctrine/dbal": "^3.5",
-        "bingo-soft/juel": "^1.5",
+        "bingo-soft/juel": "^1.7",
         "bingo-soft/util": "^1.5"     
     },
     "require-dev": {

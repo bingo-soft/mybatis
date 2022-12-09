@@ -9,7 +9,7 @@ use MyBatis\Plugin\{
     Signature
 };
 
-#[Intercepts([new Signature(type: CustomArray::class, method: "get", args: [])])]
+#[Intercepts([new Signature(type: CustomArrayInterface::class, method: "get", args: [])])]
 class AlwaysMapPlugin extends Interceptor
 {
     public function intercept(Invocation $invocation)

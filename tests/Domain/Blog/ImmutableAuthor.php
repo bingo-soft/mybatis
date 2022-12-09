@@ -2,9 +2,9 @@
 
 namespace Tests\Domain\Blog;
 
-class Author
+class ImmutableAuthor
 {
-    public function __construct(protected int $id = -1, protected ?string $username = null, protected ?string $password = null, protected ?string $email = null, protected ?string $bio = null, protected ?string $favouriteSection = null)
+    public function __construct(protected int $id = -1, protected ?string $username = null, protected ?string $password = null, protected ?string $email = null, protected ?string $bio = null, protected ?string $section = null)
     {
     }
 
@@ -28,36 +28,6 @@ class Author
         $this->email = $data['email'];
         $this->bio = $data['bio'];
         $this->favouriteSection = $data['favouriteSection'];
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function setUsername(string $username): void
-    {
-        $this->username = $username;
-    }
-
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
-    }
-
-    public function setEmail(string $email): void
-    {
-        $this->email = $email;
-    }
-
-    public function setBio(?string $bio): void
-    {
-        $this->bio = $bio;
-    }
-
-    public function setFavouriteSection(string $favouriteSection): void
-    {
-        $this->favouriteSection = $favouriteSection;
     }
 
     public function getId(): int
@@ -92,6 +62,6 @@ class Author
 
     public function __toString()
     {
-        return "Author : " . $this->id . " : " . $this->username . " : " . $this->email;
+        return $this->id . " " . $this->username . " " . $this->password . " " . $this->email;
     }
 }

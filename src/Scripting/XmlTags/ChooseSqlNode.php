@@ -7,7 +7,7 @@ class ChooseSqlNode implements SqlNodeInterface
     private $defaultSqlNode;
     private $ifSqlNodes = [];
 
-    public function __construct(array $ifSqlNodes, SqlNodeInterface $defaultSqlNode)
+    public function __construct(array $ifSqlNodes, ?SqlNodeInterface $defaultSqlNode)
     {
         $this->ifSqlNodes = $ifSqlNodes;
         $this->defaultSqlNode = $defaultSqlNode;

@@ -28,7 +28,7 @@ class ManagedTransactionFactory implements TransactionFactoryInterface
         }
     }
 
-    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, bool $autoCommit = true): TransactionInterface
+    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, ?bool $autoCommit = false): TransactionInterface
     {
         // Silently ignores autocommit and isolation level, as managed transactions are entirely
         // controlled by an external manager.  It's silently ignored so that

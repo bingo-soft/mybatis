@@ -9,7 +9,7 @@ class ContextMap extends \ArrayObject
     private $parameterMetaObject;
     private $fallbackParameterObject;
 
-    public function __construct(/*MetaObject*/$parameterMetaObject, bool $fallbackParameterObject = false)
+    public function __construct(/*MetaObject*/$parameterMetaObject = null, bool $fallbackParameterObject = false)
     {
         if (is_array($parameterMetaObject) || is_iterable($parameterMetaObject)) {
             parent::__construct($parameterMetaObject);
@@ -55,8 +55,36 @@ class ContextMap extends \ArrayObject
 
     public function get($key)
     {
+        $result = $this->getValue($key);
+
+        if ($this->containsKey($key) || $result !== null) {
+            return $result;
+        }
+
+        $parameterObject = $this->getValue(DynamicContext::PARAMETER_OBJECT_KEY);
+        if (is_array($parameterObject) && array_key_exists($key, $parameterObject)) {
+            return $parameterObject[$key];
+        }
+
+        if (!is_object($parameterObject) && !is_array($parameterObject)) {
+            return $parameterObject;
+        }
+
+        return null;
+    }
+
+    private function getValue($key)
+    {
         if ($this->containsKey($key)) {
             return $this[$key];
+        }
+
+        if (
+            $this->containsKey(DynamicContext::PARAMETER_OBJECT_KEY)
+            && is_array($map = $this[DynamicContext::PARAMETER_OBJECT_KEY])
+            && array_key_exists($key, $map)
+        ) {
+            return $map[$key];
         }
 
         if ($this->parameterMetaObject == null) {

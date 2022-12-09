@@ -82,7 +82,7 @@ class XMLScriptBuilder extends BaseBuilder
         return new MixedSqlNode($contents);
     }
 
-    public function getNodeHandler(string $key)
+    public function getNodeHandler(string $nodeName)
     {
         if (array_key_exists($nodeName, $this->nodeHandlerMap)) {
             return $this->nodeHandlerMap[$nodeName];

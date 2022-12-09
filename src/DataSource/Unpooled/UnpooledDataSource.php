@@ -107,12 +107,12 @@ class UnpooledDataSource implements DataSourceInterface
                 'password' => $this->password
             ], $this->driverProperties);
             self::$connection = DriverManager::getConnection($props);
-            $this->configureConnection(self::$connection);
         }
+        $this->configureConnection(self::$connection);
         return self::$connection;
     }
 
-    private function configureConnection(Connection $conn): void
+    public function configureConnection(Connection $conn): void
     {
         if ($this->autoCommit !== null && $this->autoCommit != $conn->isAutoCommit()) {
             $conn->setAutoCommit($this->autoCommit);

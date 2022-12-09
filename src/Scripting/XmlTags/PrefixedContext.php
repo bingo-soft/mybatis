@@ -34,7 +34,7 @@ class PrefixedContext extends DynamicContext
 
     public function appendSql(?string $sql = ""): void
     {
-        if (!$this->prefixApplied && !empty($sql)) {
+        if (!$this->prefixApplied && !empty(trim($sql))) {
             $this->delegate->appendSql($this->prefix);
             $this->prefixApplied = true;
         }

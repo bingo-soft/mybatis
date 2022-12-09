@@ -14,8 +14,10 @@ abstract class BaseDataTest
 
     public static function createUnpooledDataSource(string $database): UnpooledDataSource
     {
-        $dataSource = new UnpooledDataSource("pdo_pgsql", "pgsql:host=localhost;port=5432;dbname=$database;", "postgres", "postgres");
-        return $dataSource;
+        if (self::$dataSource === null) {
+            self::$dataSource = new UnpooledDataSource("pdo_pgsql", "pgsql:host=localhost;port=5432;dbname=$database;", "postgres", "postgres");
+        }
+        return self::$dataSource;
     }
 
     public static function runScript(DataSourceInterface $ds, string $resource): void
@@ -33,14 +35,15 @@ abstract class BaseDataTest
     public static function createBlogDataSource(): DataSourceInterface
     {
         $ds = self::createUnpooledDataSource('blog');
+        $isAutoCommit = $ds->getConnection()->isAutoCommit();
         try {
-            $isAutoCommit = $ds->getConnection()->isAutoCommit();
-            $ds->getConnection()->setAutoCommit(true);
+            $ds->setAutoCommit(true);
             self::runScript($ds, self::BLOG_DDL);
             self::runScript($ds, self::BLOG_DATA);
-            $ds->getConnection()->setAutoCommit($isAutoCommit);
         } catch (\Exception $e) {
             //ignore
+        } finally {
+            $ds->setAutoCommit($isAutoCommit);
         }
         return $ds;
     }

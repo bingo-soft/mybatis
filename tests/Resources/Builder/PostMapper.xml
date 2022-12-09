@@ -109,7 +109,7 @@
     SELECT *
     FROM POST P
     WHERE ID in
-    <foreach item="item" index="index" collection="list"
+    <foreach item="item" index="index" collection="array"
              open="(" close=")">
       <if test="index != 0">,</if> #{item}
     </foreach>
@@ -119,7 +119,7 @@
     SELECT *
     FROM POST P
     WHERE ID in
-    <foreach item="item" index="index" collection="list"
+    <foreach item="item" index="index" collection="array"
              open="(" separator="," close=")">
       <if test="index % 2 != 0">
         #{item}

@@ -30,8 +30,6 @@ class DbalTransaction implements TransactionInterface
         $this->level = $desiredLevel;
         $this->autoCommit = $desiredAutoCommit;
         $this->skipSetAutoCommitOnClose = $skipSetAutoCommitOnClose;
-        //difference from Java MyBatis
-        $this->getConnection()->beginTransaction();
     }
 
     public function getConnection(): Connection
@@ -45,7 +43,11 @@ class DbalTransaction implements TransactionInterface
     public function commit(): void
     {
         if ($this->connection !== null && !$this->connection->isAutoCommit()) {
-            $this->connection->commit();
+            try {
+                $this->connection->commit();
+            } catch (\Exception $e) {
+                //ignore error when there is no active transaction
+            }
         }
     }
 

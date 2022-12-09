@@ -115,7 +115,7 @@ class LruCache implements CacheInterface
 
     private function cycleKeyList(): void
     {
-        while (true) {
+        while (true && $this->heap->size() > 0) {
             $minNode = $this->heap->findMin();
             $lruAt = $minNode->getKey();
             $key = $minNode->getValue();

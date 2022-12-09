@@ -25,12 +25,22 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
         $this->configuration = $configuration;
     }
 
-    public function openSession(?Connection $connection = null): SqlSessionInterface
+    public function openSession(/*?Connection*/$connectionOrIsolationLevel = null): SqlSessionInterface
     {
-        if ($connection === null) {
+        $connection = $connectionOrIsolationLevel;
+        if ($connectionOrIsolationLevel === null || is_int($connectionOrIsolationLevel)) {
+            $ds = $this->configuration->getEnvironment()->getDataSource();
             $connection = $this->configuration->getEnvironment()->getDataSource()->getConnection();
+            /*if ($ds->isAutoCommit() != $connection->isAutoCommit()) {
+                $connection->setAutoCommit($ds->isAutoCommit());
+            }*/
         }
-        return $this->openSessionFromConnection($this->configuration->getDefaultExecutorType(), $connection);
+        if (is_int($connectionOrIsolationLevel)) {
+            $connection->setTransactionIsolation($connectionOrIsolationLevel);
+        }
+        $session = $this->openSessionFromConnection($this->configuration->getDefaultExecutorType(), $connection);
+
+        return $session;
     }
 
     public function getConfiguration(): Configuration
@@ -41,13 +51,13 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
     private function openSessionFromConnection(string $execType, Connection $connection): SqlSessionInterface
     {
         try {
-            $autoCommit = true;
+            $autoCommit = false;
             try {
                 $autoCommit = $connection->isAutoCommit();
             } catch (\Exception $e) {
                 // Failover to true, as most poor drivers
                 // or databases won't support transactions
-                $autoCommit = true;
+                $autoCommit = false;
             }
             $environment = $this->configuration->getEnvironment();
             $transactionFactory = $this->getTransactionFactoryFromEnvironment($environment);

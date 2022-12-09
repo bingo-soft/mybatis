@@ -22,5 +22,5 @@ interface TransactionFactoryInterface
      * @param conn Existing database connection
      * @return Transaction
      */
-    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, bool $autoCommit = true): TransactionInterface;
+    public function newTransaction(/*Connection|DataSourceInterface*/$connOrSource, int $level = null, ?bool $autoCommit = false): TransactionInterface;
 }

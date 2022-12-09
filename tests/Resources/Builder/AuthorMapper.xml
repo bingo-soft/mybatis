@@ -27,7 +27,7 @@
         <result property="password" column="password" />
         <result property="email" column="email" />
         <result property="bio" column="bio" />
-        <result property="favouriteSection" column="string" />
+        <result property="favouriteSection" column="favourite_section" />
     </resultMap>
 
     <resultMap id="selectImmutableAuthor" type="Tests\Domain\Blog\ImmutableAuthor">
@@ -63,6 +63,10 @@
         select * from author
     </select>
 
+    <select id="selectAllAuthorsWithHandler" resultType="Tests\Domain\Blog\Author">
+        select * from author
+    </select>
+
     <select id="selectAllAuthorsSet" resultType="Tests\Domain\Blog\Author">
         select * from author
     </select>
@@ -88,6 +92,11 @@
     </select>
 
     <select id="selectAuthor" parameterMap="selectAuthor" resultMap="selectAuthor">
+        select id, username, password, email, bio, favourite_section
+        from author where id = ?
+    </select>
+
+    <select id="selectAuthorWithHandler" parameterMap="selectAuthor" resultMap="selectAuthor">
         select id, username, password, email, bio, favourite_section
         from author where id = ?
     </select>

@@ -15,6 +15,10 @@ class VarDeclSqlNode implements SqlNodeInterface
 
     public function apply(DynamicContext $context): bool
     {
+        $expression = $this->expression;
+        if (strpos($expression, '${') === false) {
+            $expression = '${' .  $expression . '}';
+        }
         $value = JuelCache::getValue($expression, $context->getBindings());
         $context->bind($this->name, $value);
         return true;

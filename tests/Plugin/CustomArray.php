@@ -2,7 +2,7 @@
 
 namespace Tests\Plugin;
 
-class CustomArray extends \ArrayObject
+class CustomArray extends \ArrayObject implements CustomArrayInterface
 {
     public function get(string $key)
     {
