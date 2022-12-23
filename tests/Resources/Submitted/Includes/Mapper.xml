@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2009-2022 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          https://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Tests\Submitted\Includes\Mapper">
+  <sql id="sometable">
+    ${prefix}Table
+  </sql>
+
+  <sql id="someinclude">
+    <include refid="${include_target}"/>
+  </sql>
+
+  <select id="select" resultType="map">
+    <include refid="someinclude">
+        <property name="include_target" value="Tests\Submitted\Includes\Fragments.select"/>
+    </include>
+    field1, field2, field3
+    from
+      <include refid="someinclude">
+          <property name="prefix" value="Some"/>
+          <property name="include_target" value="sometable"/>
+      </include>
+  </select>
+
+  <select id="selectWithProperty" resultType="_int">
+    <include refid="${ns}.values"/>
+  </select>
+
+  <update id="update" parameterType="map">
+    <include refid="Tests\Submitted\Includes\Fragments.update"/>
+    <include refid="Tests\Submitted\Includes\Mapper.sometable">
+        <property name="prefix" value="Some"/>
+    </include>
+    set Field2 = #{field2,dbalType=INTEGER},
+    Field3 = #{field3,dbalType=VARCHAR},
+    where field1 = #{field1,dbalType=INTEGER}
+  </update>
+</mapper>

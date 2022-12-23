@@ -48,13 +48,8 @@ class XMLIncludeTransformer
                 $toInclude = $source->ownerDocument->importNode($toInclude, true);
             }
             $source->parentNode->replaceChild($toInclude, $source);
-            if ($toInclude->hasChildNodes()) {
-                $children = $toInclude->childNodes;
-                $cnt = count($children);
-                for ($i = $cnt - 1; $i >= 0; $i -= 1) {
-                    $child = $children->item($i);
-                    $toInclude->parentNode->insertBefore($child, $toInclude);
-                }
+            while ($toInclude->hasChildNodes()) {
+                $toInclude->parentNode->insertBefore($toInclude->firstChild, $toInclude);
             }
             $toInclude->parentNode->removeChild($toInclude);
         } elseif ($source->nodeType == XML_ELEMENT_NODE) {
@@ -68,8 +63,7 @@ class XMLIncludeTransformer
                 }
             }
             $children = $source->childNodes;
-            $cnt = count($children);
-            for ($i = 0; $i < $cnt; $i += 1) {
+            for ($i = 0; $i < count($source->childNodes); $i += 1) {
                 $this->applyIncludes($children->item($i), $variablesContext, $included);
             }
         } elseif (

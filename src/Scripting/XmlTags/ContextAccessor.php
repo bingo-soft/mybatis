@@ -10,10 +10,8 @@ class ContextAccessor extends ContextMap
 
     public function get($name)
     {
-        echo "Try to get $name property\n";
         $result = $this->scope->get($name);
         if ($this->scope->containsKey($name) || $result !== null) {
-            echo "Return result\n";
             return $result;
         }
 
