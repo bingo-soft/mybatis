@@ -21,7 +21,7 @@
         "bingo-soft/heap": "^1.7",
         "doctrine/dbal": "^3.5",
         "bingo-soft/juel": "^1.7",
-        "bingo-soft/util": "^1.5"     
+        "bingo-soft/util": "^1.6"     
     },
     "require-dev": {
         "doctrine/coding-standard": "*",
