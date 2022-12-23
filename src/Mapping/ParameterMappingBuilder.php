@@ -86,11 +86,11 @@ class ParameterMappingBuilder
     {
         if (Result::class == $this->parameterMapping->phpType) {
             if ($this->parameterMapping->resultMapId === null) {
-                throw new IllegalStateException("Missing resultmap in property");
+                throw new \Exception("Missing resultmap in property");
             }
         } else {
             if ($this->parameterMapping->typeHandler == null) {
-                throw new IllegalStateException("Type handler was null on parameter mapping for property");
+                throw new \Exception("Type handler was null on parameter mapping for property");
             }
         }
     }
