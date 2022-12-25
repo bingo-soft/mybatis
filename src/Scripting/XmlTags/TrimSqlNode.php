@@ -13,7 +13,7 @@ class TrimSqlNode implements SqlNodeInterface
     private $suffixesToOverride = [];
     private $configuration;
 
-    public function __construct(Configuration $configuration, SqlNodeInterface $contents, string $prefix, /*string|array*/$prefixesToOverride, ?string $suffix, /*string|array*/$suffixesToOverride)
+    public function __construct(Configuration $configuration, SqlNodeInterface $contents, ?string $prefix, /*string|array*/$prefixesToOverride, ?string $suffix, /*string|array*/$suffixesToOverride)
     {
         $this->contents = $contents;
         $this->prefix = $prefix;
