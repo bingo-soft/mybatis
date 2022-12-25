@@ -1035,7 +1035,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     }
                     $knownValue = $rowValue !== null;
                     $this->instantiateCollectionPropertyIfAppropriate($resultMapping, $metaObject); // mandatory
-                    if ($this->anyNotNullColumnHasValue($resultMapping, $columnPrefix, $rsw)) {
+                    if ($this->anyNotNullColumnHasValue($resultMapping, $columnPrefix, $rsw, $rowData)) {
                         $rowValue = $this->getRowValue($rsw, $nestedResultMap, $rowData, $combinedKey, $columnPrefix, $rowValue);
                         if ($rowValue !== null && !$knownValue) {
                             $this->linkObjects($metaObject, $resultMapping, $rowValue);
@@ -1062,22 +1062,29 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
         return strlen($columnPrefixBuilder) == 0 ? null : strtoupper($columnPrefixBuilder);
     }
 
-    private function anyNotNullColumnHasValue(ResultMapping $resultMapping, ?string $columnPrefix, ResultSetWrapper $rsw): bool
+    private function anyNotNullColumnHasValue(ResultMapping $resultMapping, ?string $columnPrefix, ResultSetWrapper $rsw, array $rowData): bool
     {
         $notNullColumns = $resultMapping->getNotNullColumns();
         if ($notNullColumns !== null && !empty($notNullColumns)) {
             $rs = $rsw->getResultSet();
-            $res = $rs->fetchAssociative();
             foreach ($notNullColumns as $column) {
                 $key = $this->prependPrefix($column, $columnPrefix);
-                if (!empty($res) && array_key_exists($key, $res)) {
+                if (
+                    !empty($rowData) &&
+                    in_array(
+                        strtoupper($key),
+                        array_map(function ($k) {
+                            return strtoupper($k);
+                        }, array_keys($rowData))
+                    )
+                ) {
                     return true;
                 }
             }
             return false;
         } elseif ($columnPrefix !== null) {
             foreach ($rsw->getColumnNames() as $columnName) {
-                if (strpos(strtoupper($columnName), strtoupper($columnPrefix))) {
+                if (strpos(strtoupper($columnName), strtoupper($columnPrefix)) === 0) {
                     return true;
                 }
             }
