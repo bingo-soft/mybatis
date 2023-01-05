@@ -47,26 +47,26 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function selectList(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): array
     {
-        /*try {*/
+        try {
             $ms = $this->configuration->getMappedStatement($statement);
             return $this->executor->query($ms, $this->wrapCollection($parameter), $rowBounds, $handler);
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
         } finally {
-        }*/
+        }
     }
 
     public function selectCursor(string $statement, $parameter = null, ?RowBounds $rowBounds = null): CursorInterface
     {
-        /*try {*/
+        try {
             $ms = $this->configuration->getMappedStatement($statement);
             $cursor = $this->executor->queryCursor($ms, $this->wrapCollection($parameter), $rowBounds);
             //registerCursor(cursor);
             return $cursor;
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
         } finally {
-        }*/
+        }
     }
 
     public function selectMap(string $statement, $parameter, string $mapKey, ?RowBounds $rowBounds = null): array
@@ -94,14 +94,14 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function update(string $statement, $parameter = null)
     {
-        /*try {*/
+        try {
             $this->dirty = true;
             $ms = $this->configuration->getMappedStatement($statement);
             return $this->executor->update($ms, $this->wrapCollection($parameter));
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Error updating database.  Cause: " . $e->getMessage());
         } finally {
-        }*/
+        }
     }
 
     public function delete(string $statement, $parameter = null)
@@ -122,13 +122,13 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function rollback(bool $force = false): void
     {
-        /*try {*/
+        try {
             $this->executor->rollback($this->isCommitOrRollbackRequired($force));
             $this->dirty = false;
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception("Error rolling back transaction.  Cause: " . $e->getMessage());
         } finally {
-        }*/
+        }
     }
 
     public function flushStatements(): array

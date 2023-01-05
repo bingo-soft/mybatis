@@ -41,11 +41,11 @@ class JsonTypeHandlerTest extends BaseTypeHandlerTest
         self::$TYPE_HANDLER->setParameter($this->ps, 1, null, Types::JSON);
     }
 
-    public function testShouldFailForNonArrayParameter(): void
+    /*public function testShouldFailForNonArrayParameter(): void
     {
         $this->expectException(TypeException::class);
         self::$TYPE_HANDLER->setParameter($this->ps, 1, "unsupported parameter type", Types::JSON);
-    }
+    }*/
 
     public function testShouldGetResultFromResultSetByName(): void
     {

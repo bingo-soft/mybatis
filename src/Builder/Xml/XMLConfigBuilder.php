@@ -61,7 +61,7 @@ class XMLConfigBuilder extends BaseBuilder
 
     private function parseConfiguration(XNode $root): void
     {
-        /*try {*/
+        try {
             // issue #117 read properties first
             $this->propertiesElement($root->evalNode("properties"));
             $settings = $this->settingsAsProperties($root->evalNode("settings"));
@@ -78,9 +78,9 @@ class XMLConfigBuilder extends BaseBuilder
             $this->databaseIdProviderElement($root->evalNode("databaseIdProvider"));
             $this->typeHandlerElement($root->evalNode("typeHandlers"));
             $this->mapperElement($root->evalNode("mappers"));
-        /*} catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " . $e->getMessage());
-        }*/
+        }
     }
 
     private function settingsAsProperties(?XNode $context): array

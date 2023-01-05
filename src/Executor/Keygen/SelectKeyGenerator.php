@@ -43,7 +43,7 @@ class SelectKeyGenerator implements KeyGeneratorInterface
 
     private function processGeneratedKeys(ExecutorInterface $executor, MappedStatement $ms, $parameter): void
     {
-        /*try {*/
+        try {
             if ($parameter !== null && $this->keyStatement !== null && !empty($this->keyStatement->getKeyProperties())) {
                 $keyProperties = $this->keyStatement->getKeyProperties();
                 $configuration = $ms->getConfiguration();
@@ -79,11 +79,11 @@ class SelectKeyGenerator implements KeyGeneratorInterface
                     }
                 }
             }
-        /*} catch (ExecutorException $e) {
+        } catch (ExecutorException $e) {
             throw $e;
         } catch (\Exception $e) {
             throw new ExecutorException("Error selecting key or setting result to parameter object. Cause: " . $e->getMessage());
-        }*/
+        }
     }
 
     private function handleMultipleProperties(array $keyProperties, MetaObject $metaParam, MetaObject $metaResult): void

@@ -57,4 +57,8 @@ class Author
         $result[] = new Permission("two");
         return $result;
     }
+
+    public function setPermissions($perms): void
+    {
+    }
 }

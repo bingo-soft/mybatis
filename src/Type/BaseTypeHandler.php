@@ -12,15 +12,7 @@ abstract class BaseTypeHandler implements TypeHandlerInterface
 {
     public function setParameter(Statement $ps, int $i, $parameter, string $type = null): void
     {
-        if ($parameter === null) {
-            if ($type === null) {
-                throw new TypeException("Type must be specified for all nullable parameters.");
-            } else {
-                $ps->bindValue($i, $parameter, $type);
-            }
-        } else {
-            $this->setNonNullParameter($ps, $i, $parameter, $type);
-        }
+        $this->setNonNullParameter($ps, $i, $parameter, $type);
     }
 
     public function getResult(/*Result|array*/$rs, $column)
