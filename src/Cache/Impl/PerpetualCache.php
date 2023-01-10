@@ -32,7 +32,18 @@ class PerpetualCache implements CacheInterface
     public function putObject($key, $value): void
     {
         if ($key instanceof CacheKey) {
-            $this->cache[] = [ $key, $value ];
+            $exists = false;
+            foreach ($this->cache as $id => $pair) {
+                if (is_array($pair) && $pair[0]->equals($key)) {
+                    $exists = true;
+                    $this->cache[$id] = [$key, $value];
+                    break;
+                }
+            }
+
+            if (!$exists) {
+                $this->cache[] = [ $key, $value ];
+            }
         } else {
             $this->cache[$key] = $value;
         }
