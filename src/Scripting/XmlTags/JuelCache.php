@@ -11,8 +11,6 @@ use El\{
     ELResolver,
     ExpressionFactory,
     FunctionMapper,
-    ListELResolver,
-    MapELResolver,
     ValueExpression,
     VariableMapper
 };
@@ -87,8 +85,6 @@ class JuelCache
     {
         $compositeResolver = new CompositeELResolver();
         $compositeResolver->add(new ArrayELResolver());
-        $compositeResolver->add(new ListELResolver());
-        $compositeResolver->add(new MapELResolver());
         $compositeResolver->add(new ObjectELResolver());
         return new SimpleResolver($compositeResolver);
     }

@@ -17,7 +17,7 @@ class GenericTokenParser
 
     public function parse(string $text): string
     {
-        if (empty($text)) {
+        if (empty($text) && $text !== '0') {
             return "";
         }
         // search open token
@@ -36,7 +36,7 @@ class GenericTokenParser
                 $offset = $start + strlen($this->openToken);
             } else {
                 // found open token. let's search close token.
-                if ($expression == null) {
+                if ($expression === null) {
                     $expression = "";
                 } else {
                     $expression = null;

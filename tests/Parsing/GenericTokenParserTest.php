@@ -3,7 +3,10 @@
 namespace Tests\Parsing;
 
 use PHPUnit\Framework\TestCase;
-use MyBatis\Parsing\GenericTokenParser;
+use MyBatis\Parsing\{
+    GenericTokenParser,
+    VariableTokenHandler as DefaultVariableTokenHandler
+};
 
 class GenericTokenParserTest extends TestCase
 {
@@ -49,5 +52,11 @@ class GenericTokenParserTest extends TestCase
         $this->assertEquals('This is a ${skipped} variable', $parser->parse('This is a \\${skipped} variable'));
         $this->assertEquals('null ${skipped} variable', $parser->parse('${skipped} \\${skipped} variable'));
         $this->assertEquals('The null is ${skipped} variable', $parser->parse('The ${skipped} is \\${skipped} variable'));
+    }
+
+    public function testShallNotSkipZeroValue(): void
+    {
+        $parser = new GenericTokenParser('${', '}', new DefaultVariableTokenHandler([]));
+        $this->assertEquals('0', $parser->parse('0'));
     }
 }
