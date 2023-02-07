@@ -183,9 +183,9 @@ class MapperBuilderAssistant extends BaseBuilder
             }
             $resultMap = $this->configuration->getResultMap($extend);
             $extendedResultMappings = $resultMap->getResultMappings();
-            foreach ($resultMappings as $key => $inner) {
-                if (array_key_exists($key, $extendedResultMappings)) {
-                    unset($extendedResultMappings[$key]);
+            foreach ($resultMappings as $inner) {
+                if (($idx = array_search($inner, $extendedResultMappings)) !== false) {
+                    unset($extendedResultMappings[$idx]);
                 }
             }
             //extendedResultMappings.removeAll(resultMappings);
