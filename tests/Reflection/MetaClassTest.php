@@ -110,4 +110,10 @@ class MetaClassTest extends TestCase
         $meta = new MetaClass(RichType::class);
         $this->assertEquals("richField", $meta->findProperty("RICHfield"));
     }
+
+    public function testShouldFindParentProtectedProperties(): void
+    {
+        $meta = new MetaClass(TestClass::class);
+        $this->assertTrue($meta->hasGetter("goo"));
+    }
 }

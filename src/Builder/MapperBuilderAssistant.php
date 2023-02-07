@@ -171,7 +171,7 @@ class MapperBuilderAssistant extends BaseBuilder
         ?string $type,
         ?string $extend,
         ?Discriminator $discriminator,
-        array $resultMappings,
+        array &$resultMappings,
         ?bool $autoMapping
     ): ResultMap {
         $id = $this->applyCurrentNamespace($id, false);
@@ -183,8 +183,8 @@ class MapperBuilderAssistant extends BaseBuilder
             }
             $resultMap = $this->configuration->getResultMap($extend);
             $extendedResultMappings = $resultMap->getResultMappings();
-            foreach ($extendedResultMappings as $key => $outer) {
-                foreach ($resultMappings as $inner) {
+            foreach ($resultMappings as $key => $inner) {
+                if (array_key_exists($key, $extendedResultMappings)) {
                     unset($extendedResultMappings[$key]);
                 }
             }
@@ -349,11 +349,12 @@ class MapperBuilderAssistant extends BaseBuilder
                 }
             }
         } elseif (!empty($resultType)) {
+            $resultMappings = [];
             $inlineResultMap = (new ResultMapBuilder(
                 $this->configuration,
                 $statementId . "-Inline",
                 $resultType,
-                [],
+                $resultMappings,
                 null
             ))->build();
             $resultMaps[] = $inlineResultMap;

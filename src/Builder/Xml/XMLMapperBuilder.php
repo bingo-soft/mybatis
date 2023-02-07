@@ -209,7 +209,7 @@ class XMLMapperBuilder extends BaseBuilder
         }
     }
 
-    private function resultMapElement(XNode $resultMapNode, array $additionalResultMappings = [], string $enclosingType = null): ResultMap
+    private function resultMapElement(XNode $resultMapNode, array &$resultMappings = [], string $enclosingType = null): ResultMap
     {
         $type = $resultMapNode->getStringAttribute(
             "type",
@@ -226,7 +226,6 @@ class XMLMapperBuilder extends BaseBuilder
             $typeClass = $this->inheritEnclosingType($resultMapNode, $enclosingType);
         }
         $discriminator = null;
-        $resultMappings = $additionalResultMappings;
         $resultChildren = $resultMapNode->getChildren();
         foreach ($resultChildren as $resultChild) {
             if ("constructor" == $resultChild->getName()) {
@@ -283,7 +282,7 @@ class XMLMapperBuilder extends BaseBuilder
         }
     }
 
-    private function processDiscriminatorElement(XNode $context, string $resultType, array $resultMappings): Discriminator
+    private function processDiscriminatorElement(XNode $context, string $resultType, array &$resultMappings): Discriminator
     {
         $column = $context->getStringAttribute("column");
         $phpType = $context->getStringAttribute("phpType");
@@ -344,7 +343,8 @@ class XMLMapperBuilder extends BaseBuilder
         $phpType = $context->getStringAttribute("phpType");
         $dbalType = $context->getStringAttribute("dbalType");
         $nestedSelect = $context->getStringAttribute("select");
-        $nestedResultMap = $context->getStringAttribute("resultMap", $this->processNestedResultMappings($context, [], $resultType));
+        $resultMappings = [];
+        $nestedResultMap = $context->getStringAttribute("resultMap", $this->processNestedResultMappings($context, $resultMappings, $resultType));
         $notNullColumn = $context->getStringAttribute("notNullColumn");
         $columnPrefix = $context->getStringAttribute("columnPrefix");
         $typeHandler = $context->getStringAttribute("typeHandler");
@@ -357,7 +357,7 @@ class XMLMapperBuilder extends BaseBuilder
         return $this->builderAssistant->buildResultMapping($resultType, $property, $column, $phpTypeClass, $dbalTypeEnum, $nestedSelect, $nestedResultMap, $notNullColumn, $columnPrefix, $typeHandlerClass, $flags, $resultSet, $foreignColumn, $lazy);
     }
 
-    private function processNestedResultMappings(XNode $context, array $resultMappings, ?string $enclosingType): ?string
+    private function processNestedResultMappings(XNode $context, array &$resultMappings, ?string $enclosingType): ?string
     {
         if (
             in_array($context->getName(), ["association", "collection", "case"])
