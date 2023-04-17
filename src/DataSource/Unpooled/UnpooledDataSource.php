@@ -102,10 +102,15 @@ class UnpooledDataSource implements DataSourceInterface
         if (self::$connection === null) {
             $props = array_merge([
                 'driver' => $this->driver,
-                'url' => $this->url,
                 'user' => $this->username,
                 'password' => $this->password
             ], $this->driverProperties);
+
+            //Doctrine bug. If url=="", it clears dbname
+            if (!empty($this->url)) {
+                $props['url'] = $this->url;
+            }
+
             self::$connection = DriverManager::getConnection($props);
         }
         $this->configureConnection(self::$connection);
