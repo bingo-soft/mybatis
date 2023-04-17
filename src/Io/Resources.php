@@ -9,7 +9,7 @@ class Resources
         return $resource;
     }
 
-    public static function getResourceAsStream(string $resource)
+    public static function getResourceAsStream(string $resource, ?array $dirs = [])
     {
         $resourceStream = null;
         if (file_exists($resource)) {
@@ -20,6 +20,14 @@ class Resources
             $root = array_shift($parts);
             $relativePath = implode(DIRECTORY_SEPARATOR, $parts);
             if (!file_exists($root) && file_exists($root = strtolower($root))) {
+            }
+            if (!empty($dirs)) {
+                foreach ($dirs as $root) {
+                    $newResource = implode(DIRECTORY_SEPARATOR, [$root, $resource]);
+                    if (file_exists($newResource)) {
+                        return fopen($newResource, 'r+');
+                    }
+                }
             }
             $resource = implode(DIRECTORY_SEPARATOR, [$root, 'Resources', $relativePath]);
             if (file_exists($resource)) {
@@ -34,15 +42,15 @@ class Resources
         return self::getResourceAsStream($resource);
     }
 
-    public static function getUrlAsStream(string $urlString)
+    public static function getUrlAsStream(string $urlString, ?array $dirs = [])
     {
-        return self::getResourceAsStream($urlString);
+        return self::getResourceAsStream($urlString, $dirs);
     }
 
-    public static function getResourceAsProperties(string $resource): array
+    public static function getResourceAsProperties(string $resource, ?array $dirs = []): array
     {
         $props = [];
-        $fp = self::getResourceAsStream($resource);
+        $fp = self::getResourceAsStream($resource, $dirs);
         if ($fp !== null) {
             while (($line = fgets($fp, 4096)) !== false) {
                 $tokens = explode("=", $line);
@@ -55,8 +63,8 @@ class Resources
         return $props;
     }
 
-    public static function getUrlAsProperties(string $urlString): array
+    public static function getUrlAsProperties(string $urlString, ?array $dirs = []): array
     {
-        return self::getResourceAsProperties($urlString);
+        return self::getResourceAsProperties($urlString, $dirs);
     }
 }

@@ -36,8 +36,9 @@ class XMLConfigBuilder extends BaseBuilder
     private $parsed = false;
     private $parser;
     private $environment;
+    private $dirs = [];
 
-    public function __construct(/*XPathParser|mixed*/$dataOrParser, ?string $environment = null, ?array $props = [])
+    public function __construct(/*XPathParser|mixed*/$dataOrParser, ?string $environment = null, ?array $props = [], ?array $dirs = [])
     {
         if (!($dataOrParser instanceof XPathParser)) {
             $dataOrParser = new XPathParser($dataOrParser, true, $props, new XMLMapperEntityResolver());
@@ -47,6 +48,7 @@ class XMLConfigBuilder extends BaseBuilder
         $this->parsed = false;
         $this->environment = $environment;
         $this->parser = $dataOrParser;
+        $this->dirs = $dirs;
     }
 
     public function parse(): Configuration
@@ -195,9 +197,9 @@ class XMLConfigBuilder extends BaseBuilder
                 throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
             }
             if ($resource !== null) {
-                $defaults = array_merge($defaults, Resources::getResourceAsProperties($resource));
+                $defaults = array_merge($defaults, Resources::getResourceAsProperties($resource, $this->dirs));
             } elseif ($url !== null) {
-                $defaults = array_merge($defaults, Resources::getUrlAsProperties($url));
+                $defaults = array_merge($defaults, Resources::getUrlAsProperties($url, $this->dirs));
             }
             $vars = $this->configuration->getVariables();
             if (!empty($vars)) {
@@ -351,12 +353,12 @@ class XMLConfigBuilder extends BaseBuilder
                     $url = $child->getStringAttribute("url");
                     $mapperClass = $child->getStringAttribute("class");
                     if ($resource !== null && $url === null && $mapperClass === null) {
-                        $inputStream = Resources::getResourceAsStream($resource);
+                        $inputStream = Resources::getResourceAsStream($resource, $this->dirs);
                         $mapperParser = new XMLMapperBuilder($inputStream, $this->configuration, $resource, $this->configuration->getSqlFragments());
                         $mapperParser->parse();
                         //fclose($inputStream);
                     } elseif ($resource === null && $url !== null && $mapperClass === null) {
-                        $inputStream = Resources::getUrlAsStream($url);
+                        $inputStream = Resources::getUrlAsStream($url, $this->dirs);
                         $mapperParser = new XMLMapperBuilder($inputStream, $this->configuration, $url, $this->configuration->getSqlFragments());
                         $mapperParser->parse();
                         //fclose($inputStream);
