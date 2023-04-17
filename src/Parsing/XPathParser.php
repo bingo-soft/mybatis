@@ -14,31 +14,60 @@ class XPathParser
 
     public function __construct($document, bool $validation = false, ?array $variables = [], ?EntityResolverInterface $entityResolver = null)
     {
-        if ($document instanceof \DOMDocument) {
-            $this->document = $document;
-        } elseif (is_resource($document)) {
-            $meta = stream_get_meta_data($document);
-            $xmlString = fread($document, filesize($meta['uri']));
-            $dom = new \DOMDocument();
-            $dom->loadXML($xmlString);
-            $this->document = $dom;
-            fclose($document);
-        } elseif (is_string($document)) {
-            if (file_exists($document)) {
-                $fh = fopen($document, 'r+');
-                $meta = stream_get_meta_data($fh);
-                $xmlString = fread($fh, filesize($meta['uri']));
+        $type = null;
+        try {
+            if ($document instanceof \DOMDocument) {
+                $type = 'document';
+                $this->document = $document;
+            } elseif (is_resource($document)) {
+                $type = 'resource';
+                $meta = stream_get_meta_data($document);
+                $xmlString = fread($document, filesize($meta['uri']));
                 $dom = new \DOMDocument();
                 $dom->loadXML($xmlString);
                 $this->document = $dom;
-                fclose($fh);
-            } else {
-                $dom = new \DOMDocument();
-                $dom->loadXML($document);
-                $this->document = $dom;
+                fclose($document);
+            } elseif (is_string($document)) {
+                if (file_exists($document)) {
+                    $type = 'path';
+                    $fh = fopen($document, 'r+');
+                    $meta = stream_get_meta_data($fh);
+                    $xmlString = fread($fh, filesize($meta['uri']));
+                    $dom = new \DOMDocument();
+                    $dom->loadXML($xmlString);
+                    $this->document = $dom;
+                    fclose($fh);
+                } else {
+                    $type = 'contents';
+                    $dom = new \DOMDocument();
+                    $dom->loadXML($document);
+                    $this->document = $dom;
+                }
+            }
+            $this->commonConstructor($validation, $variables, $entityResolver);
+        } catch (\Throwable $t) {
+            $messages = [];
+            for ($i = 0; $i < 10; $i += 1) {
+                try {
+                    $trace = $t->getTrace()[$i];
+                    $messages[] = sprintf("%s.%s.%s", $trace['file'], $trace['function'], $trace['line']);
+                } catch (\Exception $e) {
+                    //ignore
+                }
+            }
+            switch ($type) {
+                case 'document':
+                    throw new \Exception(sprintf("Corrupt document provided, stack: %s", implode(" <- ", $messages)));
+                case 'resource':
+                    throw new \Exception(sprintf("Corrupt resource provided, stack: %s", implode(" <- ", $messages)));
+                case 'path':
+                    throw new \Exception(sprintf("Corrupt file '%s' provided, stack: %s", $document, implode(" <- ", $messages)));
+                case 'contents':
+                    throw new \Exception(sprintf("Corrupt contents '%s' provided, stack: %s", $document, implode(" <- ", $messages)));
+                default:
+                    throw new \Exception(sprintf("Unknown error message found: %s, stack: %s", $t->getMessage(), implode(" <- ", $messages)));
             }
         }
-        $this->commonConstructor($validation, $variables, $entityResolver);
     }
 
     public function setVariables(array $variables): void
