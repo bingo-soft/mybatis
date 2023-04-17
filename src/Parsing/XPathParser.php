@@ -47,7 +47,7 @@ class XPathParser
             $this->commonConstructor($validation, $variables, $entityResolver);
         } catch (\Throwable $t) {
             $messages = [];
-            for ($i = 0; $i < 10; $i += 1) {
+            for ($i = 0; $i < 5; $i += 1) {
                 try {
                     $trace = $t->getTrace()[$i];
                     $messages[] = sprintf("%s.%s.%s", $trace['file'], $trace['function'], $trace['line']);
