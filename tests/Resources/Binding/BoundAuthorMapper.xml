@@ -39,9 +39,9 @@
 
   <insert id="insertAuthor" parameterType="Tests\Domain\Blog\Author">
     <selectKey keyProperty="id" resultType="int" order="BEFORE">
-      SELECT floor(random()*(1000000)) + 1 as a
+      SELECT floor(rand()*(1000000)) + 1 as a
     </selectKey>
-    insert into Author (id,username,password,email,bio,favourite_section)
+    insert into author (id,username,password,email,bio,favourite_section)
     values(
     #{id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection:VARCHAR}
     )
@@ -49,9 +49,9 @@
 
   <insert id="insertAuthorInvalidSelectKey">
     <selectKey keyProperty="id" resultType="int" order="BEFORE">
-      SELECT floo(random()*(1000000)) + 1 as a
+      SELECT floor(rand()*(1000000)) + 1 as a
     </selectKey>
-    insert into Author (id,username,password,email,bio,favourite_section)
+    insert into author (id,username,password,email,bio,favourite_section)
     values(
     #{id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection:VARCHAR}
     )
@@ -59,9 +59,9 @@
 
   <insert id="insertAuthorInvalidInsert">
     <selectKey keyProperty="id" resultType="int" order="BEFORE">
-      SELECT floor(random()*(1000000)) + 1 as a
+      SELECT floor(rand()*(1000000)) + 1 as a
     </selectKey>
-    insert into Author (id,username,password,email,bio,favourite_section_xyz)
+    insert into author (id,username,password,email,bio,favourite_section_xyz)
     values(
     #{id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection:VARCHAR}
     )
@@ -69,9 +69,9 @@
 
   <insert id="insertAuthorDynamic" parameterType="Tests\Domain\Blog\Author">
     <selectKey keyProperty="id" resultType="int" order="BEFORE">
-      SELECT floor(random()*(1000000)) + 1 as a
+      SELECT floor(rand()*(1000000)) + 1 as a
     </selectKey>
-    insert into Author (id,username,password,email,bio,favourite_section)
+    insert into author (id,username,password,email,bio,favourite_section)
     values(
     ${id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection:VARCHAR}
     )

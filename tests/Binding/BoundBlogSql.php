@@ -6,6 +6,6 @@ class BoundBlogSql
 {
     public function selectBlogsSql(): string
     {
-        return "SELECT * FROM BLOG";
+        return "SELECT * FROM blog";
     }
 }

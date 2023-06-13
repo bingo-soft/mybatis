@@ -26,7 +26,7 @@ class DynamicSqlSourceTest extends TestCase
 {
     public function testShouldDemonstrateSimpleExpectedTextWithNoLoopsOrConditionals(): void
     {
-        $expected = "SELECT * FROM BLOG";
+        $expected = "SELECT * FROM blog";
         $sqlNode = $this->mixedContents([new TextSqlNode($expected)]);
         $source = $this->createDynamicSqlSource($sqlNode);
         $boundSql = $source->getBoundSql(null);
@@ -35,9 +35,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldDemonstrateMultipartExpectedTextWithNoLoopsOrConditionals(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE ID = ?";
+        $expected = "SELECT * FROM blog WHERE ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new TextSqlNode("WHERE ID = ?")
         );
         $boundSql = $source->getBoundSql(null);
@@ -46,9 +46,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldConditionallyIncludeWhere(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE ID = ?";
+        $expected = "SELECT * FROM blog WHERE ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE ID = ?")]), "true")
         );
         $boundSql = $source->getBoundSql(null);
@@ -57,9 +57,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldConditionallyExcludeWhere(): void
     {
-        $expected = "SELECT * FROM BLOG";
+        $expected = "SELECT * FROM blog";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE ID = ?")]), "false")
         );
         $boundSql = $source->getBoundSql(null);
@@ -68,9 +68,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldConditionallyDefault(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE CATEGORY = 'DEFAULT'";
+        $expected = "SELECT * FROM blog WHERE CATEGORY = 'DEFAULT'";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new ChooseSqlNode([
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = ?")]), "false"),
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = 'NONE'")]), "false")
@@ -82,9 +82,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldConditionallyChooseFirst(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE CATEGORY = ?";
+        $expected = "SELECT * FROM blog WHERE CATEGORY = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new ChooseSqlNode([
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = ?")]), "true"),
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = 'NONE'")]), "false")
@@ -96,9 +96,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldConditionallyChooseSecond(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE CATEGORY = 'NONE'";
+        $expected = "SELECT * FROM blog WHERE CATEGORY = 'NONE'";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new ChooseSqlNode([
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = ?")]), "false"),
               new IfSqlNode($this->mixedContents([new TextSqlNode("WHERE CATEGORY = 'NONE'")]), "true")
@@ -110,9 +110,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREInsteadOfANDForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE  ID = ?";
+        $expected = "SELECT * FROM blog WHERE  ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents([
@@ -127,9 +127,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREANDWithLFForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \n ID = ?";
+        $expected = "SELECT * FROM blog WHERE \n ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -143,9 +143,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREANDWithCRLForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \r\n ID = ?";
+        $expected = "SELECT * FROM blog WHERE \r\n ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -159,9 +159,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREANDWithTABForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \t ID = ?";
+        $expected = "SELECT * FROM blog WHERE \t ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -175,9 +175,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREORWithLFForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \n ID = ?";
+        $expected = "SELECT * FROM blog WHERE \n ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -191,9 +191,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREORWithCRLForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \r\n ID = ?";
+        $expected = "SELECT * FROM blog WHERE \r\n ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -207,9 +207,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREORWithTABForFirstCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE \t ID = ?";
+        $expected = "SELECT * FROM blog WHERE \t ID = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents(
@@ -223,9 +223,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREInsteadOfORForSecondCondition(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE  NAME = ?";
+        $expected = "SELECT * FROM blog WHERE  NAME = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents([
@@ -240,9 +240,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimWHEREInsteadOfANDForBothConditions(): void
     {
-        $expected = "SELECT * FROM BLOG WHERE  ID = ?   OR NAME = ?";
+        $expected = "SELECT * FROM blog WHERE  ID = ?   OR NAME = ?";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents([
@@ -257,9 +257,9 @@ class DynamicSqlSourceTest extends TestCase
 
     public function testShouldTrimNoWhereClause(): void
     {
-        $expected = "SELECT * FROM BLOG";
+        $expected = "SELECT * FROM blog";
         $source = $this->createDynamicSqlSource(
-            new TextSqlNode("SELECT * FROM BLOG"),
+            new TextSqlNode("SELECT * FROM blog"),
             new WhereSqlNode(
                 new Configuration(),
                 $this->mixedContents([

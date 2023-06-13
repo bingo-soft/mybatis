@@ -58,7 +58,7 @@ interface BoundAuthorMapper
         "  PASSWORD as AUTHOR_PASSWORD,",
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO",
-        "FROM AUTHOR WHERE ID = #{id}"
+        "FROM author WHERE ID = #{id}"
     ])]
     public function selectAuthor(int $id): Author;
 
@@ -76,7 +76,7 @@ interface BoundAuthorMapper
         "  PASSWORD as AUTHOR_PASSWORD,",
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorMapToPropertiesUsingRepeatable(int $id): Author;
 
     //======================================================
@@ -97,7 +97,7 @@ interface BoundAuthorMapper
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO,",
             "  FAVOURITE_SECTION as AUTHOR_SECTION",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorConstructor(int $id): Author;
 
     //======================================================
@@ -116,7 +116,7 @@ interface BoundAuthorMapper
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO," ,
         "  FAVOURITE_SECTION as AUTHOR_SECTION",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorMapToConstructorUsingRepeatable(int $id): Author;
 
     //======================================================
@@ -130,7 +130,7 @@ interface BoundAuthorMapper
         "  PASSWORD as AUTHOR_PASSWORD,",
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorUsingSingleRepeatable(int $id): Author;
 
     //======================================================
@@ -151,7 +151,7 @@ interface BoundAuthorMapper
         "  EMAIL as AUTHOR_EMAIL,",
         "  BIO as AUTHOR_BIO," ,
         "  FAVOURITE_SECTION as AUTHOR_SECTION",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorUsingBothArgAndConstructorArgs(int $id): Author;
 
     //======================================================
@@ -164,7 +164,7 @@ interface BoundAuthorMapper
         "SELECT ",
         "  ID as AUTHOR_ID,",
         "  USERNAME as AUTHOR_USERNAME",
-        "FROM AUTHOR WHERE ID = #{id}"])]
+        "FROM author WHERE ID = #{id}"])]
     public function selectAuthorUsingBothResultAndResults(int $id): Author;
 
     //======================================================

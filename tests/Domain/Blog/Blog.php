@@ -28,7 +28,7 @@ class Blog
         $this->title = $title;
     }
 
-    public function getAuthor(): Author
+    public function getAuthor(): ?Author
     {
         return $this->author;
     }

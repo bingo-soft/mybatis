@@ -17,6 +17,7 @@ insert into users (id, name) values
 insert into friend (user_id, friend_id) values
 (1, 2), (2, 2), (2, 3);
 
+drop table if exists post cascade;
 drop table if exists blog cascade;
 drop table if exists author cascade;
 

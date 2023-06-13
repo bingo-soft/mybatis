@@ -8,14 +8,14 @@ use MyBatis\DataSource\Unpooled\UnpooledDataSource;
 abstract class BaseDataTest
 {
     //public const BLOG_PROPERTIES = "tests/Databases/blog/blog-derby.properties";
-    public const BLOG_DDL = "tests/Resources/Databases/Blog/postgres-blog-derby-schema.sql";
-    public const BLOG_DATA = "tests/Resources/Databases/Blog/postgres-blog-derby-dataload.sql";
+    public const BLOG_DDL = "tests/Resources/Databases/Blog/mysql-blog-derby-schema.sql";
+    public const BLOG_DATA = "tests/Resources/Databases/Blog/mysql-blog-derby-dataload.sql";
     private static $dataSource;
 
     public static function createUnpooledDataSource(string $database): UnpooledDataSource
     {
         if (self::$dataSource === null) {
-            self::$dataSource = new UnpooledDataSource("pdo_pgsql", "pgsql:host=localhost;port=5432;dbname=$database;", "postgres", "postgres");
+            self::$dataSource = new UnpooledDataSource("pdo_mysql", "mysql:host=localhost;port=3306;dbname=$database", "root", "");
         }
         return self::$dataSource;
     }

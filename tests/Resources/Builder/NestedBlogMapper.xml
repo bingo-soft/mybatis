@@ -69,12 +69,12 @@
     C.comment as comment_text,
     T.id as tag_id,
     T.name as tag_name
-    from Blog B
-    left outer join Author A on B.author_id = A.id
-    left outer join Post P on B.id = P.blog_id
-    left outer join Comment C on P.id = C.post_id
-    left outer join Post_Tag PT on PT.post_id = P.id
-    left outer join Tag T on PT.tag_id = T.id
+    from blog B
+    left outer join author A on B.author_id = A.id
+    left outer join post P on B.id = P.blog_id
+    left outer join comment C on P.id = C.post_id
+    left outer join post_tag PT on PT.post_id = P.id
+    left outer join tag T on PT.tag_id = T.id
     where B.id = #{id}
   </select>
 

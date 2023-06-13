@@ -25,7 +25,7 @@
     <select id="getUserStatic" resultType="Tests\Submitted\OgnlStatic\User">
         SELECT     *
         FROM     users
-        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
             AND <foreach collection=" [ @\Tests\Submitted\OgnlStatic\StaticClass::VALUE ] " item="enum"
                     open="name IN (" close=") " separator=", ">#{enum}</foreach>
             AND id = #{id}

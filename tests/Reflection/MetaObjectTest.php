@@ -18,7 +18,7 @@ class MetaObjectTest extends TestCase
         $obj = new TestClass();
         $ref = new MetaObject($obj);
         $this->assertSame($obj, $ref->getOriginalObject());
-        $this->assertTrue($ref->getOriginalObject() instanceof \Serializable);
+        $this->assertTrue(method_exists($ref->getOriginalObject(), '__serialize'));
     }
 
     public function testShouldGetAndSetField(): void

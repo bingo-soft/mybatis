@@ -15,6 +15,24 @@ Install MyBatis for PHP, using Composer:
 composer require bingo-soft/mybatis
 ```
 
+# Prerequisites for running tests
+
+At current stage MyBatis is tested against Postgresql and MySQL databases. To run the tests you need to create these databases first:
+
+```
+- aname
+- arrayresulttype
+- automapping
+- blog
+- ibtest
+- includes
+- ognl_enum
+- ognlstatic
+- unmapped  
+```
+
+By default tests are configured to run against MySQL database. So, if you need to test it on Postgresql, please, change all configurations files.
+
 # Running tests
 
 ```

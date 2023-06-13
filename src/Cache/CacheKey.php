@@ -2,7 +2,7 @@
 
 namespace MyBatis\Cache;
 
-class CacheKey implements \Serializable
+class CacheKey
 {
     private const DEFAULT_MULTIPLIER = 37;
     private $multiplier;
@@ -25,21 +25,20 @@ class CacheKey implements \Serializable
         return new NullCacheKey();
     }
 
-    public function serialize()
+    public function __serialize(): array
     {
-        return json_encode([
+        return [
             'count' => $this->count,
             'multiplier' => $this->multiplier,
             'updateList' => $this->updateList
-        ]);
+        ];
     }
 
-    public function unserialize($data)
+    public function __unserialize(array $data): void
     {
-        $json = json_decode($data);
-        $this->count = $json->count;
-        $this->multiplier = $json->multiplier;
-        $this->updateList = $json->updateList;
+        $this->count = $data['count'];
+        $this->multiplier = $data['multiplier'];
+        $this->updateList = $data['updateList'];
     }
 
     public function getUpdateCount(): int

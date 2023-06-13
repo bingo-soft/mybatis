@@ -10,7 +10,7 @@ class RichType
     private $richMap = [];
     private $richList = ["bar"];
 
-    public function getRichType(): RichType
+    public function getRichType(): ?RichType
     {
         return $this->richType;
     }

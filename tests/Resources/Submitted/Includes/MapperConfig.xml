@@ -32,10 +32,10 @@
                 <property name="" value=""/>
             </transactionManager>
             <dataSource type="UNPOOLED">
-                <property name="driver" value="pdo_pgsql"/>
-                <property name="url" value="pgsql:host=localhost;port=5432;dbname=includes;"/>
-                <property name="username" value="postgres"/>
-                <property name="password" value="postgres"/>
+                <property name="driver" value="pdo_mysql"/>
+                <property name="url" value="mysql:host=localhost;port=3306;dbname=includes"/>
+                <property name="username" value="root"/>
+                <property name="password" value=""/>
             </dataSource>
         </environment>
     </environments>

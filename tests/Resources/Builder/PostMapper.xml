@@ -84,7 +84,7 @@
 
   <select id="findPost" resultType="Tests\Domain\Blog\Post">
     SELECT *
-    FROM POST P
+    FROM post P
     <where>
       <choose>
         <when test="id != null">id = #{id}</when>
@@ -107,7 +107,7 @@
 
   <select id="selectPostIn" resultType="Tests\Domain\Blog\Post">
     SELECT *
-    FROM POST P
+    FROM post P
     WHERE ID in
     <foreach item="item" index="index" collection="array"
              open="(" close=")">
@@ -117,7 +117,7 @@
 
   <select id="selectOddPostsIn" resultType="Tests\Domain\Blog\Post">
     SELECT *
-    FROM POST P
+    FROM post P
     WHERE ID in
     <foreach item="item" index="index" collection="array"
              open="(" separator="," close=")">
@@ -130,7 +130,7 @@
 
   <select id="selectOddPostsInKeysList" resultType="Tests\Domain\Blog\Post">
     SELECT *
-    FROM POST P
+    FROM post P
     WHERE ID in
     <foreach item="item" index="index" collection="keys"
              open="(" separator="," close=")">

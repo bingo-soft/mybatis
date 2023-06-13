@@ -17,7 +17,7 @@
 
 <configuration>
 
-  <properties resource="tests/Resources/Databases/Blog/blog.properties"/>
+  <properties resource="tests/Resources/Databases/Blog/blog.mysql.properties"/>
 
   <settings>
     <setting name="cacheEnabled" value="true"/>

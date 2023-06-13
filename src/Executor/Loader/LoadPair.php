@@ -6,7 +6,7 @@ use MyBatis\Executor\ExecutorException;
 use Util\Reflection\MetaObject;
 use MyBatis\Session\Configuration;
 
-class LoadPair implements \Serializable
+class LoadPair
 {
     /**
      * Name of factory method which returns database connection.
@@ -52,11 +52,11 @@ class LoadPair implements \Serializable
         $this->resultLoader = $resultLoader;
 
         /* Save required information only if original object can be serialized. */
-        if ($metaResultObject !== null && $metaResultObject->getOriginalObject() instanceof \Serializable) {
+        if ($metaResultObject !== null && method_exists($metaResultObject->getOriginalObject(), '__serialize')) {
             $mappedStatementParameter = $resultLoader->parameterObject;
 
             /* @todo May the parameter be null? */
-            if ($mappedStatementParameter instanceof \Serializable) {
+            if (method_exists($mappedStatementParameter, '__serialize')) {
                 $this->mappedStatement = $resultLoader->mappedStatement->getId();
                 $this->mappedParameter = $mappedStatementParameter;
                 $this->configurationFactory = $resultLoader->configuration->getConfigurationFactory();
@@ -66,22 +66,21 @@ class LoadPair implements \Serializable
         }
     }
 
-    public function serialize()
+    public function __serialize(): array
     {
         $this->serializationCheck = true;
-        return json_encode([
+        return [
             'property' => $this->property,
             'mappedStatement' => $this->mappedStatement,
             'mappedParameter' => $this->mappedParameter
-        ]);
+        ];
     }
 
-    public function unserialize($data)
+    public function __unserialize(array $data): void
     {
-        $json = json_decode($data);
-        $this->property = $json->property;
-        $this->mappedStatement = $json->mappedStatement;
-        $this->mappedParameter = $json->mappedParameter;
+        $this->property = $data['property'];
+        $this->mappedStatement = $data['mappedStatement'];
+        $this->mappedParameter = $data['mappedParameter'];
     }
 
     public function load($userObject = null): void

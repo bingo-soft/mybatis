@@ -23,7 +23,7 @@
 <mapper namespace="Tests\Binding\BoundBlogMapper">
 
     <select id="selectRandom" resultType="int">
-    SELECT floor(random()*(1000000)) + 1 as a
+    SELECT floor(rand()*(1000000)) + 1 as a
   </select>
 
     <select id="selectBlogsFromXML" resultType="Tests\Domain\Blog\Blog">
@@ -76,7 +76,7 @@
     </resultMap>
 
   <select id="selectBlogWithPostsUsingSubSelect" parameterType="int" resultMap="blogWithPosts">
-    select * from Blog where id = #{id}
+    select * from blog where id = #{id}
   </select>
 
   <select id="selectAuthorWithInlineParams"
@@ -86,11 +86,11 @@
   </select>
 
   <select id="selectPostsForBlog" parameterType="int" resultType="Post">
-    select * from Post where blog_id = #{blog_id}
+    select * from post where blog_id = #{blog_id}
   </select>
 
   <select id="selectBlogByIdUsingConstructor" parameterType="int" resultMap="blogUsingConstructor">
-    select * from Blog where id = #{id}
+    select * from blog where id = #{id}
   </select>
 
     <select id="selectBlogUsingConstructorWithResultMap" parameterType="int"
@@ -102,7 +102,7 @@
         a.email as author_email,
         a.bio as author_bio,
         a.favourite_section
-      from Blog b join Author a
+      from blog b join author a
       on b.author_id = a.id
       where b.id = #{id}
     </select>
@@ -116,7 +116,7 @@
         a.email as author_email,
         a.bio as author_bio,
         a.favourite_section
-      from Blog b join Author a
+      from blog b join author a
       on b.author_id = a.id
       where b.id = #{id}
     </select>
@@ -130,9 +130,9 @@
         a.email as author_email,
         a.bio as author_bio,
         a.favourite_section
-      from Blog b
-          join Author a on b.author_id = a.id
-          join Post p on b.id = p.blog_id
+      from blog b
+          join author a on b.author_id = a.id
+          join post p on b.id = p.blog_id
       where b.id = #{id}
     </select>
 

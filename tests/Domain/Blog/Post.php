@@ -34,7 +34,7 @@ class Post
         $this->blog = $blog;
     }
 
-    public function getAuthor(): Author
+    public function getAuthor(): ?Author
     {
         return $this->author;
     }

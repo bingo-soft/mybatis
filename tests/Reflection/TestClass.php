@@ -2,24 +2,23 @@
 
 namespace Tests\Reflection;
 
-class TestClass extends ParentClass implements \Serializable
+class TestClass extends ParentClass
 {
     public $foo;
     private $boo;
 
-    public function serialize()
+    public function __serialize(): array
     {
-        return json_encode([
+        return [
             'foo' => $this->foo,
             'boo' => $this->boo
-        ]);
+        ];
     }
 
-    public function unserialize($data)
+    public function __unserialize(array $data): void
     {
-        $json = json_decode($data);
-        $this->foo = $json->foo;
-        $this->boo = $json->boo;
+        $this->foo = $data['foo'];
+        $this->boo = $data['boo'];
     }
 
     public function doo(int $goo, string $zoo): int

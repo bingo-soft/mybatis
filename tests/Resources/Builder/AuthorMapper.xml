@@ -113,12 +113,12 @@
     </select>
 
     <insert id="insertAuthor" parameterType="Tests\Domain\Blog\Author">
-        insert into Author (id,username,password,email,bio)
+        insert into author (id,username,password,email,bio)
         values (#{id},#{username},#{password},#{email},#{bio})
     </insert>
 
     <update id="updateAuthor" parameterType="Tests\Domain\Blog\Author">
-        update Author
+        update author
         set username=#{username,
         phpType=String},
         password=#{password},
@@ -128,12 +128,12 @@
     </update>
 
     <delete id="deleteAuthor" parameterType="int">
-        delete from Author where id = #{id}
+        delete from author where id = #{id}
     </delete>
 
 
     <update id="updateAuthorIfNecessary" parameterType="Tests\Domain\Blog\Author">
-        update Author
+        update author
         <set>
             <if test="username != null">username=#{username},</if>
             <if test="password != null">password=#{password},</if>

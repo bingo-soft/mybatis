@@ -22,7 +22,7 @@ class AutoConstructorTest extends TestCase
     {
         // create a SqlSessionFactory
         if (self::$sqlSessionFactory === null) {
-            $reader = Resources::getResourceAsStream("tests/Resources/Autoconstructor/mybatis-config.xml");
+            $reader = Resources::getResourceAsStream("tests/Resources/Autoconstructor/mybatis-mysql-config.xml");
             self::$sqlSessionFactory = (new SqlSessionFactoryBuilder())->build($reader);
         }
 
