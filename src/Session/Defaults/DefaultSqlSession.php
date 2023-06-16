@@ -3,6 +3,7 @@
 namespace MyBatis\Session\Defaults;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\ConnectionLost;
 use MyBatis\Cursor\CursorInterface;
 use MyBatis\Executor\ExecutorInterface;
 use MyBatis\Executor\Result\{
@@ -47,25 +48,56 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function selectList(string $statement, $parameter = null, ?RowBounds $rowBounds = null, ?ResultHandlerInterface $handler = null): array
     {
-        try {
-            $ms = $this->configuration->getMappedStatement($statement);
-            return $this->executor->query($ms, $this->wrapCollection($parameter), $rowBounds, $handler);
-        } catch (\Exception $e) {
-            throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
-        } finally {
+        $attempts = 0;
+        $maxReconnectAttempts = 0;
+        $dataSource = null;
+        $mappedStatement = null;
+        while (true) {
+            try {
+                $mappedStatement = $this->configuration->getMappedStatement($statement);
+                return $this->executor->query($mappedStatement, $this->wrapCollection($parameter), $rowBounds, $handler);
+            } catch (ConnectionLost $e) {
+                if ($dataSource == null) {
+                    $dataSource = $mappedStatement->getConfiguration()->getEnvironment()->getDataSource();
+                    $maxReconnectAttempts = $dataSource->getReconnectAttempts();
+                }
+                if ($maxReconnectAttempts > 0 && $attempts < $maxReconnectAttempts) {
+                    $attempts += 1;
+                    $dataSource->reconnect();
+                } else {
+                    throw new \Exception("Error querying database. Connection lost, number of attempts $attempts. Cause: " . $e->getMessage());
+                }
+            } catch (\Throwable $e) {
+                throw new \Exception("Error querying database. Cause: " . $e->getMessage());
+            }
         }
     }
 
     public function selectCursor(string $statement, $parameter = null, ?RowBounds $rowBounds = null): CursorInterface
     {
-        try {
-            $ms = $this->configuration->getMappedStatement($statement);
-            $cursor = $this->executor->queryCursor($ms, $this->wrapCollection($parameter), $rowBounds);
-            //registerCursor(cursor);
-            return $cursor;
-        } catch (\Exception $e) {
-            throw new \Exception("Error querying database.  Cause: " . $e->getMessage());
-        } finally {
+        $attempts = 0;
+        $maxReconnectAttempts = 0;
+        $dataSource = null;
+        $mappedStatement = null;
+        while (true) {
+            try {
+                $mappedStatement = $this->configuration->getMappedStatement($statement);
+                $cursor = $this->executor->queryCursor($mappedStatement, $this->wrapCollection($parameter), $rowBounds);
+                return $cursor;
+            } catch (ConnectionLost $e) {
+                if ($dataSource == null) {
+                    $dataSource = $mappedStatement->getConfiguration()->getEnvironment()->getDataSource();
+                    $maxReconnectAttempts = $dataSource->getReconnectAttempts();
+                }
+                if ($maxReconnectAttempts > 0 && $attempts < $maxReconnectAttempts) {
+                    $attempts += 1;
+                    $dataSource->reconnect();
+                } else {
+                    throw new \Exception("Error querying database. Connection lost, number of attempts $attempts. Cause: " . $e->getMessage());
+                }
+            } catch (\Throwable $e) {
+                throw new \Exception("Error querying database. Cause: " . $e->getMessage());
+            }
         }
     }
 
@@ -94,13 +126,29 @@ class DefaultSqlSession implements SqlSessionInterface
 
     public function update(string $statement, $parameter = null)
     {
-        try {
-            $this->dirty = true;
-            $ms = $this->configuration->getMappedStatement($statement);
-            return $this->executor->update($ms, $this->wrapCollection($parameter));
-        } catch (\Exception $e) {
-            throw new \Exception("Error updating database.  Cause: " . $e->getMessage());
-        } finally {
+        $attempts = 0;
+        $maxReconnectAttempts = 0;
+        $dataSource = null;
+        $mappedStatement = null;
+        while (true) {
+            try {
+                $this->dirty = true;
+                $mappedStatement = $this->configuration->getMappedStatement($statement);
+                return $this->executor->update($mappedStatement, $this->wrapCollection($parameter));
+            } catch (ConnectionLost $e) {
+                if ($dataSource == null) {
+                    $dataSource = $mappedStatement->getConfiguration()->getEnvironment()->getDataSource();
+                    $maxReconnectAttempts = $dataSource->getReconnectAttempts();
+                }
+                if ($maxReconnectAttempts > 0 && $attempts < $maxReconnectAttempts) {
+                    $attempts += 1;
+                    $dataSource->reconnect();
+                } else {
+                    throw new \Exception("Error updating database. Connection lost, number of attempts $attempts. Cause: " . $e->getMessage());
+                }
+            } catch (\Throwable $e) {
+                throw new \Exception("Error updating database. Cause: " . $e->getMessage());
+            }
         }
     }
 

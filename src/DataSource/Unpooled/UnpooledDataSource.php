@@ -18,6 +18,11 @@ class UnpooledDataSource implements DataSourceInterface
     private $autoCommit = false;
     private $defaultTransactionIsolationLevel;
     private static $connection;
+    private int $reconnectAttempts = 0;
+    private int $reconnectDelay = 0;
+    public const DRIVER_OPTIONS = 'driverOptions';
+    public const RECONNECT_ATTEMPTS_OPTION = 'RECONNECT_ATTEMPTS';
+    public const RECONNECT_DELAY_OPTION = 'RECONNECT_DELAY';
 
     public function __construct(string $driver = null, string $url = null, string $username = null, string $password = null)
     {
@@ -35,6 +40,17 @@ class UnpooledDataSource implements DataSourceInterface
     public function setDriverProperties(array $driverProperties): void
     {
         $this->driverProperties = $driverProperties;
+        if (array_key_exists(self::DRIVER_OPTIONS, $driverProperties)) {
+            if (array_key_exists(self::RECONNECT_ATTEMPTS_OPTION, $driverProperties[self::DRIVER_OPTIONS])) {
+                $this->reconnectAttempts = intval($driverProperties[self::DRIVER_OPTIONS][self::RECONNECT_ATTEMPTS_OPTION]);
+                unset($driverProperties[self::DRIVER_OPTIONS][self::RECONNECT_ATTEMPTS_OPTION]);
+            }
+
+            if (array_key_exists(self::RECONNECT_DELAY_OPTION, $driverProperties[self::DRIVER_OPTIONS])) {
+                $this->reconnectDelay = intval($driverProperties[self::DRIVER_OPTIONS][self::RECONNECT_DELAY_OPTION]);
+                unset($driverProperties[self::DRIVER_OPTIONS][self::RECONNECT_DELAY_OPTION]);
+            }
+        }
     }
 
     public function getDriver(): ?string
@@ -125,5 +141,19 @@ class UnpooledDataSource implements DataSourceInterface
         if ($this->defaultTransactionIsolationLevel !== null) {
             $conn->setTransactionIsolation($this->defaultTransactionIsolationLevel);
         }
+    }
+
+    public function getReconnectAttempts(): int
+    {
+        return $this->reconnectAttempts;
+    }
+
+    public function reconnect(): void
+    {
+        self::$connection = null;
+        if ($this->reconnectDelay > 0) {
+            sleep($this->reconnectDelay);
+        }
+        $this->getConnection();
     }
 }
