@@ -162,8 +162,7 @@ class XNode
         if ($value !== null) {
             return $value;
         }
-        if (class_exists($defSupplier)) {
-            //return (new $defSupplier())->get();
+        if ($defSupplier !== null && class_exists($defSupplier)) {
             return $defSupplier;
         }
         return $defSupplier;
