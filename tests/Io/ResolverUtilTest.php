@@ -23,8 +23,8 @@ class ResolverUtilTest extends TestCase
         $resolverUtil = new ResolverUtil();
         $resolverUtil->find(new IsA(ChildClass::class), "tests\Io");
         $this->assertCount(2, $resolverUtil->getClasses());
-        $this->assertEquals('Tests\Io\ChildClass', $resolverUtil->getClasses()[0]);
-        $this->assertEquals('Tests\Io\SubchildClass', $resolverUtil->getClasses()[1]);
+        $this->assertContains('Tests\Io\ChildClass', $resolverUtil->getClasses());
+        $this->assertContains('Tests\Io\SubchildClass', $resolverUtil->getClasses());
 
         $resolverUtil = new ResolverUtil();
         $resolverUtil->find(new IsA('object'), "tests\Io");

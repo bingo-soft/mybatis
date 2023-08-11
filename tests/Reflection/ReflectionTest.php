@@ -52,10 +52,12 @@ class ReflectionTest extends TestCase
         $prop = "hello.world.boo";
         $tokenizer = new PropertyTokenizer($prop);
         $this->assertEquals("hello", $tokenizer->getName());
-        $tokenizer = $tokenizer->next();
+        $tokenizer->next();
+        $tokenizer = $tokenizer->current();
         $this->assertEquals("world", $tokenizer->getName());
         $this->assertTrue($tokenizer->valid());
-        $tokenizer = $tokenizer->next();
+        $tokenizer->next();
+        $tokenizer = $tokenizer->current();
         $this->assertEquals("boo", $tokenizer->getName());
         $this->assertFalse($tokenizer->valid());
     }

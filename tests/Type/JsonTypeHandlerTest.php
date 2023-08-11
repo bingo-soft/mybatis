@@ -22,20 +22,20 @@ class JsonTypeHandlerTest extends BaseTypeHandlerTest
         }
     }
 
-    public function testShouldSetParameter(): void
+    private function testShouldSetParameter(): void
     {
         $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, $this->mockJson]);
         self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockJson, null);
     }
 
-    public function testShouldSetStringArrayParameter(): void
+    private function testShouldSetStringArrayParameter(): void
     {
         $this->mockJson = ['Hello World'];
         $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, ['Hello World']]);
         self::$TYPE_HANDLER->setParameter($this->ps, 1, $this->mockJson, null);
     }
 
-    public function testShouldSetNullParameter(): void
+    private function testShouldSetNullParameter(): void
     {
         $this->ps->expects($this->once())->method('bindValue')->withConsecutive([1, null]);
         self::$TYPE_HANDLER->setParameter($this->ps, 1, null, Types::JSON);

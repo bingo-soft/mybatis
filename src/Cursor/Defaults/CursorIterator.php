@@ -5,7 +5,7 @@ namespace MyBatis\Cursor\Defaults;
 use MyBatis\Cursor\CursorInterface;
 use MyBatis\Session\ResultHandlerInterface;
 
-class CursorIterator extends \ArrayIterator
+class CursorIterator
 {
     private $scope;
 
@@ -40,7 +40,6 @@ class CursorIterator extends \ArrayIterator
         return $this->valid();
     }
 
-    //@INVALID
     public function current()
     {
         return $this->object;
