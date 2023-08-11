@@ -446,7 +446,7 @@ class MapperBuilderAssistant extends BaseBuilder
     private function resolveResultPhpType(?string $resultType, ?string $property, ?string $phpType): string
     {
         if ($phpType === null && $property !== null) {
-            if (class_exists($resultType)) {
+            if ($resultType !== null && class_exists($resultType)) {
                 $metaResultType = new MetaClass($resultType, $this->configuration->getReflectorFactory());
                 $phpType = $metaResultType->getSetterType($property);
             }
