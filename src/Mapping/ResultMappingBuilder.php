@@ -13,7 +13,7 @@ class ResultMappingBuilder
 {
     private $resultMapping;
 
-    public function __construct(Configuration $configuration, ?string $property, ?string $column = null, /*TypeHandlerInterface|string*/$handlerOrType)
+    public function __construct(Configuration $configuration, ?string $property, ?string $column = null, /*TypeHandlerInterface|string*/$handlerOrType = null)
     {
         $this->resultMapping = new ResultMapping();
         $this->resultMapping->configuration = $configuration;
