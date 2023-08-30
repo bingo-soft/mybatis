@@ -6,6 +6,7 @@ use Doctrine\DBAL\{
     DriverManager,
     Connection
 };
+use Doctrine\DBAL\Exception\DriverException;
 use MyBatis\DataSource\DataSourceInterface;
 
 class UnpooledDataSource implements DataSourceInterface
@@ -129,7 +130,11 @@ class UnpooledDataSource implements DataSourceInterface
 
             self::$connection = DriverManager::getConnection($props);
         }
-        $this->configureConnection(self::$connection);
+        try {
+            $this->configureConnection(self::$connection);
+        } catch (DriverException $e) {
+            $this->reconnect();
+        }
         return self::$connection;
     }
 
