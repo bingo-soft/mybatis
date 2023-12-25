@@ -72,7 +72,7 @@ abstract class BaseStatementHandler implements StatementHandlerInterface
             //$this->setStatementTimeout($statement, $transactionTimeout);
             //$this->setFetchSize($statement);
             return $statement;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->closeStatement($statement);
             throw new ExecutorException("Error preparing statement.  Cause: " . $e->getMessage());
         }
@@ -90,7 +90,7 @@ abstract class BaseStatementHandler implements StatementHandlerInterface
                     $wrappedStatement->closeCursor();
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //ignore
         }
     }

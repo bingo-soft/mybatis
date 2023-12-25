@@ -45,7 +45,7 @@ abstract class BaseTypeHandler implements TypeHandlerInterface
                     return $set[strtoupper($column)];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new ResultMapException("Error attempting to get column $column from result set. Cause: " . $e->getMessage());
         }
     }

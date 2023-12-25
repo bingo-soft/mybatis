@@ -61,7 +61,7 @@ abstract class BaseBuilder
         }
         try {
             return DbalType::forCode($alias);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error resolving DbalType. Cause: " . $e->getMessage());
         }
     }
@@ -74,7 +74,7 @@ abstract class BaseBuilder
         try {
             //@CHECK IT!
             return ResultSetType::valueOf($alias);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error resolving ResultSetType. Cause: " . $e->getMessage());
         }
     }
@@ -92,7 +92,7 @@ abstract class BaseBuilder
         }
         try {
             return new $clazz();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error creating instance. Cause: " . $e->getMessage());
         }
     }
@@ -104,7 +104,7 @@ abstract class BaseBuilder
         }
         try {
             return $this->resolveAlias($alias);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error resolving class. Cause: " . $e->getMessage());
         }
     }

@@ -127,7 +127,7 @@ class TransactionalCache implements CacheInterface
         foreach ($this->entriesMissedInCache as $key) {
             try {
                 $this->delegate->removeObject($key);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 //log.warn("Unexpected exception while notifying a rollback to the cache adapter. "
                 //    + "Consider upgrading your cache adapter to the latest version. Cause: " + e);
             }

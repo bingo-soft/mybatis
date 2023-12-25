@@ -162,7 +162,7 @@ class DefaultSqlSession implements SqlSessionInterface
         try {
             $this->executor->commit($this->isCommitOrRollbackRequired($force));
             $dirty = false;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error committing transaction.  Cause: " . $e->getMessage());
         } finally {
         }
@@ -173,7 +173,7 @@ class DefaultSqlSession implements SqlSessionInterface
         try {
             $this->executor->rollback($this->isCommitOrRollbackRequired($force));
             $this->dirty = false;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error rolling back transaction.  Cause: " . $e->getMessage());
         } finally {
         }
@@ -183,7 +183,7 @@ class DefaultSqlSession implements SqlSessionInterface
     {
         try {
             return $this->executor->flushStatements();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error flushing statements.  Cause: " . $e->getMessage());
         } finally {
         }
@@ -205,7 +205,7 @@ class DefaultSqlSession implements SqlSessionInterface
             foreach ($this->cursorList as $cursor) {
                 try {
                     $cursor->close();
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     throw  new \Exception("Error closing cursor.  Cause: " . $e->getMessage());
                 }
             }
@@ -227,7 +227,7 @@ class DefaultSqlSession implements SqlSessionInterface
     {
         try {
             return $this->executor->getTransaction()->getConnection();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error getting a new connection.  Cause: " . $e->getMessage());
         }
     }

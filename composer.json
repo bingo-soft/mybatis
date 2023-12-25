@@ -19,7 +19,7 @@
         "php": "^8.1",
         "bingo-soft/sax": "*",
         "bingo-soft/heap": "*",
-        "doctrine/dbal": "^3.5",
+        "doctrine/dbal": "^3.7",
         "bingo-soft/juel": "*",
         "bingo-soft/util": "*"     
     },

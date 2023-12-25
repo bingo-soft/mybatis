@@ -80,7 +80,7 @@ class XMLConfigBuilder extends BaseBuilder
             $this->databaseIdProviderElement($root->evalNode("databaseIdProvider"));
             $this->typeHandlerElement($root->evalNode("typeHandlers"));
             $this->mapperElement($root->evalNode("mappers"));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " . $e->getMessage());
         }
     }
@@ -136,7 +136,7 @@ class XMLConfigBuilder extends BaseBuilder
                         } else {
                             $this->typeAliasRegistry->registerAlias($alias, $type);
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new BuilderException("Error registering typeAlias for '" . $alias . "'. Cause: " . $e->getMessage());
                     }
                 }

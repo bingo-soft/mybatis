@@ -40,7 +40,7 @@ abstract class BaseDataTest
             $ds->setAutoCommit(true);
             self::runScript($ds, self::BLOG_DDL);
             self::runScript($ds, self::BLOG_DATA);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //ignore
         } finally {
             $ds->setAutoCommit($isAutoCommit);

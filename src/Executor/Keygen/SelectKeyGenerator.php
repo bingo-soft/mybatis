@@ -81,7 +81,7 @@ class SelectKeyGenerator implements KeyGeneratorInterface
             }
         } catch (ExecutorException $e) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new ExecutorException("Error selecting key or setting result to parameter object. Cause: " . $e->getMessage());
         }
     }

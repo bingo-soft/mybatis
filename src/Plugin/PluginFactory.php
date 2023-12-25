@@ -43,7 +43,7 @@ class PluginFactory
             try {
                 $method = (new MetaClass($sig->type()))->getMethod($sig->method());
                 $methods[] = $method;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new \Exception("Could not find method on " . $sig->type() . " named " . $sig->method() . ". Cause: " . $e->getMessage());
             }
         }

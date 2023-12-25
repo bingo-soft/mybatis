@@ -84,7 +84,7 @@ class TypeAliasRegistry
                 $value = class_exists($string) ? $string : null;
             }
             return $value;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new TypeException("Could not resolve type alias '" . $string . "'.  Cause: " . $e->getMessage());
         }
     }

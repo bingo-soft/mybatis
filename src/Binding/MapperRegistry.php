@@ -33,7 +33,7 @@ class MapperRegistry
         }
         try {
             return $mapperProxyFactory->newInstance($sqlSession);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BindingException("Error getting mapper instance. Cause: " . $e->getMessage());
         }
     }
@@ -49,7 +49,7 @@ class MapperRegistry
         if (!class_exists($type)) {
             try {
                 $refType = new \ReflectionClass($type);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 //ignore
                 $refType = null;
             }

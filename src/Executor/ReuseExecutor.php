@@ -86,7 +86,7 @@ class ReuseExecutor extends BaseExecutor
                 $statement = $this->statementMap[$s];
             }
             return $statement !== null/* && !statement.getConnection().isClosed()*/;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

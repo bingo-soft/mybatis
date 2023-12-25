@@ -86,7 +86,7 @@ class XMLMapperBuilder extends BaseBuilder
             $this->resultMapElements($context->evalNodes("/mapper/resultMap"));
             $this->sqlElement($context->evalNodes("/mapper/sql"));
             $this->buildStatementFromContext($context->evalNodes("select|insert|update|delete"));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error parsing Mapper XML. The XML location is '" . $this->resource . "'. Cause: " . $e->getMessage());
         }
     }
@@ -393,7 +393,7 @@ class XMLMapperBuilder extends BaseBuilder
             $boundType = null;
             try {
                 $boundType = $namespace;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // ignore, bound type is not required
             }
             if ($boundType !== null && !$this->configuration->hasMapper($boundType)) {

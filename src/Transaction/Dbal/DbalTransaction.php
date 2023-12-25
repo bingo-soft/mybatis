@@ -45,7 +45,7 @@ class DbalTransaction implements TransactionInterface
         if ($this->connection !== null && !$this->connection->isAutoCommit()) {
             try {
                 $this->connection->commit();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 //ignore error when there is no active transaction
             }
         }
@@ -72,7 +72,7 @@ class DbalTransaction implements TransactionInterface
             if ($this->connection->isAutoCommit() !== $desiredAutoCommit) {
                 $this->connection->setAutoCommit($desiredAutoCommit);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Only a very poorly implemented driver would fail here,
             // and there's not much we can do about that.
             throw new TransactionException(
@@ -94,7 +94,7 @@ class DbalTransaction implements TransactionInterface
                 // Sybase throws an exception here.
                 $this->connection->setAutoCommit(true);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //
         }
     }

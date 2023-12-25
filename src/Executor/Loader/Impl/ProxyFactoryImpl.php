@@ -32,7 +32,7 @@ class ProxyFactoryImpl implements ProxyFactoryInterface
         $enhanced = null;
         try {
             $enhanced = $enhancer->create($constructorArgs);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new ExecutorException("Error creating lazy proxy.  Cause: " . $e->getMessage());
         }
         $enhanced->setHandler($callback);

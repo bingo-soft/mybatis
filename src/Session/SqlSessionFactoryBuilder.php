@@ -27,14 +27,14 @@ class SqlSessionFactoryBuilder
         //try {
             $parser = new XMLConfigBuilder($readerOrConfig, $environment, $properties);
             return $this->build($parser->parse());
-        /*} catch (\Exception $e) {
+        /*} catch (\Throwable $e) {
             throw ExceptionFactory::wrapException("Error building SqlSession.", $e);
         } finally {
             try {
                 if ($readerOrConfig !== null && is_resource($readerOrConfig)) {
                     $readerOrConfig->close();
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Intentionally ignore. Prefer previous error.
             }
         }*/

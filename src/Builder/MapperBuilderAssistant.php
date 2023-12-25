@@ -105,7 +105,7 @@ class MapperBuilderAssistant extends BaseBuilder
             $this->currentCache = $cache;
             $this->unresolvedCacheRef = false;
             return $cache;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new IncompleteElementException("No cache for namespace '" . $namespace . "' could be found.");
         }
     }
@@ -317,7 +317,7 @@ class MapperBuilderAssistant extends BaseBuilder
         if (!empty($parameterMapName)) {
             try {
                 $parameterMap = $this->configuration->getParameterMap($parameterMapName);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new IncompleteElementException("Could not find parameter map " . $parameterMapName);
             }
         } elseif ($parameterTypeClass !== null) {
@@ -344,7 +344,7 @@ class MapperBuilderAssistant extends BaseBuilder
             foreach ($resultMapNames as $resultMapName) {
                 try {
                     $resultMaps[] = $this->configuration->getResultMap(trim($resultMapName));
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     throw new IncompleteElementException("Could not find result map '" . $resultMapName . "' referenced from '" . $statementId . "'");
                 }
             }

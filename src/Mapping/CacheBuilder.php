@@ -122,7 +122,7 @@ class CacheBuilder
                 $cache = new SerializedCache($cache);
             }
             return $cache;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new CacheException("Error building standard cache decorators.  Cause: " . $e->getMessage());
         }
     }
@@ -151,7 +151,7 @@ class CacheBuilder
         if (is_a(get_class($cache), InitializingObjectInterface::class, true)) {
             try {
                 $cache->initialize();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new CacheException("Failed cache initialization for '" . $cache->getId() . "' on '" . get_class($cache) . "'");
             }
         }
@@ -161,7 +161,7 @@ class CacheBuilder
     {
         try {
             return new $cacheClass($id);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new CacheException("Could not instantiate cache implementation (" . $cacheClass . "). Cause: " . $e->getMessage());
         }
     }
@@ -170,7 +170,7 @@ class CacheBuilder
     {
         try {
             return new $cacheClass($base);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new CacheException("Could not instantiate cache decorator (" . $cacheClass . "). Cause: " . $e->getMessage());
         }
     }

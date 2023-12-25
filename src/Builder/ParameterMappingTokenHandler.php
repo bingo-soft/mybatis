@@ -98,7 +98,7 @@ class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandlerIn
             return new ParameterExpression($content);
         } catch (BuilderException $ex) {
             throw $ex;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             throw new BuilderException("Parsing error was found in mapping #{" . $content . "}.  Check syntax #{property|(expression), var1=value1, var2=value2, ...} ");
         }
     }

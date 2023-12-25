@@ -86,7 +86,7 @@ class XMLIncludeTransformer
                 return $nodeToInclude->getNode()->cloneNode(true);
             }
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new IncompleteElementException("Could not find SQL statement to include with refid '" . $refid . "'");
         }
     }

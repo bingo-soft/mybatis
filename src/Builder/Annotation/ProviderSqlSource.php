@@ -56,7 +56,7 @@ class ProviderSqlSource implements SqlSourceInterface
             }
         } catch (BuilderException $e) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error creating SqlSource for SqlProvider.  Cause: " . $e->getMessage());
         }
         if ($candidateProviderMethod === null) {
@@ -116,7 +116,7 @@ class ProviderSqlSource implements SqlSourceInterface
             return $this->languageDriver->createSqlSource($this->configuration, $sql, $parameterType);
         } catch (BuilderException $e) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new BuilderException("Error invoking SqlProvider method. Cause: " . $e->getMessage());
         }
     }

@@ -134,7 +134,7 @@ class XPathParser
     {
         try {
             return $this->xpath->evaluate($expression, $root/*, returnType*/);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error evaluating XPath.  Cause: " . $e->getMessage());
         }
     }

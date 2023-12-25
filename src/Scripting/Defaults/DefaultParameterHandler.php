@@ -68,7 +68,7 @@ class DefaultParameterHandler implements ParameterHandlerInterface
                     }
                     try {
                         $typeHandler->setParameter($ps, $i + 1, $value, $dbalType);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new TypeException("Could not set parameters for mapping. Cause: " . $e->getMessage());
                     }
                 }

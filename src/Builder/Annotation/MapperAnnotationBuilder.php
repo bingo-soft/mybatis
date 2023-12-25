@@ -139,7 +139,7 @@ class MapperAnnotationBuilder
             $inputStream = null;
             try {
                 $inputStream = Resources::getResourceAsStream($xmlResource);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // ignore, resource is not required
                 $inputStream = null;
             }

@@ -153,7 +153,7 @@ class LoadPair
                 $factoryMethod->setAccessible(true);
             }
             $configurationObject = $factoryMethod->invoke($this->configurationFactory, null);
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             throw new ExecutorException(
                 "Cannot get Configuration as factory method ["
                 . $this->configurationFactory . "]#["

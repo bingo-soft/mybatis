@@ -77,7 +77,7 @@ class DefaultCursor implements CursorInterface
             if ($rs !== null) {
                 $rs->free();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // ignore
         } finally {
             $this->status = CursorStatus::CLOSED;

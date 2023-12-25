@@ -36,7 +36,7 @@ class XMLMapperEntityResolver implements EntityResolverInterface
                 }
             }
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw $e;
         }
     }
@@ -47,7 +47,7 @@ class XMLMapperEntityResolver implements EntityResolverInterface
         if ($path !== null) {
             try {
                 $source = Resources::getResourceAsStream($path);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // ignore, null is ok
             }
         }

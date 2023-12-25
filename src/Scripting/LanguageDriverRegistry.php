@@ -19,7 +19,7 @@ class LanguageDriverRegistry
             MapUtil::computeIfAbsent($this->languageDriverMap, $cls, function () use ($cls) {
                 try {
                     return new $cls();
-                } catch (\Exception $ex) {
+                } catch (\Throwable $ex) {
                     throw new ScriptingException("Failed to load language driver for $cls");
                 }
             });

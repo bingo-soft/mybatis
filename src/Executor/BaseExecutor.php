@@ -69,7 +69,7 @@ abstract class BaseExecutor implements ExecutorInterface
                     $this->transaction->close();
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Ignore. There's nothing that can be done at this point.
             //log.warn("Unexpected exception on closing transaction.  Cause: " + e);
         } finally {
@@ -259,7 +259,7 @@ abstract class BaseExecutor implements ExecutorInterface
                 if (method_exists($wrappedStatement, 'closeCursor')) {
                     $wrappedStatement->closeCursor();
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // ignore
             }
         }

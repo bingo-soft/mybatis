@@ -880,7 +880,7 @@ class Configuration
                     $resolver->resolve();
                     unset($this->incompleteResultMaps[$key]);
                     $resolved = true;
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $ex = $e;
                 }
             }

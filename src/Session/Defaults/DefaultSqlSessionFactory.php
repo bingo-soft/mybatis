@@ -54,7 +54,7 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
             $autoCommit = false;
             try {
                 $autoCommit = $connection->isAutoCommit();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Failover to true, as most poor drivers
                 // or databases won't support transactions
                 $autoCommit = false;
@@ -64,7 +64,7 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
             $tx = $transactionFactory->newTransaction($connection);
             $executor = $this->configuration->newExecutor($tx, $execType);
             return new DefaultSqlSession($this->configuration, $executor, $autoCommit);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception("Error opening session.  Cause: " . $e->getMessage());
         } finally {
         }
@@ -83,7 +83,7 @@ class DefaultSqlSessionFactory implements SqlSessionFactoryInterface
         if ($tx !== null) {
             try {
                 $tx->close();
-            } catch (\Exception $ignore) {
+            } catch (\Throwable $ignore) {
                 // Intentionally ignore. Prefer previous error.
             }
         }

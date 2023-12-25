@@ -54,7 +54,7 @@ class KeyAssigner
                     $prop->setValue($param, $value);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new ExecutorException("Error getting generated key or setting result to parameter object. Cause: " . $e->getMessage());
         }
     }

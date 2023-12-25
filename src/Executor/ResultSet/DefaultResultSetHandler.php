@@ -189,7 +189,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             if ($rs !== null) {
                 $rs->free();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // ignore
         }
     }
@@ -653,7 +653,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             } elseif (!$ref->isInterface()) {
                 $hasDefaultCtor = true;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //ignore
         }
         self::$defaultConstructorCheck[$clazz] = $hasDefaultCtor;
@@ -677,7 +677,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $typeHandler = $constructorMapping->getTypeHandler();
                     $value = $typeHandler->getResult($rowData, $this->prependPrefix($column, $columnPrefix));
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new ExecutorException("Could not process result for mapping: " . $e->getMessage());
             }
             $constructorArgs[] = $value;
@@ -1042,7 +1042,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                             $foundValues = true;
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     throw new ExecutorException("Error getting nested result map values for '" . $resultMapping->getProperty() . "'.  Cause: " . $e->getMessage());
                 }
             }
@@ -1130,7 +1130,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
             $combinedKey = null;
             try {
                 $combinedKey = clone($rowKey);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new ExecutorException("Error cloning cache key.  Cause: " . $e->getMessage());
             }
             $combinedKey->update($parentRowKey);
@@ -1239,7 +1239,7 @@ class DefaultResultSetHandler implements ResultSetHandlerInterface
                     $metaObject->setValue($propertyName, $propertyValue);
                     return $propertyValue;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new ExecutorException("Error instantiating collection property for result '" . $resultMapping->getProperty() . "'.  Cause: " . $e->getMessage());
             }
         } elseif (is_array($propertyValue) || $propertyValue instanceof \ArrayObject) {
